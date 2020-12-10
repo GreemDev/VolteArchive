@@ -1,4 +1,4 @@
-package volte.commands.operator
+package volte.commands.cmds.operator
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
@@ -39,7 +39,7 @@ class OperatorCommand : Command() {
         val statement = db.currentConnection().prepareStatement("UPDATE guilds SET operator = ? WHERE id = ${event.guild.id}")
         statement.setString(1, event.args)
         statement.executeUpdate()
-        db.currentConnection().close()
+        db.closeConnection()
 
 
         event.reply(event.createEmbed("Successfully set the Operator role to ${role.asMention}"))

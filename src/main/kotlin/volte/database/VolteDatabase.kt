@@ -18,6 +18,7 @@ class VolteDatabase private constructor(connection: Connection? = null) {
 
     fun createNewConnection(): Connection = DriverManager.getConnection("jdbc:sqlite:data/volte.db")
     fun currentConnection(): Connection = conn
+    fun closeConnection() = currentConnection().close()
 
     fun getStringFor(guildId: String, columnName: String): String {
         val rs = getRecordsFor(guildId)

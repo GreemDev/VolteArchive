@@ -18,9 +18,12 @@ class WelcomeModule : ListenerAdapter() {
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         val db = VolteDatabase.createNew()
         val settings = db.getWelcomeSettingsFor(event.guild.id)
+        if (settings.getString("dm").isNotEmpty()) {
+            joinGuildDm(event, settings)
+        }
         if (settings.getString("channel").isEmpty()) return
-        val channel = event.guild.getTextChannelById(settings.getString("channel"))
-        if (settings.getString("joinMessage").isEmpty() || channel == null) return
+        val channel = event.guild.getTextChannelById(settings.getString("channel")) ?: return
+        if (settings.getString("joinMessage").isEmpty()) return
 
         val embed = EmbedBuilder()
             .setColor(parseColor(settings.getString("color")))
@@ -29,6 +32,8 @@ class WelcomeModule : ListenerAdapter() {
             .setTimestamp(Instant.now())
 
         channel.sendMessage(embed.build()).queue()
+
+        db.closeConnection()
 
     }
 
@@ -46,6 +51,8 @@ class WelcomeModule : ListenerAdapter() {
             .setTimestamp(Instant.now())
 
         channel.sendMessage(embed.build()).queue()
+
+        db.closeConnection()
 
     }
 

@@ -1,4 +1,4 @@
-package volte.commands.owner
+package volte.commands.cmds.owner
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
@@ -26,15 +26,15 @@ class EvalCommand(private val volte: Volte) : Command() {
             code = matcher.group(1)
         }
 
-        val conn = VolteDatabase.createNew()
+        val db = VolteDatabase.createNew()
 
-        val se = ScriptEngineManager().getEngineByName("nashorn").apply {
+        /*val se = ScriptEngineManager().getEngineByName("nashorn").apply {
             put("event", event)
             put("config", volte.config())
             put("commands", volte.commands())
             put("runtime", Runtime.getRuntime())
-            put("db", conn)
-        }
+            put("db", db)
+        }*/
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
         event.reply(builder.build()) {
@@ -43,7 +43,7 @@ class EvalCommand(private val volte: Volte) : Command() {
             } catch (e: Exception) {
 
             } finally {
-
+                db.closeConnection()
             }
         }
     }

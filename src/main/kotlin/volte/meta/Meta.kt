@@ -1,6 +1,6 @@
 package volte.meta
 
-import com.jagrosh.jdautilities.command.Command
+import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
@@ -13,35 +13,43 @@ import java.awt.Color
 
 object Constants {
 
-    fun ownerCategory(): Command.Category = Command.Category("Owner") {
-        Volte.config().owner() == it.author.id
+    fun ownerCategory(): Category = Category("Owner") { event ->
+        Volte.config().owner() == event.author.id
     }
 
-    fun operatorCategory(): Command.Category = Command.Category("Operator") {
+    fun operatorCategory(): Category = Category("Operator") { event ->
         val db = VolteDatabase.createNew()
-        val rs = db.createStatement().executeQuery("SELECT * FROM guilds WHERE id = ${it.guild.id}")
-        (rs.next() and (it.member.roles.any { role ->
+        val rs = db.getRecordsFor(event.guild.id)
+        (rs.next() and (event.member.roles.any { role ->
             role.id == rs.getString("operator")
-        } or (it.member.hasPermission(Permission.ADMINISTRATOR)) or it.member.isOwner)).also {
-            db.currentConnection().close()
+        }
+                or (event.member.hasPermission(Permission.ADMINISTRATOR))
+                or event.member.isOwner))
+            .also {
+                db.closeConnection()
+            }
+    }
+
+}
+
+fun stopwatch (func: () -> Unit): Long {
+    var end: Long
+    val start: Long = System.currentTimeMillis().also {
+        func().also {
+            end = System.currentTimeMillis()
         }
     }
 
+
+    return end - start
 }
 
-fun CommandEvent.createEmbed(content: String): MessageEmbed {
-    return this.createEmbedBuilder(content).build()
-}
+fun CommandEvent.createEmbed(content: String): MessageEmbed = this.createEmbedBuilder(content).build()
 
-fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder {
-    return EmbedBuilder()
-        .setColor(member.getHighestRoleWithColor()?.color ?: Color.GREEN)
-        .setFooter("Requested by ${author.asTag}", author.effectiveAvatarUrl)
-        .setDescription(content ?: "")
-}
+fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder = EmbedBuilder()
+    .setColor(member.getHighestRoleWithColor()?.color ?: Color.GREEN)
+    .setFooter("Requested by ${author.asTag}", author.effectiveAvatarUrl)
+    .setDescription(content ?: "")
 
-fun Member.getHighestRoleWithColor(): Role? {
-    return this.roles.firstOrNull {
-        it.color != null
-    }
-}
+
+fun Member.getHighestRoleWithColor(): Role? = this.roles.firstOrNull { it.color != null }

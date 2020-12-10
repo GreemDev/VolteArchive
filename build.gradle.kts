@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "volte"
-version = "4.0-SNAPSHOT"
+version = "4.0.0.0"
 
 repositories {
     mavenCentral()

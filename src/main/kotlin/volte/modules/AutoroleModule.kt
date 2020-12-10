@@ -15,7 +15,7 @@ class AutoroleModule: ListenerAdapter() {
     private fun getDatabaseInfo(event: GuildMemberJoinEvent): String? {
         val db = VolteDatabase.createNew()
         val toReturn = db.getStringFor(event.guild.id, "autorole")
-        db.currentConnection().close()
+        db.closeConnection()
         return if (toReturn == "") null else toReturn
     }
 
