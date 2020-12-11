@@ -4,10 +4,12 @@ import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.Role
 import volte.Volte
+import volte.database.GuildData
 import volte.database.VolteDatabase
 import java.awt.Color
 
@@ -19,9 +21,9 @@ object Constants {
 
     fun operatorCategory(): Category = Category("Operator") { event ->
         val db = VolteDatabase.createNew()
-        val rs = db.getRecordsFor(event.guild.id)
-        (rs.next() and (event.member.roles.any { role ->
-            role.id == rs.getString("operator")
+        val data = db.getAllSettingsFor(event.guild.id)
+        (data.resultSet().next() and (event.member.roles.any { role ->
+            role.id == data.operator()
         }
                 or (event.member.hasPermission(Permission.ADMINISTRATOR))
                 or event.member.isOwner))
@@ -53,3 +55,11 @@ fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder = Emb
 
 
 fun Member.getHighestRoleWithColor(): Role? = this.roles.firstOrNull { it.color != null }
+
+fun Guild.getData(): GuildData {
+    val db = VolteDatabase.createNew()
+    val settings = db.getAllSettingsFor(this.id)
+    db.closeConnection()
+    return settings
+
+}

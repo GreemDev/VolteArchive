@@ -16,46 +16,55 @@ class VolteDatabase private constructor(connection: Connection? = null) {
         fun createNew(conn: Connection): VolteDatabase = VolteDatabase(conn)
     }
 
-    fun createNewConnection(): Connection = DriverManager.getConnection("jdbc:sqlite:data/volte.db")
+    private fun createNewConnection(): Connection = DriverManager.getConnection("jdbc:sqlite:data/volte.db")
     fun currentConnection(): Connection = conn
     fun closeConnection() = currentConnection().close()
 
     fun getStringFor(guildId: String, columnName: String): String {
         val rs = getRecordsFor(guildId)
-        return rs.getString(columnName)
+        return rs.getString(columnName).also {
+            closeConnection()
+        }
     }
 
     fun getRecordsFor(guildId: String): ResultSet {
         val statement = conn.prepareStatement("SELECT 1 FROM guilds WHERE id = $guildId")
-        return statement.executeQuery()
+        return statement.executeQuery().also {
+            closeConnection()
+        }
     }
 
-    fun getWelcomeSettingsFor(guildId: String): ResultSet {
-        val statement = conn.prepareStatement("SELECT 1 FROM welcome WHERE id = $guildId")
-        return statement.executeQuery()
+    fun getWelcomeSettingsFor(guildId: String): WelcomeSettings {
+        return WelcomeSettings.createNew(guildId)
     }
 
-    fun getTagsFor(guildId: String): ResultSet {
-        val statement = conn.prepareStatement("SELECT 1 FROM tags WHERE id = $guildId")
-        return statement.executeQuery()
+    fun getAllSettingsFor(guildId: String): GuildData {
+        val statement = conn.prepareStatement("SELECT 1 FROM guilds WHERE id = $guildId")
+        return GuildData(statement.executeQuery()).also {
+            closeConnection()
+        }
+    }
+
+    fun getTagsFor(guildId: String): TagsRepository {
+        return TagsRepository.createNew(guildId)
     }
 
     fun createStatement(): Statement = conn.createStatement()
 
 
-    fun initializeDb(volte: Volte) {
+    fun initializeDb() {
         val statement = conn.createStatement()
 
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS guilds (id integer primary key, autorole string, owner integer, operator string)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS tags (id integer primary key, name string, content string, creator string, uses integer)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS guilds (id integer primary key, autorole string, operator string, prefix string)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS tags (id integer auto_increment primary key, guildId string, name string, content string, creator string, uses integer)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS welcome (id integer primary key, channel string, joinMessage string, leaveMessage string, color string, dm string)")
         //statement.executeUpdate("CREATE TABLE IF NOT EXISTS guild_settings (id integer primary key)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS volte_meta (id integer primary key, version string)")
 
         try {
-            statement.executeUpdate("UPDATE volte_meta SET version = '4.0.0.0' WHERE id = 1")
-        } catch (e: SQLException) {
-            statement.executeUpdate("INSERT INTO volte_meta VALUES('4.0.0.0')")
+            statement.executeUpdate("INSERT INTO volte_meta VALUES(1, '4.0.0.0')")
+        } catch (ignored: SQLException) {
+
         }
 
 
@@ -64,18 +73,13 @@ class VolteDatabase private constructor(connection: Connection? = null) {
         try {
             statement.queryTimeout = 30
 
-            volte.jda().guilds.forEach {
-                val result = statement.executeQuery("SELECT * FROM guilds WHERE id = ${it.id}")
+            Volte.jda().guilds.forEach {
+                val result = statement.executeQuery("SELECT 1 FROM guilds WHERE id = ${it.id}")
                 if (result.next().not()) {
-                    statement.executeUpdate("INSERT INTO guilds values(${it.id}, '', ${it.ownerId}, '')")
+                    statement.executeUpdate("INSERT INTO guilds values(${it.id}, '', ${it.ownerId}, '', ${Volte.config().prefix()})")
                     Volte.logger().info("Added ${it.name} to the database.")
                 }
             }
-
-
-
-
-
         } catch (e: SQLException) {
             Volte.logger().error(e.message)
         } finally {

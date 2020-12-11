@@ -3,6 +3,7 @@ package volte
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.entities.Activity
+import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -15,13 +16,11 @@ class BotConfig {
     private val game = "your-game-here"
     private val commandPrefix = "your-prefix-here"
     private val ownerId = "your-id-here"
-    private val firstStart = true
 
     fun token() = token
     fun game() = game
     fun prefix() = commandPrefix
     fun owner() = ownerId
-    fun isFirstStart() = firstStart
 
     companion object {
 
@@ -38,13 +37,12 @@ class BotConfig {
         fun file() = File(configLoc)
 
         fun write() {
-            Files.createFile(file().toPath())
-            Files.writeString(file().toPath(), gson.toJson(BotConfig()))
+            FileUtils.write(file(), gson.toJson(BotConfig()), Charset.forName("UTF-8"))
         }
 
         fun get(): BotConfig? {
             return try {
-                gson.fromJson(Files.readString(Path.of(configLoc), Charset.defaultCharset()), BotConfig::class.java)
+                gson.fromJson(FileUtils.readFileToString(file(), Charset.forName("UTF-8")), BotConfig::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -54,9 +52,8 @@ class BotConfig {
     }
 
     fun parseActivity(): Activity {
-        val lowercaseArray = this.game.toLowerCase().split(" ")
-        val activity = this.game.replace(this.game.split(" ").first(), "").trim { it <= ' ' }
-        return when (lowercaseArray.first()) {
+        val activity = this.game.replace(this.game.split(" ").first(), "").trim()
+        return when (this.game.toLowerCase().split(" ").first()) {
             "playing" -> Activity.playing(activity)
             "listeningto" -> Activity.listening(activity)
             "watching" -> Activity.watching(activity)

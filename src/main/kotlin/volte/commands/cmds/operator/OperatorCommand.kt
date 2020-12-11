@@ -13,19 +13,19 @@ class OperatorCommand : Command() {
         this.name = "operator"
         this.aliases = arrayOf("op", "setop", "oprole")
         this.help = "Sets the role to be authorized to use Volte's Moderation and Admin commands."
+        this.guildOnly = true
         this.category = Constants.operatorCategory()
     }
 
     override fun execute(event: CommandEvent) {
-
         val db = VolteDatabase.createNew()
+        val data = db.getAllSettingsFor(event.guild.id)
 
         if (event.args.isEmpty()) {
-            val op = db.getStringFor(event.guild.id, "operator")
-            if (op.isEmpty()) {
+            if (data.operator().isEmpty()) {
                 event.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it."))
             } else {
-                event.reply(event.createEmbed("The current Operator role is <@&${op}>"))
+                event.reply(event.createEmbed("The current Operator role is <@&${data.operator()}>"))
             }
             return
         }

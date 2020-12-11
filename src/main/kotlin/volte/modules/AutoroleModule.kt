@@ -7,16 +7,13 @@ import volte.database.VolteDatabase
 class AutoroleModule: ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-        val roleId = getDatabaseInfo(event) ?: return
-        val role = event.guild.getRoleById(roleId)
-        event.guild.addRoleToMember(event.member, role ?: return).queue()
-    }
+        val roleId: String = VolteDatabase.createNew().getAllSettingsFor(event.guild.id).autorole()
 
-    private fun getDatabaseInfo(event: GuildMemberJoinEvent): String? {
-        val db = VolteDatabase.createNew()
-        val toReturn = db.getStringFor(event.guild.id, "autorole")
-        db.closeConnection()
-        return if (toReturn == "") null else toReturn
-    }
+        if (roleId.isNotEmpty()) {
+            val role = event.guild.getRoleById(roleId)
+            event.guild.addRoleToMember(event.member, role ?: return).queue()
+        }
 
+
+    }
 }

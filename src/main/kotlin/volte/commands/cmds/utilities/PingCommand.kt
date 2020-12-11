@@ -13,6 +13,7 @@ class PingCommand : Command() {
     init {
         this.name = "ping"
         this.help = "Simple command to check API latency and gateway ping."
+        this.guildOnly = true
     }
 
     override fun execute(event: CommandEvent) {

@@ -11,6 +11,7 @@ class InfoCommand : Command() {
         this.name = "info"
         this.aliases = arrayOf("botinfo")
         this.help = "Shows various information about Volte."
+        this.guildOnly = true
     }
 
     override fun execute(event: CommandEvent) {
