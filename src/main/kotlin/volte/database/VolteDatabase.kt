@@ -28,21 +28,17 @@ class VolteDatabase private constructor(connection: Connection? = null) {
     }
 
     fun getRecordsFor(guildId: String): ResultSet {
-        val statement = conn.prepareStatement("SELECT 1 FROM guilds WHERE id = $guildId")
-        return statement.executeQuery().also {
-            closeConnection()
-        }
+        val statement = conn.prepareStatement("SELECT * FROM guilds WHERE id = $guildId")
+        return statement.executeQuery()
     }
 
     fun getWelcomeSettingsFor(guildId: String): WelcomeSettings {
-        return WelcomeSettings.createNew(guildId)
+        return WelcomeSettings.createNew(guildId, this)
     }
 
     fun getAllSettingsFor(guildId: String): GuildData {
-        val statement = conn.prepareStatement("SELECT 1 FROM guilds WHERE id = $guildId")
-        return GuildData(statement.executeQuery()).also {
-            closeConnection()
-        }
+        val statement = conn.prepareStatement("SELECT * FROM guilds WHERE id = $guildId")
+        return GuildData(statement.executeQuery(), this)
     }
 
     fun getTagsFor(guildId: String): TagsRepository {
@@ -55,9 +51,9 @@ class VolteDatabase private constructor(connection: Connection? = null) {
     fun initializeDb() {
         val statement = conn.createStatement()
 
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS guilds (id integer primary key, autorole string, operator string, prefix string)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS tags (id integer auto_increment primary key, guildId string, name string, content string, creator string, uses integer)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS welcome (id integer primary key, channel string, joinMessage string, leaveMessage string, color string, dm string)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS guilds (id integer primary key, autorole string not null, operator string not null, prefix string not null)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS tags (id integer auto_increment primary key, guildId string not null, name string not null, content string not null, creator string not null, uses integer not null)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS welcome (id integer primary key, channel string not null, joinMessage string not null, leaveMessage string not null, color string not null, dm string not null)")
         //statement.executeUpdate("CREATE TABLE IF NOT EXISTS guild_settings (id integer primary key)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS volte_meta (id integer primary key, version string)")
 
@@ -76,7 +72,7 @@ class VolteDatabase private constructor(connection: Connection? = null) {
             Volte.jda().guilds.forEach {
                 val result = statement.executeQuery("SELECT 1 FROM guilds WHERE id = ${it.id}")
                 if (result.next().not()) {
-                    statement.executeUpdate("INSERT INTO guilds values(${it.id}, '', ${it.ownerId}, '', ${Volte.config().prefix()})")
+                    statement.executeUpdate("INSERT INTO guilds values(${it.id}, '', '', '${Volte.config().prefix()}')")
                     Volte.logger().info("Added ${it.name} to the database.")
                 }
             }

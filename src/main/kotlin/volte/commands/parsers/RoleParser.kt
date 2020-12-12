@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Role
 import org.apache.commons.lang3.StringUtils
 import volte.commands.parsers.abstractions.VolteArgumentParser
-import volte.util.MentionUtil
+import volte.util.DiscordUtil
 
 class RoleParser : VolteArgumentParser<Role?>() {
 
@@ -23,7 +23,7 @@ class RoleParser : VolteArgumentParser<Role?>() {
         }
 
         if (role == null) {
-            val parsed = MentionUtil.parseRole(value)
+            val parsed = DiscordUtil.parseRole(value)
             if (parsed != null) {
                 role = event.guild.getRoleById(value)
             }

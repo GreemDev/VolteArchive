@@ -18,7 +18,7 @@ class InfoCommand : Command() {
         event.reply(event.createEmbedBuilder()
             .addField("Version", "4.0.0.0", true)
             .addField("Author", "Greem#1337, and contributors on GitHub", true)
-            .addField("Language/Library", "Kotlin ${KotlinVersion.CURRENT}, JDA ${JDAInfo.VERSION}", true)
+            .addField("Language/Runtime/Library", "Kotlin ${KotlinVersion.CURRENT}, JVM ${System.getenv("java.version")} JDA ${JDAInfo.VERSION}", false)
             .addField("Guilds", event.jda.guilds.size.toString(), true)
             .addField("Shards", event.jda.shardInfo.shardTotal.toString(), true)
             .addField("Invite Me", "https://greemdev.net/invite", true)

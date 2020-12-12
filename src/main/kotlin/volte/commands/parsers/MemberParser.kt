@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
 import org.apache.commons.lang3.StringUtils
 import volte.commands.parsers.abstractions.VolteArgumentParser
-import volte.util.MentionUtil
+import volte.util.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {
     override fun parse(event: CommandEvent, value: String): Member? {
@@ -22,7 +22,7 @@ class MemberParser : VolteArgumentParser<Member?>() {
             }
 
         if (member == null) {
-            val parsed = MentionUtil.parseUser(value)
+            val parsed = DiscordUtil.parseUser(value)
             if (parsed != null) {
                 member = event.guild.getMemberById(value)
             }

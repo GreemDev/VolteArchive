@@ -3,47 +3,81 @@ package volte.database
 import volte.entities.VolteTag
 import volte.modules.WelcomeModule
 import java.awt.Color
-import java.sql.Connection
 import java.sql.ResultSet
-import java.util.*
 import kotlin.collections.HashSet
 
-class GuildData(private val rs: ResultSet) {
+class GuildData(private val rs: ResultSet, private val db: VolteDatabase) {
 
     fun resultSet() = rs
 
-    private val welcome: WelcomeSettings = WelcomeSettings.createNew(id())
+    private val id: String
+    private val operator: String
+    private val prefix: String
+    private val autorole: String
+    private val welcome: WelcomeSettings
+    private val tagRepo: TagsRepository
 
-    fun id(): String = rs.getString("id")
-    fun operator(): String = rs.getString("operator")
-    fun prefix(): String = rs.getString("prefix")
-    fun autorole(): String = rs.getString("autorole")
-    fun owner(): String = rs.getString("owner")
-    fun welcome(): WelcomeSettings = WelcomeSettings.createNew(id())
+    fun close() {
+        db.closeConnection()
+    }
+
+    init {
+        id = rs.getInt("id").toString()
+        operator = rs.getString("operator")
+        prefix = rs.getString("prefix")
+        autorole = rs.getString("autorole")
+
+        welcome = db.getWelcomeSettingsFor(id)
+        tagRepo = db.getTagsFor(id)
+    }
+
+    fun id(): String = id
+    fun operator(): String = operator
+    fun prefix(): String = prefix
+    fun autorole(): String = autorole
+    fun welcome(): WelcomeSettings = welcome
+    fun tagRepo(): TagsRepository = tagRepo
 
 }
 
-class WelcomeSettings(private val rs: ResultSet) {
+class WelcomeSettings(rs: ResultSet, db: VolteDatabase) {
     companion object {
-        fun createNew(id: String): WelcomeSettings {
-            val db = VolteDatabase.createNew()
+        fun createNew(id: String, db: VolteDatabase): WelcomeSettings {
             val statement = db.createStatement()
             val rs = statement.executeQuery("SELECT 1 FROM welcome WHERE id = $id")
-            db.closeConnection()
-            return WelcomeSettings(rs)
+            return WelcomeSettings(rs, db)
         }
     }
 
-    fun id(): String = rs.getString("id")
-    fun channel(): String = rs.getString("channel")
-    fun greeting(): String = rs.getString("joinMessage")
-    fun farewell(): String = rs.getString("leaveMessage")
-    fun color(): Color = WelcomeModule.parseColor(rs.getString("color"))
-    fun dmGreeting(): String = rs.getString("dm")
+    val id: String
+    val channel: String
+    val greeting: String
+    val farewell: String
+    val color: Color
+    val dmGreeting: String
+
+    init {
+        id = rs.getString("id")
+        channel = rs.getString("channel")
+        greeting = rs.getString("joinMessage")
+        farewell = rs.getString("leaveMessage")
+        color = WelcomeModule.parseColor(rs.getString("color"))
+        dmGreeting = rs.getString("dm")
+    }
+
+
+
+
+    fun id(): String = id
+    fun channel(): String = channel
+    fun greeting(): String = greeting
+    fun farewell(): String = farewell
+    fun color(): Color = color
+    fun dmGreeting(): String = dmGreeting
 
 }
 
-class TagsRepository(private val rs: ResultSet) {
+class TagsRepository(rs: ResultSet) {
 
     private val tags: HashSet<VolteTag> = hashSetOf()
     fun tags(): HashSet<VolteTag> = tags
