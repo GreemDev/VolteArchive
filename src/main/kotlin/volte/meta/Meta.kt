@@ -46,6 +46,18 @@ fun stopwatch (func: () -> Unit): Long {
     return end - start
 }
 
+fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
+    val e = createEmbedBuilder(content)
+    func(e)
+    reply(e.build())
+}
+
+fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) {
+    val e = createEmbedBuilder()
+    func(e)
+    reply(e.build())
+}
+
 fun CommandEvent.createEmbed(content: String): MessageEmbed = this.createEmbedBuilder(content).build()
 
 fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder = EmbedBuilder()
@@ -58,8 +70,6 @@ fun Member.getHighestRoleWithColor(): Role? = this.roles.firstOrNull { it.color 
 
 fun Guild.getData(): GuildData {
     val db = VolteDatabase.createNew()
-    val settings = db.getAllSettingsFor(this.id)
-    db.closeConnection()
-    return settings
+    return db.getAllSettingsFor(id)
 
 }

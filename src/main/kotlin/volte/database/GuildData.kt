@@ -6,7 +6,7 @@ import java.awt.Color
 import java.sql.ResultSet
 import kotlin.collections.HashSet
 
-class GuildData(private val rs: ResultSet, private val db: VolteDatabase) {
+class GuildData(private val rs: ResultSet, db: VolteDatabase) {
 
     fun resultSet() = rs
 
@@ -17,12 +17,8 @@ class GuildData(private val rs: ResultSet, private val db: VolteDatabase) {
     private val welcome: WelcomeSettings
     private val tagRepo: TagsRepository
 
-    fun close() {
-        db.closeConnection()
-    }
-
     init {
-        id = rs.getInt("id").toString()
+        id = rs.getString("id")
         operator = rs.getString("operator")
         prefix = rs.getString("prefix")
         autorole = rs.getString("autorole")
@@ -44,7 +40,7 @@ class WelcomeSettings(rs: ResultSet, db: VolteDatabase) {
     companion object {
         fun createNew(id: String, db: VolteDatabase): WelcomeSettings {
             val statement = db.createStatement()
-            val rs = statement.executeQuery("SELECT 1 FROM welcome WHERE id = $id")
+            val rs = statement.executeQuery("SELECT * FROM welcome WHERE id = '$id'")
             return WelcomeSettings(rs, db)
         }
     }
@@ -92,7 +88,7 @@ class TagsRepository(rs: ResultSet) {
         fun createNew(id: String): TagsRepository {
             val db = VolteDatabase.createNew()
             val statement = db.createStatement()
-            val rs = statement.executeQuery("SELECT 1 FROM tags WHERE guildId = $id")
+            val rs = statement.executeQuery("SELECT * FROM tags WHERE guildId = '$id'")
             return TagsRepository(rs)
         }
     }

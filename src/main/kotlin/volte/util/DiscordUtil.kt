@@ -14,9 +14,9 @@ object DiscordUtil {
     fun parseUser(text: String): String? {
         return if (text.length >= 3 && text[0] == '<' && text[1] == '@' && text.endsWith('>')) {
             return if (text.length >= 4 && text[2] == '!')
-                text.substring(3, text.length - 4); //<@!123>
+                text.substring(3, text.length - 4) //<@!123>
             else
-                text.substring(2, text.length - 3); //<@123>
+                text.substring(2, text.length - 3) //<@123>
         } else null
     }
 
@@ -26,10 +26,10 @@ object DiscordUtil {
         } else null
     }
 
-    fun parseDate(id: String) {
+    fun parseSnowflake(id: String): Date {
         if (StringUtils.isNumeric(id)) {
             val rawId = id.toLong()
-            //val date = Date.from(Instant.)
+            return Date((rawId.shl(22) + 1420070400000))
         } else {
             throw IllegalArgumentException("id must be a number.")
         }

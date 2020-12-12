@@ -22,7 +22,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("commons-io:commons-io:2.6")
     implementation("com.google.code.gson:gson:2.8.6")
-    implementation("org.xerial:sqlite-jdbc:3.32.3.2")
+    implementation("com.h2database:h2:1.4.200")
 }
 
 tasks.withType<KotlinCompile>() {
