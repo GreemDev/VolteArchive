@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import volte.Volte
 import volte.database.VolteDatabase
 import volte.database.WelcomeSettings
 import java.awt.Color
@@ -17,8 +18,7 @@ import java.time.Instant
 class WelcomeModule : ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-        val db = VolteDatabase.createNew()
-        val settings = db.getWelcomeSettingsFor(event.guild.id)
+        val settings = Volte.db().getWelcomeSettingsFor(event.guild.id)
         if (settings.dmGreeting().isNotEmpty()) {
             joinGuildDm(event, settings)
         }
@@ -33,14 +33,10 @@ class WelcomeModule : ListenerAdapter() {
             .setTimestamp(Instant.now())
 
         channel.sendMessage(embed.build()).queue()
-
-        db.closeConnection()
-
     }
 
     override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
-        val db = VolteDatabase.createNew()
-        val settings = db.getWelcomeSettingsFor(event.guild.id)
+        val settings = Volte.db().getWelcomeSettingsFor(event.guild.id)
         if (settings.channel().isEmpty()) return
         val channel = event.guild.getTextChannelById(settings.channel())
         if (settings.farewell().isEmpty() || channel == null) return
@@ -52,9 +48,6 @@ class WelcomeModule : ListenerAdapter() {
             .setTimestamp(Instant.now())
 
         channel.sendMessage(embed.build()).queue()
-
-        db.closeConnection()
-
     }
 
     private fun joinGuildDm(event: GuildMemberJoinEvent, settings: WelcomeSettings) {

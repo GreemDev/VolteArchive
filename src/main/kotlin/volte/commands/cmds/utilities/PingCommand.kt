@@ -2,11 +2,8 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
-import volte.meta.Emoji
-import volte.meta.stopwatch
-import java.awt.Color
+import volte.meta.*
 
 class PingCommand : Command() {
 
@@ -18,8 +15,7 @@ class PingCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         lateinit var message: Message
-        val embed = EmbedBuilder()
-            .setColor(Color.CYAN).setDescription("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
+        val embed = event.createEmbedBuilder("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
 
         val apiLatency = stopwatch {
             message = event.textChannel.sendMessage(embed.build()).complete()

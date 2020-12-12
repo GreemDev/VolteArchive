@@ -2,6 +2,7 @@ package volte.commands.cmds.operator
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import volte.Volte
 import volte.commands.parsers.RoleParser
 import volte.database.VolteDatabase
 import volte.meta.Constants
@@ -18,8 +19,7 @@ class OperatorCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        val db = VolteDatabase.createNew()
-        val data = db.getAllSettingsFor(event.guild.id)
+        val data = Volte.db().getAllSettingsFor(event.guild.id)
 
         if (event.args.isEmpty()) {
             if (data.operator().isEmpty()) {
@@ -36,11 +36,9 @@ class OperatorCommand : Command() {
             return
         }
 
-        val statement = db.currentConnection().prepareStatement("UPDATE guilds SET operator = ? WHERE id = ${event.guild.id}")
+        val statement = Volte.db().currentConnection().prepareStatement("UPDATE guilds SET operator = ? WHERE id = ${event.guild.id}")
         statement.setString(1, event.args)
         statement.executeUpdate()
-        db.closeConnection()
-
 
         event.reply(event.createEmbed("Successfully set the Operator role to ${role.asMention}"))
     }

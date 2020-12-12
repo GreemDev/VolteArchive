@@ -16,6 +16,7 @@ import volte.commands.cmds.utilities.PingCommand
 import volte.database.VolteDatabase
 import volte.entities.VolteGuildSettingsManager
 import volte.meta.Emoji
+import java.sql.DriverManager
 
 class Volte private constructor() {
 
@@ -30,9 +31,11 @@ class Volte private constructor() {
 
         private lateinit var jda: JDA
         private lateinit var commandClient: CommandClient
+        private lateinit var database: VolteDatabase
 
         fun jda() = jda
         fun commands() = commandClient
+        fun db() = database
         fun config() = BotConfig.get()!!
 
         fun start() {
@@ -60,7 +63,8 @@ class Volte private constructor() {
             .disableCache(CacheFlag.EMOTE, CacheFlag.ACTIVITY)
             .build().awaitReady()
 
-        VolteDatabase.createNew().initializeDb()
+        database = VolteDatabase()
+        database.initializeDb()
 
         val activity = config().parseActivity()
         jda.presence.setPresence(OnlineStatus.ONLINE, activity)

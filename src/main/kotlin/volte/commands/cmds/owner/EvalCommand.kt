@@ -26,14 +26,14 @@ class EvalCommand(private val volte: Volte) : Command() {
             code = matcher.group(1)
         }
 
-        val db = VolteDatabase.createNew()
+
 
         /*val se = ScriptEngineManager().getEngineByName("nashorn").apply {
             put("event", event)
-            put("config", volte.config())
-            put("commands", volte.commands())
+            put("config", Volte.config())
+            put("commands", Volte.commands())
             put("runtime", Runtime.getRuntime())
-            put("db", db)
+            put("db", Volte.db())
         }*/
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
@@ -42,8 +42,6 @@ class EvalCommand(private val volte: Volte) : Command() {
 
             } catch (e: Exception) {
 
-            } finally {
-                db.closeConnection()
             }
         }
     }

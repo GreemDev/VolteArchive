@@ -10,7 +10,7 @@ import volte.database.VolteDatabase
 class VolteGuildSettingsManager : GuildSettingsManager<VolteGuildSettingsProviderImpl> {
     override fun getSettings(guild: Guild): VolteGuildSettingsProviderImpl {
         val db = VolteDatabase.createNew()
-        return VolteGuildSettingsProviderImpl(GuildData(db.getRecordsFor(guild.id), db))
+        return VolteGuildSettingsProviderImpl(db.getAllSettingsFor(guild.id))
     }
 }
 

@@ -20,16 +20,10 @@ object Constants {
     }
 
     fun operatorCategory(): Category = Category("Operator") { event ->
-        val db = VolteDatabase.createNew()
-        val data = db.getAllSettingsFor(event.guild.id)
-        (data.resultSet().next() and (event.member.roles.any { role ->
+        val data = Volte.db().getAllSettingsFor(event.guild.id)
+        (event.member.roles.any { role ->
             role.id == data.operator()
-        }
-                or (event.member.hasPermission(Permission.ADMINISTRATOR))
-                or event.member.isOwner))
-            .also {
-                db.closeConnection()
-            }
+        } or event.member.isOwner or (event.member.hasPermission(Permission.ADMINISTRATOR)))
     }
 
 }

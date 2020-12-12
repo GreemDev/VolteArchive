@@ -36,15 +36,7 @@ class GuildData(private val rs: ResultSet, db: VolteDatabase) {
 
 }
 
-class WelcomeSettings(rs: ResultSet, db: VolteDatabase) {
-    companion object {
-        fun createNew(id: String, db: VolteDatabase): WelcomeSettings {
-            val statement = db.createStatement()
-            val rs = statement.executeQuery("SELECT * FROM welcome WHERE id = '$id'")
-            return WelcomeSettings(rs, db)
-        }
-    }
-
+class WelcomeSettings(rs: ResultSet) {
     val id: String
     val channel: String
     val greeting: String
@@ -83,17 +75,4 @@ class TagsRepository(rs: ResultSet) {
             tags.add(VolteTag(rs))
         }
     }
-
-    companion object {
-        fun createNew(id: String): TagsRepository {
-            val db = VolteDatabase.createNew()
-            val statement = db.createStatement()
-            val rs = statement.executeQuery("SELECT * FROM tags WHERE guildId = '$id'")
-            return TagsRepository(rs)
-        }
-    }
-
-
-
-
 }

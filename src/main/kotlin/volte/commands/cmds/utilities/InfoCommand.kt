@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.JDAInfo
 import volte.meta.createEmbedBuilder
+import volte.meta.reply
 
 class InfoCommand : Command() {
 
@@ -15,15 +16,15 @@ class InfoCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        event.reply(event.createEmbedBuilder()
-            .addField("Version", "4.0.0.0", true)
-            .addField("Author", "Greem#1337, and contributors on GitHub", true)
-            .addField("Language/Runtime/Library", "Kotlin ${KotlinVersion.CURRENT}, JVM ${System.getenv("java.version")} JDA ${JDAInfo.VERSION}", false)
-            .addField("Guilds", event.jda.guilds.size.toString(), true)
-            .addField("Shards", event.jda.shardInfo.shardTotal.toString(), true)
-            .addField("Invite Me", "https://greemdev.net/invite", true)
-            .setThumbnail(event.jda.selfUser.effectiveAvatarUrl)
-            .build())
+        event.reply {
+            addField("Version", "4.0.0.0", true)
+            addField("Author", "Greem#1337, and contributors on GitHub", true)
+            addField("Language/Runtime/Library", "Kotlin ${KotlinVersion.CURRENT}, JVM ${System.getenv("java.version")} JDA ${JDAInfo.VERSION}", false)
+            addField("Guilds", event.jda.guilds.size.toString(), true)
+            addField("Shards", event.jda.shardInfo.shardTotal.toString(), true)
+            addField("Invite Me", "https://greemdev.net/invite", true)
+            setThumbnail(event.jda.selfUser.effectiveAvatarUrl)
+        }
     }
 
 }
