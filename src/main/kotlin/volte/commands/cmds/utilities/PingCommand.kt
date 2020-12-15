@@ -18,7 +18,7 @@ class PingCommand : Command() {
         val embed = event.createEmbedBuilder("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
 
         val apiLatency = stopwatch {
-            message = event.textChannel.sendMessage(embed.build()).complete()
+            message = event.message.reply(embed.build()).complete()
         }
 
         message.editMessage(embed.appendDescription("${Emoji.CLAP} **REST**: ${apiLatency}ms").build()).queue()

@@ -23,6 +23,7 @@ dependencies {
     implementation("commons-io:commons-io:2.6")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.h2database:h2:1.4.200")
+    implementation("com.jagrosh:EasySQL:0.3")
 }
 
 tasks.withType<KotlinCompile>() {

@@ -1,6 +1,7 @@
 package volte.util
 
 import org.apache.commons.lang3.StringUtils
+import java.awt.Color
 import java.util.*
 
 object DiscordUtil {
@@ -33,6 +34,14 @@ object DiscordUtil {
         } else {
             throw IllegalArgumentException("id must be a number.")
         }
+    }
+
+    fun parseColor(color: String): Color {
+        val split = color.split(";")
+        val r = split[0].toFloat()
+        val g = split[1].toFloat()
+        val b = split[2].toFloat()
+        return Color(r, g, b)
     }
 
 }

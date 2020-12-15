@@ -9,14 +9,11 @@ import volte.database.VolteDatabase
 
 class VolteGuildSettingsManager : GuildSettingsManager<VolteGuildSettingsProviderImpl> {
     override fun getSettings(guild: Guild): VolteGuildSettingsProviderImpl {
-        val db = VolteDatabase.createNew()
-        return VolteGuildSettingsProviderImpl(db.getAllSettingsFor(guild.id))
+        return VolteGuildSettingsProviderImpl(guild.id)
     }
 }
 
-class VolteGuildSettingsProviderImpl(private val data: GuildData) : GuildSettingsProvider {
+class VolteGuildSettingsProviderImpl(val id: String) : GuildSettingsProvider {
 
-    fun data() = data
-
-    override fun getPrefixes(): MutableCollection<String> = mutableListOf(data.prefix())
+    override fun getPrefixes(): MutableCollection<String> = mutableListOf(Volte.db().getAllSettingsFor(id).getPrefix())
 }

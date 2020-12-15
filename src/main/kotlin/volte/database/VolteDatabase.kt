@@ -1,42 +1,33 @@
 package volte.database
 
+import com.jagrosh.easysql.DatabaseConnector
 import volte.Volte
-import java.sql.*
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.ResultSet
+import java.sql.Statement
 
-class VolteDatabase(connection: Connection? = null) {
+class VolteDatabase {
 
-    private val conn: Connection = connection ?: createRawConnection()
+    val conn = connector.connection
 
     companion object {
+        val connector: DatabaseConnector = DatabaseConnector("./data/volte", null, null)
+
         fun createNew(): VolteDatabase = VolteDatabase()
-        fun createNew(conn: Connection): VolteDatabase = VolteDatabase(conn)
         fun createRawConnection(): Connection = DriverManager.getConnection("jdbc:h2:./data/volte")
     }
 
     fun currentConnection(): Connection = conn
-    fun closeConnection() = currentConnection().close()
-
-
-    fun getRecordsFor(guildId: String): ResultSet {
-        return conn.prepareStatement("SELECT * FROM guilds WHERE id = $guildId").executeQuery()
-    }
-
-    fun getWelcomeSettingsFor(guildId: String): WelcomeSettings {
-        return WelcomeSettings(conn.prepareStatement("SELECT * FROM welcome WHERE id = '$guildId'").executeQuery())
-    }
-
-    fun getAllSettingsFor(guildId: String): GuildData {
-        return GuildData(
-            conn.prepareStatement("SELECT * FROM guilds WHERE id = $guildId").executeQuery(),
-            this
-        )
-    }
-
-    fun getTagsFor(guildId: String): TagsRepository {
-        return TagsRepository(conn.prepareStatement("SELECT * FROM tags WHERE guildId = '$guildId'").executeQuery())
-    }
-
     fun createStatement(): Statement = conn.createStatement()
+    fun dbConnector(): DatabaseConnector = connector
+
+    fun getRecordsFor(guildId: String): ResultSet = currentConnection().prepareStatement("SELECT * FROM guilds WHERE id = ?").also {
+        it.setString(1, guildId)
+    }.executeQuery()
+    fun getWelcomeSettingsFor(guildId: String): WelcomeSettings = WelcomeSettings(this, guildId)
+    fun getAllSettingsFor(guildId: String): GuildData = GuildData(guildId, this)
+    fun getTagsFor(guildId: String): TagsRepository = TagsRepository(this, guildId)
 
 
     fun initializeDb() {
@@ -55,20 +46,14 @@ class VolteDatabase(connection: Connection? = null) {
 
 
 
-        try {
-            statement.queryTimeout = 30
+        statement.queryTimeout = 30
 
-            Volte.jda().guilds.forEach {
-                val result = statement.executeQuery("SELECT * FROM guilds WHERE id = '${it.id}'")
-                if (result.next().not()) {
-                    statement.executeUpdate("INSERT INTO guilds VALUES('${it.id}', '', '', '${Volte.config().prefix()}')")
-                    Volte.logger().info("Added ${it.name} to the database.")
-                }
+        Volte.jda().guilds.forEach {
+            val result = statement.executeQuery("SELECT * FROM guilds WHERE id = '${it.id}'")
+            if (result.next().not()) {
+                statement.executeUpdate("INSERT INTO guilds VALUES('${it.id}', '', '', '${Volte.config().prefix()}')")
+                Volte.logger().info("Added ${it.name} to the database.")
             }
-        } catch (e: SQLException) {
-            Volte.logger().error(e.message)
-        } finally {
-            statement.close()
         }
     }
 }

@@ -22,25 +22,23 @@ class OperatorCommand : Command() {
         val data = Volte.db().getAllSettingsFor(event.guild.id)
 
         if (event.args.isEmpty()) {
-            if (data.operator().isEmpty()) {
-                event.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it."))
+            if (data.getOperator().isEmpty()) {
+                event.message.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it.")).queue()
             } else {
-                event.reply(event.createEmbed("The current Operator role is <@&${data.operator()}>"))
+                event.message.reply(event.createEmbed("The current Operator role is <@&${data.getOperator()}>")).queue()
             }
             return
         }
 
         val role = RoleParser().parse(event, event.args)
         if (role == null) {
-            event.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names."))
-            return
+            event.message.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names.")).queue()
+        } else {
+            data.setOperator(role.id)
+
+            event.message.reply(event.createEmbed("Successfully set the Operator role to ${role.asMention}")).queue()
         }
 
-        val statement = Volte.db().currentConnection().prepareStatement("UPDATE guilds SET operator = ? WHERE id = ${event.guild.id}")
-        statement.setString(1, event.args)
-        statement.executeUpdate()
-
-        event.reply(event.createEmbed("Successfully set the Operator role to ${role.asMention}"))
     }
 
 }

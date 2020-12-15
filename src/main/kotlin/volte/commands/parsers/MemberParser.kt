@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
 import org.apache.commons.lang3.StringUtils
 import volte.commands.parsers.abstractions.VolteArgumentParser
+import volte.meta.asPromise
 import volte.util.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {

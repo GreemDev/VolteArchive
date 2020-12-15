@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import volte.Volte
 import volte.database.VolteDatabase
 import volte.meta.Constants
+import volte.meta.then
 import java.util.regex.Pattern
 import javax.script.ScriptEngineManager
 
@@ -37,7 +38,7 @@ class EvalCommand(private val volte: Volte) : Command() {
         }*/
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
-        event.reply(builder.build()) {
+        event.message.reply(builder.build()).then {
             try {
 
             } catch (e: Exception) {
