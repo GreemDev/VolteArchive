@@ -10,12 +10,12 @@ class RoleParser : VolteArgumentParser<Role?>() {
 
     override fun parse(event: CommandEvent, value: String): Role? {
         var role: Role? = if (StringUtils.isNumeric(value))
-            event.guild.getRoleById(value)
+            event.guild.getRoleById(value) //id check
         else null
 
         if (role == null) {
             val roles = event.guild.roles.filter {
-                it.name.equals(value, true)
+                it.name.equals(value, true) //name check
             }
             if (roles.size == 1) {
                 role = roles.first()
@@ -23,7 +23,7 @@ class RoleParser : VolteArgumentParser<Role?>() {
         }
 
         if (role == null) {
-            val parsed = DiscordUtil.parseRole(value)
+            val parsed = DiscordUtil.parseRole(value) // <@&id> role mention check
             if (parsed != null) {
                 role = event.guild.getRoleById(value)
             }

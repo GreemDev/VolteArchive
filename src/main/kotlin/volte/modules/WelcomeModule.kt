@@ -1,15 +1,12 @@
 package volte.modules
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
-import volte.database.WelcomeSettings
+import volte.database.entities.WelcomeSettings
 import volte.meta.then
-import java.awt.Color
 import java.time.Instant
 
 class WelcomeModule : ListenerAdapter() {
@@ -27,7 +24,7 @@ class WelcomeModule : ListenerAdapter() {
 
         val embed = EmbedBuilder()
             .setColor(settings.getColor())
-            .setDescription(replacePlaceholders(greeting, event.user, event.guild))
+            .setDescription(settings.replacePlaceholders(greeting, event.user, event.guild))
             .setThumbnail(event.member.user.effectiveAvatarUrl)
             .setTimestamp(Instant.now())
 
@@ -44,7 +41,7 @@ class WelcomeModule : ListenerAdapter() {
 
         val embed = EmbedBuilder()
             .setColor(settings.getColor())
-            .setDescription(replacePlaceholders(farewell, event.user, event.guild))
+            .setDescription(settings.replacePlaceholders(farewell, event.user, event.guild))
             .setThumbnail(event.user.effectiveAvatarUrl)
             .setTimestamp(Instant.now())
 
@@ -53,18 +50,8 @@ class WelcomeModule : ListenerAdapter() {
 
     private fun joinGuildDm(event: GuildMemberJoinEvent, settings: WelcomeSettings) {
         event.member.user.openPrivateChannel() then { channel ->
-            channel.sendMessage(replacePlaceholders(settings.getDmGreeting(), event.user, event.guild))
+            channel.sendMessage(settings.replacePlaceholders(settings.getDmGreeting(), event.user, event.guild))
         }
-    }
-
-    private fun replacePlaceholders(text: String, user: User, guild: Guild): String {
-        return text.replace("{GuildName}", guild.name, true)
-            .replace("{MemberName}", user.name, true)
-            .replace("{MemberMention}", user.asMention, true)
-            .replace("{OwnerMention}", "<@${guild.ownerId}>", true)
-            .replace("{MemberTag}", user.discriminator, true)
-            .replace("{MemberCount}", "${guild.memberCount}", true)
-            .replace("{MemberString}", user.asTag)
     }
 
 }

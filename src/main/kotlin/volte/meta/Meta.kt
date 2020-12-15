@@ -11,9 +11,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.requests.RestAction
 import volte.Volte
-import volte.database.GuildData
-import volte.database.VolteDatabase
+import volte.database.entities.GuildData
 import volte.entities.RestPromise
+import volte.util.DiscordUtil
 import java.awt.Color
 
 object Constants {
@@ -23,10 +23,7 @@ object Constants {
     }
 
     fun operatorCategory(): Category = Category("Operator") { event ->
-        val data = Volte.db().getAllSettingsFor(event.guild.id)
-        (event.member.isOwner or (event.member.hasPermission(Permission.ADMINISTRATOR)) or event.member.roles.any { role ->
-            role.id == data.getOperator()
-        })
+        DiscordUtil.isOperator(event.member)
     }
 
 }
@@ -58,7 +55,7 @@ fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit) {
 fun <V> RestAction<V>.asPromise(): RestPromise<V> = RestPromise(this)
 
 infix fun <V> RestAction<V>.then(callback: (V) -> Unit): RestPromise<V> = asPromise().then(callback)
-fun <V> RestAction<V>.catch(failure: (Throwable) -> Unit): RestPromise<V> = asPromise().catch(failure)
+infix fun <V> RestAction<V>.catch(failure: (Throwable) -> Unit): RestPromise<V> = asPromise().catch(failure)
 
 
 

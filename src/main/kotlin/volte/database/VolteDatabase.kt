@@ -2,56 +2,40 @@ package volte.database
 
 import com.jagrosh.easysql.DatabaseConnector
 import volte.Volte
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.ResultSet
-import java.sql.Statement
+import volte.database.entities.*
 
 class VolteDatabase {
-
-    val conn = connector.connection
-
     companion object {
-        val connector: DatabaseConnector = DatabaseConnector("./data/volte", null, null)
-
-        fun createNew(): VolteDatabase = VolteDatabase()
-        fun createRawConnection(): Connection = DriverManager.getConnection("jdbc:h2:./data/volte")
+        private val connector: DatabaseConnector = DatabaseConnector("./data/volte", null, null)
     }
 
-    fun currentConnection(): Connection = conn
-    fun createStatement(): Statement = conn.createStatement()
-    fun dbConnector(): DatabaseConnector = connector
+    fun connector(): DatabaseConnector = connector
 
-    fun getRecordsFor(guildId: String): ResultSet = currentConnection().prepareStatement("SELECT * FROM guilds WHERE id = ?").also {
-        it.setString(1, guildId)
-    }.executeQuery()
     fun getWelcomeSettingsFor(guildId: String): WelcomeSettings = WelcomeSettings(this, guildId)
     fun getAllSettingsFor(guildId: String): GuildData = GuildData(guildId, this)
     fun getTagsFor(guildId: String): TagsRepository = TagsRepository(this, guildId)
 
 
     fun initializeDb() {
-        val statement = createStatement()
+        val statement = connector.connection.createStatement()
 
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS guilds (id varchar(20) primary key, autorole varchar(20) not null, operator varchar(20) not null, prefix varchar not null)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS tags (id int auto_increment primary key, guildId varchar(20) not null, name varchar not null, content varchar not null, creator varchar(20) not null, uses int not null)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS welcome (id varchar(20) primary key, channel varchar(20) not null, joinMessage varchar not null, leaveMessage varchar not null, color varchar not null, dm varchar not null)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS volte_meta (id int primary key, version varchar(5))")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS GUILDS (ID VARCHAR(20) PRIMARY KEY, AUTOROLE VARCHAR(20) NOT NULL, OPERATOR VARCHAR(20) NOT NULL, PREFIX VARCHAR NOT NULL, MASSPINGS BOOLEAN NOT NULL, ANTILINK BOOLEAN NOT NULL)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS TAGS (ID int AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, NAME VARCHAR NOT NULL, CONTENT VARCHAR NOT NULL, CREATOR VARCHAR(20) NOT NULL, USES INT NOT NULL)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS WELCOME (ID VARCHAR(20) PRIMARY KEY, CHANNEL VARCHAR(20) NOT NULL, JOINMESSAGE VARCHAR NOT NULL, LEAVEMESSAGE VARCHAR NOT NULL, COLOR VARCHAR NOT NULL, DM VARCHAR NOT NULL\n)")
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS VOLTE_META (ID INT PRIMARY KEY, VERSION VARCHAR(5))")
 
-        val rs = statement.executeQuery("SELECT * FROM volte_meta")
+        val rs = statement.executeQuery("SELECT * FROM VOLTE_META")
         if (rs.next().not()) {
-            statement.executeUpdate("INSERT INTO volte_meta VALUES(1, '4.0.0')")
+            statement.executeUpdate("INSERT INTO VOLTE_META VALUES(1, '4.0.0')")
         }
-
-
 
 
         statement.queryTimeout = 30
 
         Volte.jda().guilds.forEach {
-            val result = statement.executeQuery("SELECT * FROM guilds WHERE id = '${it.id}'")
+            val result = statement.executeQuery("SELECT * FROM GUILDS WHERE ID = '${it.id}'")
             if (result.next().not()) {
-                statement.executeUpdate("INSERT INTO guilds VALUES('${it.id}', '', '', '${Volte.config().prefix()}')")
+                statement.executeUpdate("INSERT INTO GUILDS VALUES('${it.id}', '', '', '${Volte.config().prefix()}', FALSE, FALSE)")
                 Volte.logger().info("Added ${it.name} to the database.")
             }
         }

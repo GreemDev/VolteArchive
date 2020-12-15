@@ -24,6 +24,7 @@ class InfoCommand : Command() {
             addField("Guilds", event.jda.guilds.size.toString(), true)
             addField("Shards", event.jda.shardInfo.shardTotal.toString(), true)
             addField("Invite Me", "https://greemdev.net/invite", true)
+            addField("Support Server", event.client.serverInvite, true)
             setThumbnail(event.jda.selfUser.effectiveAvatarUrl)
         }
     }

@@ -1,4 +1,4 @@
-package volte.entities
+package volte.database.entities
 
 import com.jagrosh.easysql.SQLColumn
 import com.jagrosh.easysql.columns.IntegerColumn
@@ -25,5 +25,4 @@ data class VolteTag(private val rs: ResultSet) {
     fun content() = content
     fun uses() = uses
     fun creatorId() = creatorId
-
 }

@@ -4,13 +4,14 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import volte.Volte
-import volte.database.VolteDatabase
 import volte.meta.Constants
+import volte.meta.stopwatch
 import volte.meta.then
+import java.awt.Color
 import java.util.regex.Pattern
 import javax.script.ScriptEngineManager
 
-class EvalCommand(private val volte: Volte) : Command() {
+class EvalCommand : Command() {
 
     init {
         this.name = "eval"
@@ -28,21 +29,42 @@ class EvalCommand(private val volte: Volte) : Command() {
         }
 
 
-
-        /*val se = ScriptEngineManager().getEngineByName("nashorn").apply {
+        val se = ScriptEngineManager().getEngineByName("nashorn").apply {
             put("event", event)
             put("config", Volte.config())
             put("commands", Volte.commands())
             put("runtime", Runtime.getRuntime())
             put("db", Volte.db())
-        }*/
+        }
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
-        event.message.reply(builder.build()).then {
+        event.message.reply(builder.build()).then { message ->
             try {
+                var output: Any? = null
+
+                val elapsed = stopwatch {
+                    output = se.eval(code)
+                }
+
+                if (output == null) {
+                    event.reactSuccess()
+                    message.delete().queue()
+                    return@then
+                } else {
+                    builder.setTitle("Evaluation Success")
+                        .setColor(Color.GREEN)
+                        .addField("Output", "```js\n$output```", false)
+                        .addField("Type", output!!::class.simpleName, true)
+                        .addField("Time", "${elapsed}ms", true)
+                    message.editMessage(builder.build()).queue()
+                }
 
             } catch (e: Exception) {
-
+                builder.setTitle("Evaluation Failure")
+                    .setColor(Color.RED)
+                    .addField("Message", e.message, false)
+                    .setDescription("```java\n${e.stackTraceToString()}```")
+                message.editMessage(builder.build()).queue()
             }
         }
     }

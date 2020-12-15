@@ -10,12 +10,12 @@ import volte.util.DiscordUtil
 class MemberParser : VolteArgumentParser<Member?>() {
     override fun parse(event: CommandEvent, value: String): Member? {
         var member: Member? = if (StringUtils.isNumeric(value))
-            event.guild.getMemberById(value)
+            event.guild.getMemberById(value) //id check
         else null
 
         if (member == null) {
             val members = event.guild.findMembers {
-                it.effectiveName.equals(value, true)
+                it.effectiveName.equals(value, true) //username/nickname check
             }.get()
                 if (members.size == 1) {
                     member = members.first()
@@ -23,7 +23,7 @@ class MemberParser : VolteArgumentParser<Member?>() {
             }
 
         if (member == null) {
-            val parsed = DiscordUtil.parseUser(value)
+            val parsed = DiscordUtil.parseUser(value) //<@id> user mention check
             if (parsed != null) {
                 member = event.guild.getMemberById(value)
             }
