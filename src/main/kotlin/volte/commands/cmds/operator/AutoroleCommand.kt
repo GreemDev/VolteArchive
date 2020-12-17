@@ -7,24 +7,24 @@ import volte.commands.parsers.Parsers
 import volte.meta.Constants
 import volte.meta.createEmbed
 
-class OperatorCommand : Command() {
+class AutoroleCommand : Command() {
 
     init {
-        this.name = "operator"
-        this.aliases = arrayOf("op", "setop", "oprole")
-        this.help = "Sets the role to be authorized to use Volte's Moderation and Admin commands."
+        this.name = "autorole"
+        this.help = "Shows or sets the autorole for the current guild."
         this.guildOnly = true
         this.category = Constants.operatorCategory()
     }
 
     override fun execute(event: CommandEvent) {
         val data = Volte.db().getSettingsFor(event.guild.id)
+        val autorole = data.getAutorole()
 
         if (event.args.isEmpty()) {
-            if (data.getOperator().isEmpty()) {
-                event.message.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it.")).queue()
+            if (autorole.isEmpty()) {
+                event.message.reply(event.createEmbed("Autorole isn't currently set. Please run this command again with a role ID to set it.")).queue()
             } else {
-                event.message.reply(event.createEmbed("The current Operator role is <@&${data.getOperator()}>")).queue()
+                event.message.reply(event.createEmbed("The current Autorole is <@&${autorole}>")).queue()
             }
             return
         }
@@ -33,11 +33,9 @@ class OperatorCommand : Command() {
         if (role == null) {
             event.message.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names.")).queue()
         } else {
-            data.setOperator(role.id)
+            data.setAutorole(role.id)
 
-            event.message.reply(event.createEmbed("Successfully set the Operator role to ${role.asMention}")).queue()
+            event.message.reply(event.createEmbed("Successfully set the role to be given to members on join to ${role.asMention}")).queue()
         }
-
     }
-
 }

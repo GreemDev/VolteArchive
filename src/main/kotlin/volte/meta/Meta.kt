@@ -1,31 +1,28 @@
 package volte.meta
 
 import com.jagrosh.easysql.SQLColumn
+import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.Command.Category
+import com.jagrosh.jdautilities.command.CommandClientBuilder
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.requests.RestAction
 import volte.Volte
+import volte.commands.cmds.operator.*
+import volte.commands.cmds.owner.EvalCommand
+import volte.commands.cmds.utilities.InfoCommand
+import volte.commands.cmds.utilities.PingCommand
 import volte.database.entities.GuildData
 import volte.entities.RestPromise
 import volte.util.DiscordUtil
-import java.awt.Color
 
 object Constants {
-
-    fun ownerCategory(): Category = Category("Owner") { event ->
-        Volte.config().owner() == event.author.id
-    }
-
-    fun operatorCategory(): Category = Category("Operator") { event ->
-        DiscordUtil.isOperator(event.member)
-    }
-
+    fun ownerCategory(): Category = Category("Owner", DiscordUtil::isBotOwner)
+    fun operatorCategory(): Category = Category("Operator", DiscordUtil::isOperator)
 }
 
 fun stopwatch(func: () -> Unit): Long {
@@ -57,20 +54,34 @@ fun <V> RestAction<V>.asPromise(): RestPromise<V> = RestPromise(this)
 infix fun <V> RestAction<V>.then(callback: (V) -> Unit): RestPromise<V> = asPromise().then(callback)
 infix fun <V> RestAction<V>.catch(failure: (Throwable) -> Unit): RestPromise<V> = asPromise().catch(failure)
 
+fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
+    for (command in arrayListOf(
+        OperatorCommand::class,
+        InfoCommand::class,
+        PingCommand::class,
+        EvalCommand::class,
+        SetPrefixCommand::class,
+        AntilinkCommand::class,
+        MassPingsCommand::class,
+        AutoroleCommand::class,
+        AutoQuoteCommand::class
+    )) {
+        addCommand(command.java.constructors[0].newInstance() as Command)
+    }
+    return this
+}
 
 
 fun CommandEvent.createEmbed(content: String): MessageEmbed = this.createEmbedBuilder(content).build()
 
-fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder = EmbedBuilder()
-    .setColor(member.getHighestRoleWithColor()?.color ?: Color.GREEN)
-    .setFooter("Requested by ${author.asTag}", author.effectiveAvatarUrl)
-    .setDescription(content ?: "")
+fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder =
+    DiscordUtil.createDefaultEmbed(content, member)
 
 
 fun Member.getHighestRoleWithColor(): Role? = this.roles.firstOrNull { it.color != null }
 
 fun Guild.getData(): GuildData {
-    return Volte.db().getAllSettingsFor(id)
+    return Volte.db().getSettingsFor(id)
 }
 
 fun SQLColumn<*>.equalsValue(str: String): String {

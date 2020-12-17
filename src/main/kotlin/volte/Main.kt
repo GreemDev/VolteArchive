@@ -1,8 +1,10 @@
 package volte
 
+typealias static = JvmStatic
+
 object Main {
 
-    @JvmStatic fun main(args: Array<out String>) {
+    @static fun main(args: Array<out String>) {
         Volte.start()
     }
 

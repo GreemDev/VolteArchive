@@ -10,15 +10,15 @@ import volte.meta.equalsValue
 import volte.util.DiscordUtil
 import java.awt.Color
 
-class WelcomeSettings(db: VolteDatabase, private val guildId: String): DataManager(db.connector(), "welcome") {
+class WelcomeSettings(db: VolteDatabase, private val guildId: String): DataManager(db.connector(), "WELCOME") {
 
     companion object {
-        val ID: SQLColumn<String> = StringColumn("id", false, "", 20)
-        val CHANNEL: SQLColumn<String> = StringColumn("channel", false, "", 20)
-        val GREETING: SQLColumn<String> = StringColumn("joinMessage", false, "", 1950)
-        val FAREWELL: SQLColumn<String> = StringColumn("leaveMessage", false, "", 1950)
-        val COLOR: SQLColumn<String> = StringColumn("color", false, "251,0,112", 11)
-        val DMGREETING: SQLColumn<String> = StringColumn("dm", false, "", 1950)
+        val ID: SQLColumn<String> = StringColumn("ID", false, "", 20)
+        val CHANNEL: SQLColumn<String> = StringColumn("CHANNEL", false, "", 20)
+        val GREETING: SQLColumn<String> = StringColumn("JOINMESSAGE", false, "", 1950)
+        val FAREWELL: SQLColumn<String> = StringColumn("LEAVEMESSAGE", false, "", 1950)
+        val COLOR: SQLColumn<String> = StringColumn("COLOR", false, "251,0,112", 11)
+        val DMGREETING: SQLColumn<String> = StringColumn("DM", false, "", 1950)
     }
 
     fun replacePlaceholders(text: String, user: User, guild: Guild): String {

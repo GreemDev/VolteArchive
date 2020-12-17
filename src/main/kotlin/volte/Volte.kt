@@ -1,27 +1,18 @@
 package volte
 
-import com.jagrosh.jdautilities.command.CommandClient
-import com.jagrosh.jdautilities.command.CommandClientBuilder
-import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.JDABuilder
-import net.dv8tion.jda.api.OnlineStatus
+import com.jagrosh.jdautilities.command.*
+import net.dv8tion.jda.api.*
 import net.dv8tion.jda.api.hooks.EventListener
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import volte.commands.cmds.operator.OperatorCommand
-import volte.commands.cmds.owner.EvalCommand
-import volte.commands.cmds.utilities.InfoCommand
-import volte.commands.cmds.utilities.PingCommand
+import org.slf4j.*
+import volte.commands.cmds.operator.*
+import volte.commands.cmds.owner.*
+import volte.commands.cmds.utilities.*
 import volte.database.VolteDatabase
-import volte.entities.CommandHandler
-import volte.entities.VolteGuildSettingsManager
-import volte.meta.Emoji
-import volte.meta.stopwatch
-import volte.modules.AntilinkModule
-import volte.modules.AutoroleModule
-import volte.modules.MassPingModule
+import volte.entities.*
+import volte.meta.*
+import volte.modules.*
 import javax.security.auth.login.LoginException
 
 class Volte private constructor() {
@@ -71,7 +62,7 @@ class Volte private constructor() {
                     .setOwnerId(config().owner())
                     .setPrefix(config().prefix())
                     .setHelpWord("help")
-                    .addCommands(OperatorCommand(), InfoCommand(), PingCommand(), EvalCommand())
+                    .withVolteCommands()
                     .setGuildSettingsManager(VolteGuildSettingsManager())
                     .setListener(CommandHandler())
                     .setServerInvite("https://greemdev.net/Discord")
@@ -96,7 +87,10 @@ class Volte private constructor() {
             for (klass in arrayListOf(
                 AutoroleModule::class,
                 AntilinkModule::class,
-                MassPingModule::class
+                MassPingModule::class,
+                WelcomeModule::class,
+                QuoteModule::class,
+                DatabaseSynchronizer::class
             )) {
                 logger.info("Adding module ${klass.java.simpleName.replace("Module", "")}...")
                 val module: EventListener = klass.java.constructors[0].newInstance() as EventListener

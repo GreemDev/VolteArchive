@@ -16,7 +16,7 @@ class SetPrefixCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        val settings = Volte.db().getAllSettingsFor(event.guild.id)
+        val settings = Volte.db().getSettingsFor(event.guild.id)
         if (event.args.isEmpty()) {
             event.message.reply(event.createEmbed("The current prefix for this guild is **${settings.getPrefix()}**!"))
             return

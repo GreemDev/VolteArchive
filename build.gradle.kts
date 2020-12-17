@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     application
 }
 
 group = "volte"
-version = "4.0.0.0"
+version = "4.0.0"
 
 repositories {
     mavenCentral()

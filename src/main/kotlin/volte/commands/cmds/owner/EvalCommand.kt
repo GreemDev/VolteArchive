@@ -29,7 +29,7 @@ class EvalCommand : Command() {
         }
 
 
-        val se = ScriptEngineManager().getEngineByName("nashorn").apply {
+        val se = ScriptEngineManager().getEngineByName("js").apply {
             put("event", event)
             put("config", Volte.config())
             put("commands", Volte.commands())
@@ -38,7 +38,7 @@ class EvalCommand : Command() {
         }
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
-        event.message.reply(builder.build()).then { message ->
+        event.message.reply(builder.build()) then { message ->
             try {
                 var output: Any? = null
 
@@ -62,8 +62,7 @@ class EvalCommand : Command() {
             } catch (e: Exception) {
                 builder.setTitle("Evaluation Failure")
                     .setColor(Color.RED)
-                    .addField("Message", e.message, false)
-                    .setDescription("```java\n${e.stackTraceToString()}```")
+                    .setDescription("```js\n${e.message}```")
                 message.editMessage(builder.build()).queue()
             }
         }
