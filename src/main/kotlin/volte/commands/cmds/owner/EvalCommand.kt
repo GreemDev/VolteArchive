@@ -35,6 +35,7 @@ class EvalCommand : Command() {
             put("commands", Volte.commands())
             put("runtime", Runtime.getRuntime())
             put("db", Volte.db())
+            put("conn", Volte.db().connector())
         }
 
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
@@ -49,21 +50,20 @@ class EvalCommand : Command() {
                 if (output == null) {
                     event.reactSuccess()
                     message.delete().queue()
-                    return@then
                 } else {
                     builder.setTitle("Evaluation Success")
                         .setColor(Color.GREEN)
                         .addField("Output", "```js\n$output```", false)
                         .addField("Type", output!!::class.simpleName, true)
                         .addField("Time", "${elapsed}ms", true)
-                    message.editMessage(builder.build()).queue()
+                    message.editMessage(builder.build()).reference(event.message).queue()
                 }
 
             } catch (e: Exception) {
                 builder.setTitle("Evaluation Failure")
                     .setColor(Color.RED)
                     .setDescription("```js\n${e.message}```")
-                message.editMessage(builder.build()).queue()
+                message.editMessage(builder.build()).reference(event.message).queue()
             }
         }
     }

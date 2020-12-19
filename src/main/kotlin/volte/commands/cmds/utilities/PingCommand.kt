@@ -21,6 +21,6 @@ class PingCommand : Command() {
             message = event.message.reply(embed.build()).complete()
         }
 
-        message.editMessage(embed.appendDescription("${Emoji.CLAP} **REST**: ${apiLatency}ms").build()).queue()
+        message.editMessage(embed.appendDescription("${Emoji.CLAP} **REST**: ${apiLatency}ms").build()).reference(event.message).queue()
     }
 }

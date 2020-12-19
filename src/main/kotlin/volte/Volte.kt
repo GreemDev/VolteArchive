@@ -6,13 +6,12 @@ import net.dv8tion.jda.api.hooks.EventListener
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.*
-import volte.commands.cmds.operator.*
-import volte.commands.cmds.owner.*
-import volte.commands.cmds.utilities.*
 import volte.database.VolteDatabase
-import volte.entities.*
 import volte.meta.*
 import volte.modules.*
+import volte.util.obj.CommandHandler
+import volte.util.obj.DatabaseSynchronizer
+import volte.util.obj.VolteGuildSettingsManager
 import javax.security.auth.login.LoginException
 
 class Volte private constructor() {
@@ -51,8 +50,8 @@ class Volte private constructor() {
                 jda().shutdownNow()
             })
 
-            Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
-                logger.error(throwable.message, throwable.cause)
+            Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+                logger.error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"", throwable.cause)
             }
 
             RestAction.setPassContext(true)
@@ -117,10 +116,8 @@ class Volte private constructor() {
             }
         }
 
-        logger.info("Initialization finished in ${elapsed}ms. Volte v4.0.0 is ready.")
-        logger.info("Available commands: [${commandClient.commands.joinToString(", ") { c -> c.name.capitalize() }}]")
-
-
+        logger.info("Initialization finished in ${elapsed}ms. Volte v${Version.formatted()} is ready.")
+        logger.info("Available commands: [Help, ${commandClient.commands.joinToString(", ") { c -> c.name.capitalize() }}]")
     }
 
 }

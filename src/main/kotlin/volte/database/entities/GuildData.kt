@@ -5,11 +5,14 @@ import com.jagrosh.easysql.SQLColumn
 import com.jagrosh.easysql.columns.BooleanColumn
 import com.jagrosh.easysql.columns.StringColumn
 import com.jagrosh.jdautilities.command.GuildSettingsProvider
+import org.h2.jdbc.JdbcResultSet
 import volte.Volte
 import volte.database.VolteDatabase
 import volte.meta.equalsValue
+import volte.meta.updateValueOf
+import volte.meta.valueOf
 
-class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db.connector(), "GUILDS"), GuildSettingsProvider {
+data class GuildData(private val guildId: String) : DataManager(Volte.db().connector(), "GUILDS"), GuildSettingsProvider {
 
     companion object {
         val ID: SQLColumn<String> = StringColumn("ID", false, "", 20)
@@ -24,12 +27,12 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
     fun setAutoQuote(enabled: Boolean) {
         readWrite(select(ID.equalsValue(guildId), ID, AUTOQUOTE)) { rs ->
             if (rs.next()) {
-                AUTOQUOTE.updateValue(rs, enabled)
+                rs.updateValueOf(AUTOQUOTE, enabled)
                 rs.updateRow()
             } else {
                 rs.moveToInsertRow()
-                ID.updateValue(rs, guildId)
-                AUTOQUOTE.updateValue(rs, enabled)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(AUTOQUOTE, enabled)
                 rs.insertRow()
             }
         }
@@ -45,12 +48,12 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
     fun setOperator(id: String) {
         readWrite(select(ID.equalsValue(guildId), ID, OPERATOR)) { rs ->
             if (rs.next()) {
-                OPERATOR.updateValue(rs, id)
+                rs.updateValueOf(OPERATOR, id)
                 rs.updateRow()
             } else {
                 rs.moveToInsertRow()
-                ID.updateValue(rs, guildId)
-                OPERATOR.updateValue(rs, id)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(OPERATOR, id)
                 rs.insertRow()
             }
         }
@@ -58,18 +61,18 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
 
     fun getOperator(): String {
         return read<String>(select(ID.equalsValue(guildId), ID, OPERATOR)) { rs ->
-            if (rs.next()) OPERATOR.getValue(rs) else ""
+            if (rs.next()) rs.valueOf(OPERATOR) else ""
         }
     }
 
     fun setAntilink(enabled: Boolean) {
         readWrite(select(ID.equalsValue(guildId), ID, ANTILINK)) { rs ->
             if (rs.next()) {
-                ANTILINK.updateValue(rs, enabled)
+                rs.updateValueOf(ANTILINK, enabled)
                 rs.updateRow()
             } else {
-                ID.updateValue(rs, guildId)
-                ANTILINK.updateValue(rs, enabled)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(ANTILINK, enabled)
                 rs.insertRow()
             }
         }
@@ -78,14 +81,14 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
 
     fun getAntilink(): Boolean {
         return read<Boolean>(select(ID.equalsValue(guildId), ID, ANTILINK)) {rs ->
-            if (rs.next()) ANTILINK.getValue(rs) else false
+            if (rs.next()) rs.valueOf(ANTILINK) else false
         }
     }
 
 
     fun getMassPings(): Boolean {
         return read<Boolean>(select(ID.equalsValue(guildId), ID, MASSPINGS)) { rs ->
-            if (rs.next()) MASSPINGS.getValue(rs) else false
+            if (rs.next()) rs.valueOf(MASSPINGS) else false
         }
     }
 
@@ -93,12 +96,12 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
     fun setMassPings(enabled: Boolean) {
         readWrite(select(ID.equalsValue(guildId), ID, MASSPINGS)) { rs ->
             if (rs.next()) {
-                MASSPINGS.updateValue(rs, enabled)
+                rs.updateValueOf(MASSPINGS, enabled)
                 rs.updateRow()
             } else {
                 rs.moveToInsertRow()
-                ID.updateValue(rs, guildId)
-                MASSPINGS.updateValue(rs, enabled)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(MASSPINGS, enabled)
                 rs.insertRow()
             }
         }
@@ -107,12 +110,12 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
     fun setPrefix(prefix: String) {
         readWrite(select(ID.equalsValue(guildId), ID, PREFIX)) { rs ->
             if (rs.next()) {
-                PREFIX.updateValue(rs, prefix)
+                rs.updateValueOf(PREFIX, prefix)
                 rs.updateRow()
             } else {
                 rs.moveToInsertRow()
-                ID.updateValue(rs, guildId)
-                PREFIX.updateValue(rs, prefix)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(PREFIX, prefix)
                 rs.insertRow()
             }
         }
@@ -120,7 +123,7 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
 
     fun getPrefix(): String {
         return read<String>(select(ID.equalsValue(guildId), ID, PREFIX)) { rs ->
-            if (rs.next()) PREFIX.getValue(rs) else Volte.config().prefix()
+            if (rs.next()) rs.valueOf(PREFIX) else Volte.config().prefix()
         }
     }
 
@@ -130,26 +133,22 @@ class GuildData(private val guildId: String, db: VolteDatabase) : DataManager(db
 
     fun getAutorole(): String {
         return read<String>(select(ID.equalsValue(guildId), ID, AUTOROLE)) { rs ->
-            if (rs.next()) AUTOROLE.getValue(rs) else ""
+            if (rs.next()) rs.valueOf(AUTOROLE) else ""
         }
     }
 
     fun setAutorole(autorole: String){
         readWrite(select(ID.equalsValue(guildId), ID, AUTOROLE)) { rs ->
             if (rs.next()) {
-                AUTOROLE.updateValue(rs, autorole)
+                rs.updateValueOf(AUTOROLE, autorole)
                 rs.updateRow()
             } else {
                 rs.moveToInsertRow()
-                ID.updateValue(rs, guildId)
-                AUTOROLE.updateValue(rs, autorole)
+                rs.updateValueOf(ID, guildId)
+                rs.updateValueOf(AUTOROLE, autorole)
                 rs.insertRow()
             }
         }
     }
-
-
-    fun id(): String = guildId
-
 }
 

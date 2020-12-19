@@ -21,7 +21,7 @@ class AutoQuoteCommand : Command() {
         val autoquote = data.getAutoQuote()
 
         if (event.args.isEmpty()) {
-            event.message.reply(event.createEmbed("The AutoQuote system is currently ${if (autoquote) "enabled" else "disabled"}} for this guild."))
+            event.message.reply(event.createEmbed("The AutoQuote system is currently ${if (autoquote) "enabled" else "disabled"}} for this guild.")).queue()
             return
         }
 

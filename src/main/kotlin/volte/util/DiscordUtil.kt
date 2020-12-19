@@ -60,17 +60,18 @@ object DiscordUtil {
 
     @static fun parseSnowflake(id: String): Instant {
         return if (StringUtils.isNumeric(id)) {
-            Date((id.toLong().shl(22) + 1420070400000)).toInstant()
+            Date((id.toLong().shr(22) + 1420070400000L)).toInstant()
         } else {
             throw IllegalArgumentException("id must be a number.")
         }
     }
 
     @static fun parseColor(color: String): Color {
-        val split = color.split(";")
-        val r = split[0].toFloat()
-        val g = split[1].toFloat()
-        val b = split[2].toFloat()
+
+        val split = color.split(";").map { it.trim() }
+        val r = split[0].toInt()
+        val g = split[1].toInt()
+        val b = split[2].toInt()
         return Color(r, g, b)
     }
 

@@ -1,4 +1,4 @@
-package volte.entities
+package volte.util.obj
 
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent
@@ -21,12 +21,12 @@ class DatabaseSynchronizer : ListenerAdapter() {
         val selfRoles = Volte.db().getSelfRolesFor(event.guild.id)
 
         if (settings.getAutorole() == event.role.id) {
-            statement.executeUpdate("UPDATE GUILDS SET AUTOROLE = '' WHERE ID = '${event.guild.id}'")
+            settings.setAutorole("")
             return
         }
 
         if (settings.getOperator() == event.role.id) {
-            statement.executeUpdate("UPDATE GUILDS SET OPERATOR = '' WHERE ID = '${event.guild.id}'")
+            settings.setOperator("")
             return
         }
 

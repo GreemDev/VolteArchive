@@ -16,11 +16,22 @@ class BotConfig {
     private val game = "your-game-here"
     private val commandPrefix = "your-prefix-here"
     private val ownerId = "your-id-here"
+    private val guildLogging: GuildLogging = GuildLogging()
 
     fun token() = token
     fun game() = game
     fun prefix() = commandPrefix
     fun owner() = ownerId
+    fun guildLogging() = guildLogging
+
+    class GuildLogging {
+        private val channelId: String = "your-logging-channel-here"
+        private val enabled: Boolean = false
+
+        fun channel(): String = channelId
+        fun enabled(): Boolean = enabled
+    }
+
 
     companion object {
 
@@ -33,8 +44,7 @@ class BotConfig {
         }
 
         val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-        private const val configLoc = "data/volte.json"
-        fun file() = File(configLoc)
+        fun file() = File("data/volte.json")
 
         fun write() {
             FileUtils.write(file(), gson.toJson(BotConfig()), Charset.forName("UTF-8"))

@@ -21,7 +21,7 @@ class AntilinkCommand : Command() {
         val antilink = data.getAntilink()
 
         if (event.args.isEmpty()) {
-            event.message.reply(event.createEmbed("The Antilink system is currently ${if (antilink) "enabled" else "disabled"}} for this guild."))
+            event.message.reply(event.createEmbed("The Antilink system is currently ${if (antilink) "enabled" else "disabled"}} for this guild.")).queue()
             return
         }
 

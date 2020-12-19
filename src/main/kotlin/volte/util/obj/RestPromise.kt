@@ -1,9 +1,9 @@
-package volte.entities
+package volte.util.obj
 
 import net.dv8tion.jda.api.requests.RestAction
 import volte.meta.asPromise
 
-class RestPromise<V>(action: RestAction<V>) {
+data class RestPromise<V>(private val action: RestAction<V>) {
 
     companion object {
         fun allOf(actions: MutableList<RestAction<*>>): RestPromise<*> {
@@ -16,6 +16,10 @@ class RestPromise<V>(action: RestAction<V>) {
             } else {
                 RestAction.allOf(actions).asPromise()
             }
+        }
+
+        fun allOf(vararg actions: RestAction<*>): RestPromise<*> {
+            return allOf(actions.toMutableList())
         }
     }
 

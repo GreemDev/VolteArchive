@@ -2,7 +2,7 @@ package volte
 
 typealias static = JvmStatic
 
-object Main {
+internal object Main {
 
     @static fun main(args: Array<out String>) {
         Volte.start()

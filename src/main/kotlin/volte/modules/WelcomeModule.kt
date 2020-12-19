@@ -24,7 +24,7 @@ class WelcomeModule : ListenerAdapter() {
 
         val embed = EmbedBuilder()
             .setColor(settings.getColor())
-            .setDescription(settings.replacePlaceholders(greeting, event.user, event.guild))
+            .setDescription(settings.replaceGreetingPlaceholders(event.user, event.guild))
             .setThumbnail(event.member.user.effectiveAvatarUrl)
             .setTimestamp(Instant.now())
 
@@ -41,7 +41,7 @@ class WelcomeModule : ListenerAdapter() {
 
         val embed = EmbedBuilder()
             .setColor(settings.getColor())
-            .setDescription(settings.replacePlaceholders(farewell, event.user, event.guild))
+            .setDescription(settings.replaceFarewellPlaceholders(event.user, event.guild))
             .setThumbnail(event.user.effectiveAvatarUrl)
             .setTimestamp(Instant.now())
 

@@ -21,7 +21,7 @@ class MassPingsCommand : Command() {
         val massPings = data.getMassPings()
 
         if (event.args.isEmpty()) {
-            event.message.reply(event.createEmbed("The Mass Ping system is currently ${if (massPings) "enabled" else "disabled"}} for this guild."))
+            event.message.reply(event.createEmbed("The Mass Ping system is currently ${if (massPings) "enabled" else "disabled"}} for this guild.")).queue()
             return
         }
 

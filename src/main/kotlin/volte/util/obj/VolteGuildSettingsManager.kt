@@ -1,4 +1,4 @@
-package volte.entities
+package volte.util.obj
 
 import com.jagrosh.jdautilities.command.GuildSettingsManager
 import com.jagrosh.jdautilities.command.GuildSettingsProvider
@@ -8,6 +8,6 @@ import volte.database.entities.GuildData
 
 class VolteGuildSettingsManager : GuildSettingsManager<GuildData> {
     override fun getSettings(guild: Guild): GuildData {
-        return GuildData(guild.id, Volte.db())
+        return GuildData(guild.id)
     }
 }

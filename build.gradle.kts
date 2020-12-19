@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.4.20"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
     application
 }
 
@@ -12,6 +13,13 @@ repositories {
     mavenCentral()
     jcenter()
 }
+
+/*tasks {
+    shadowJar {
+        relocate("net.dv8tion.jda", "volte.lib.jda")
+        relocate("com.jagrosh.easysql", "volte.lib.sql")
+    }
+}*/
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
