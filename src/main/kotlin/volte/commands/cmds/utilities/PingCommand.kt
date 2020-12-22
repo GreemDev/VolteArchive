@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Message
 import volte.meta.*
+import kotlin.system.measureTimeMillis
 
 class PingCommand : Command() {
 
@@ -17,7 +18,7 @@ class PingCommand : Command() {
         lateinit var message: Message
         val embed = event.createEmbedBuilder("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
 
-        val apiLatency = stopwatch {
+        val apiLatency = measureTimeMillis {
             message = event.message.reply(embed.build()).complete()
         }
 

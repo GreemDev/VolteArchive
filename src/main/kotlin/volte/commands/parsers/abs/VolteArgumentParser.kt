@@ -1,4 +1,4 @@
-package volte.commands.parsers.abstractions
+package volte.commands.parsers.abs
 
 import com.jagrosh.jdautilities.command.CommandEvent
 

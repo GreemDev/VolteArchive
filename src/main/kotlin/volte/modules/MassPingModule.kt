@@ -13,7 +13,7 @@ class MassPingModule : ListenerAdapter() {
             event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained @everyone or @here.").queue()
         }
         if (event.message.getMentions().size > 10) {
-            event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained more than 10 individual mentions.")
+            event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained more than 10 individual mentions.").queue()
         }
     }
 

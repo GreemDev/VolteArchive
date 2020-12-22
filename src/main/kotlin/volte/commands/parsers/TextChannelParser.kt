@@ -1,10 +1,9 @@
 package volte.commands.parsers
 
 import com.jagrosh.jdautilities.command.CommandEvent
-import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.TextChannel
 import org.apache.commons.lang3.StringUtils
-import volte.commands.parsers.abstractions.VolteArgumentParser
+import volte.commands.parsers.abs.VolteArgumentParser
 import volte.util.DiscordUtil
 
 class TextChannelParser : VolteArgumentParser<TextChannel?>() {

@@ -1,21 +1,17 @@
 package volte.database
 
-import com.jagrosh.easysql.DatabaseConnector
+import volte.database.api.*
 import volte.Volte
 import volte.database.entities.*
 import volte.meta.Version
+import volte.meta.valueOf
 
 class VolteDatabase {
     companion object {
         private val connector: DatabaseConnector = generateConnector()
 
         private fun generateConnector(): DatabaseConnector {
-            return DatabaseConnector("./data/volte", null, null)/*.also {
-                val field = it::class.java.getDeclaredField("LOG")
-                if (field.trySetAccessible()) {
-                    field.set(this, Volte.logger() as org.slf4j.Logger)
-                }
-            }*/
+            return DatabaseConnector("./data/volte")
         }
     }
 
@@ -29,7 +25,7 @@ class VolteDatabase {
 
 
     fun initializeDb() {
-        val statement = connector.connection.createStatement()
+        val statement = connector.connection().createStatement()
 
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS GUILDS (ID VARCHAR(20) PRIMARY KEY, AUTOROLE VARCHAR(20) NOT NULL, OPERATOR VARCHAR(20) NOT NULL, PREFIX VARCHAR NOT NULL, MASSPINGS BOOLEAN NOT NULL, ANTILINK BOOLEAN NOT NULL, AUTOQUOTE BOOLEAN NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS TAGS (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, NAME VARCHAR NOT NULL, CONTENT VARCHAR NOT NULL, CREATOR VARCHAR(20) NOT NULL, USES INT NOT NULL)")
@@ -39,21 +35,31 @@ class VolteDatabase {
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS VOLTE_META (ID INT PRIMARY KEY, VERSION VARCHAR(20))")
 
         val rs = statement.executeQuery("SELECT * FROM VOLTE_META")
-        if (rs.next().not()) {
+        if (!rs.next()) {
             statement.executeUpdate("INSERT INTO VOLTE_META VALUES(1, '${Version.formatted()}')")
         }
 
-        statement.queryTimeout = 30
+        val allGuilds = arrayListOf<String>().apply {
+            val set = statement.executeQuery("SELECT * FROM GUILDS")
+            while (set.next()) {
+                add(set.valueOf(GuildData.ID))
+            }
+        }
+
+        val allWelcomeSettings = arrayListOf<String>().apply {
+            val set = statement.executeQuery("SELECT * FROM WELCOME")
+            while (set.next()) {
+                add(set.valueOf(WelcomeSettings.ID))
+            }
+        }
 
         Volte.jda().guilds.forEach {
-            val guildSet = statement.executeQuery("SELECT * FROM GUILDS WHERE ID = '${it.id}'")
-            if (!guildSet.next()) {
+            if (!allGuilds.contains(it.id)) {
                 statement.executeUpdate("INSERT INTO GUILDS VALUES('${it.id}', '', '', '${Volte.config().prefix()}', FALSE, FALSE, FALSE)")
                 Volte.logger().info("Added ${it.name} to the guilds table.")
             }
 
-            val welcomeSet = statement.executeQuery("SELECT * FROM WELCOME WHERE ID = '${it.id}'")
-            if (!welcomeSet.next()) {
+            if (!allWelcomeSettings.contains(it.id)) {
                 statement.executeUpdate("INSERT INTO WELCOME VALUES ('${it.id}', '', '', '', '251;0;112', '')")
                 Volte.logger().info("Added ${it.name} to the guilds welcome table.")
             }

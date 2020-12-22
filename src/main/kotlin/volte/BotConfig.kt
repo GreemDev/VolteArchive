@@ -65,8 +65,11 @@ class BotConfig {
         val activity = this.game.replace(this.game.split(" ").first(), "").trim()
         return when (this.game.toLowerCase().split(" ").first()) {
             "playing" -> Activity.playing(activity)
+            "listening" -> Activity.listening(activity)
             "listeningto" -> Activity.listening(activity)
             "watching" -> Activity.watching(activity)
+            "competing" -> Activity.competing(activity)
+            "competingin" -> Activity.competing(activity)
             else -> Activity.playing(activity)
         }
     }

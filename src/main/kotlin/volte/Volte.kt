@@ -1,18 +1,30 @@
 package volte
 
-import com.jagrosh.jdautilities.command.*
-import net.dv8tion.jda.api.*
+import com.jagrosh.jdautilities.command.CommandClient
+import com.jagrosh.jdautilities.command.CommandClientBuilder
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.OnlineStatus
+import net.dv8tion.jda.api.entities.Message.MentionType
 import net.dv8tion.jda.api.hooks.EventListener
+import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.requests.RestAction
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import org.slf4j.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import volte.database.VolteDatabase
-import volte.meta.*
+import volte.meta.Emoji
+import volte.meta.Version
+import volte.meta.withVolteCommands
 import volte.modules.*
 import volte.util.obj.CommandHandler
 import volte.util.obj.DatabaseSynchronizer
 import volte.util.obj.VolteGuildSettingsManager
+import java.util.*
 import javax.security.auth.login.LoginException
+import kotlin.system.measureTimeMillis
+
 
 class Volte private constructor() {
 
@@ -43,12 +55,15 @@ class Volte private constructor() {
     init {
         BotConfig.checks()
 
-        val elapsed = stopwatch {
+        val elapsed = measureTimeMillis {
             Runtime.getRuntime().addShutdownHook(Thread {
                 db().connector().shutdown()
                 jda().cancelRequests()
                 jda().shutdownNow()
             })
+
+            MessageAction.setDefaultMentionRepliedUser(false)
+            MessageAction.setDefaultMentions(EnumSet.complementOf(EnumSet.of(MentionType.EVERYONE, MentionType.HERE)))
 
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
                 logger.error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"", throwable.cause)
@@ -72,7 +87,9 @@ class Volte private constructor() {
                 jda = JDABuilder.createDefault(config().token())
                     .addEventListeners(commandClient)
                     .disableCache(CacheFlag.EMOTE, CacheFlag.ACTIVITY)
+                    .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
                     .build().awaitReady()
+
             } catch (e: LoginException) {
                 logger.error("Failed to login to Discord: ${e.message}")
             } catch (e: InterruptedException) {
@@ -102,7 +119,9 @@ class Volte private constructor() {
 
             if (config().game().contains(" ")) {
                 val conts = config().game().toLowerCase().split(" ")
-                if (arrayListOf("playing", "watching", "listeningto").none { conts.first() == it }) {
+                if (arrayListOf("playing", "watching", "listening", "listeningto", "competing", "competingin")
+                        .none { conts.first() == it }
+                ) {
                     logger.warn(
                         "Your game wasn't set properly. " +
                                 "You entered the activity as ${conts.first()}" +
@@ -117,7 +136,7 @@ class Volte private constructor() {
         }
 
         logger.info("Initialization finished in ${elapsed}ms. Volte v${Version.formatted()} is ready.")
-        logger.info("Available commands: [Help, ${commandClient.commands.joinToString(", ") { c -> c.name.capitalize() }}]")
+        logger.info("Available commands: ${commands().commands.size.inc()}") //incremented for the help command
     }
 
 }

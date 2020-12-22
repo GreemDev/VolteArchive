@@ -1,27 +1,24 @@
 package volte.database.entities
 
-import com.jagrosh.easysql.DataManager
-import com.jagrosh.easysql.SQLColumn
-import com.jagrosh.easysql.columns.BooleanColumn
-import com.jagrosh.easysql.columns.StringColumn
+import volte.database.api.*
+import volte.database.api.columns.*
 import com.jagrosh.jdautilities.command.GuildSettingsProvider
 import org.h2.jdbc.JdbcResultSet
 import volte.Volte
 import volte.database.VolteDatabase
-import volte.meta.equalsValue
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 
 data class GuildData(private val guildId: String) : DataManager(Volte.db().connector(), "GUILDS"), GuildSettingsProvider {
 
     companion object {
-        val ID: SQLColumn<String> = StringColumn("ID", false, "", 20)
-        val OPERATOR: SQLColumn<String> = StringColumn("OPERATOR", false, "", 20)
-        val PREFIX: SQLColumn<String> = StringColumn("PREFIX", false, Volte.config().prefix(), 20)
-        val AUTOROLE: SQLColumn<String> = StringColumn("AUTOROLE", false, "", 20)
-        val MASSPINGS: SQLColumn<Boolean> = BooleanColumn("MASSPINGS", false, false)
-        val ANTILINK: SQLColumn<Boolean> = BooleanColumn("ANTILINK", false, false)
-        val AUTOQUOTE: SQLColumn<Boolean> = BooleanColumn("AUTOQUOTE", false, false)
+        val ID: SQLColumn<String> = StringColumn("ID", false, "", true, 20)
+        val OPERATOR: SQLColumn<String> = StringColumn("OPERATOR", false, maxLength = 20)
+        val PREFIX: SQLColumn<String> = StringColumn("PREFIX", false, Volte.config().prefix())
+        val AUTOROLE: SQLColumn<String> = StringColumn("AUTOROLE", false)
+        val MASSPINGS: SQLColumn<Boolean> = BooleanColumn("MASSPINGS", false)
+        val ANTILINK: SQLColumn<Boolean> = BooleanColumn("ANTILINK", false)
+        val AUTOQUOTE: SQLColumn<Boolean> = BooleanColumn("AUTOQUOTE", false)
     }
 
     fun setAutoQuote(enabled: Boolean) {

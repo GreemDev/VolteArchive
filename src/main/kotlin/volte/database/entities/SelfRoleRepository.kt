@@ -1,11 +1,9 @@
 package volte.database.entities
 
-import com.jagrosh.easysql.DataManager
-import com.jagrosh.easysql.SQLColumn
-import com.jagrosh.easysql.columns.StringColumn
+import volte.database.api.*
+import volte.database.api.columns.*
 import volte.Volte
 import volte.database.VolteDatabase
-import volte.meta.equalsValue
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import java.sql.ResultSet
@@ -24,10 +22,12 @@ data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().conne
 
     fun createSelfRole(roleId: String) {
         readWrite(selectAll(GUILDID.equalsValue(guildId))) { rs ->
-            val ids = arrayListOf<String>()
-            while (rs.next()) {
-                ids.add(rs.valueOf(ROLEID))
+            val ids = arrayListOf<String>().apply {
+                while (rs.next()) {
+                    add(rs.valueOf(ROLEID))
+                }
             }
+
             if (!ids.contains(roleId)) {
                 rs.moveToInsertRow()
                 rs.updateValueOf(GUILDID, guildId)
@@ -42,14 +42,15 @@ data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().conne
             while (rs.next()) {
                 if (rs.valueOf(ROLEID) == roleId) {
                     rs.deleteRow()
+                    return@readWrite
                 }
             }
         }
     }
 
     companion object {
-        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, "", 20)
-        val ROLEID: SQLColumn<String> = StringColumn("ROLEID", false, "", 20)
+        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
+        val ROLEID: SQLColumn<String> = StringColumn("ROLEID", false, maxLength = 20)
     }
 
 }

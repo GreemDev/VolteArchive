@@ -5,11 +5,11 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import volte.Volte
 import volte.meta.Constants
-import volte.meta.stopwatch
 import volte.meta.then
 import java.awt.Color
 import java.util.regex.Pattern
 import javax.script.ScriptEngineManager
+import kotlin.system.measureTimeMillis
 
 class EvalCommand : Command() {
 
@@ -41,9 +41,9 @@ class EvalCommand : Command() {
         val builder = EmbedBuilder().addField("Input", "```\n$code```", false)
         event.message.reply(builder.build()) then { message ->
             try {
-                var output: Any? = null
+                var output: Any?
 
-                val elapsed = stopwatch {
+                val elapsed = measureTimeMillis {
                     output = se.eval(code)
                 }
 

@@ -1,12 +1,8 @@
 package volte.database.entities
 
-import com.jagrosh.easysql.DataManager
-import com.jagrosh.easysql.SQLColumn
-import com.jagrosh.easysql.columns.IntegerColumn
-import com.jagrosh.easysql.columns.StringColumn
 import volte.Volte
-import volte.database.VolteDatabase
-import volte.meta.equalsValue
+import volte.database.api.*
+import volte.database.api.columns.*
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import java.sql.ResultSet
@@ -48,11 +44,11 @@ data class TagsRepository(val guildId: String): DataManager(Volte.db().connector
     data class VolteTag(private val rs: ResultSet) {
 
         companion object {
-            val GUILD: SQLColumn<String> = StringColumn("GUILDID", false, "", 20)
-            val NAME: SQLColumn<String> = StringColumn("NAME", false, "", 20)
-            val CONTENT: SQLColumn<String> = StringColumn("CONTENT", false, "", 1950)
-            val USES: SQLColumn<Int> = IntegerColumn("USES", false, 0)
-            val CREATOR: SQLColumn<String> = StringColumn("CREATOR", false, "", 20)
+            val GUILD: SQLColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
+            val NAME: SQLColumn<String> = StringColumn("NAME", false, maxLength = 20)
+            val CONTENT: SQLColumn<String> = StringColumn("CONTENT", false, maxLength = 1950)
+            val USES: SQLColumn<Int> = IntegerColumn("USES", false)
+            val CREATOR: SQLColumn<String> = StringColumn("CREATOR", false, maxLength = 20)
         }
 
         fun rs() = rs

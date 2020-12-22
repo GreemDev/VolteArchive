@@ -75,4 +75,19 @@ object DiscordUtil {
         return Color(r, g, b)
     }
 
+    @static fun prettyPermissions(member: Member): PermissionsResult {
+        val allowed = member.permissions.toList()
+        val denied = Permission.values().mapNotNull {
+            if (allowed.contains(it))
+                return@mapNotNull null
+            else
+                return@mapNotNull it
+        }
+
+        return PermissionsResult(allowed, denied)
+    }
+
+    class PermissionsResult(val allowed: List<Permission>, val denied: List<Permission>) {
+    }
+
 }

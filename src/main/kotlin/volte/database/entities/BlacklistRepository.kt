@@ -1,8 +1,7 @@
 package volte.database.entities
 
-import com.jagrosh.easysql.DataManager
-import com.jagrosh.easysql.SQLColumn
-import com.jagrosh.easysql.columns.StringColumn
+import volte.database.api.*
+import volte.database.api.columns.*
 import volte.Volte
 import volte.meta.*
 
@@ -40,7 +39,7 @@ class BlacklistRepository(private val guildId: String): DataManager(Volte.db().c
 
 
     companion object {
-        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, "", 20)
-        val PHRASE: SQLColumn<String> = StringColumn("PHRASE", false, "", 200)
+        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, "")
+        val PHRASE: SQLColumn<String> = StringColumn("PHRASE", false, "")
     }
 }

@@ -1,13 +1,11 @@
 package volte.database.entities
 
-import com.jagrosh.easysql.DataManager
-import com.jagrosh.easysql.SQLColumn
-import com.jagrosh.easysql.columns.StringColumn
+import volte.database.api.*
+import volte.database.api.columns.*
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.User
 import volte.Volte
 import volte.database.VolteDatabase
-import volte.meta.equalsValue
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import volte.util.DiscordUtil
@@ -16,12 +14,12 @@ import java.awt.Color
 data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connector(), "WELCOME") {
 
     companion object {
-        val ID: SQLColumn<String> = StringColumn("ID", false, "", 20)
-        val CHANNEL: SQLColumn<String> = StringColumn("CHANNEL", false, "", 20)
-        val GREETING: SQLColumn<String> = StringColumn("JOINMESSAGE", false, "", 1950)
-        val FAREWELL: SQLColumn<String> = StringColumn("LEAVEMESSAGE", false, "", 1950)
-        val COLOR: SQLColumn<String> = StringColumn("COLOR", false, "251;0;112", 11)
-        val DMGREETING: SQLColumn<String> = StringColumn("DM", false, "", 1950)
+        val ID: SQLColumn<String> = StringColumn("ID", false, maxLength = 20)
+        val CHANNEL: SQLColumn<String> = StringColumn("CHANNEL", false, maxLength = 20)
+        val GREETING: SQLColumn<String> = StringColumn("JOINMESSAGE", false, maxLength = 1950)
+        val FAREWELL: SQLColumn<String> = StringColumn("LEAVEMESSAGE", false, maxLength = 1950)
+        val COLOR: SQLColumn<String> = StringColumn("COLOR", false, "251;0;112", maxLength = 11)
+        val DMGREETING: SQLColumn<String> = StringColumn("DM", false, maxLength = 1950)
     }
 
     fun replacePlaceholders(text: String, user: User, guild: Guild): String {
@@ -62,7 +60,7 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
 
     fun getColor(): Color {
         return DiscordUtil.parseColor(read<String>(select(ID.equalsValue(guildId), ID, COLOR)) { rs ->
-            if (rs.next()) rs.valueOf(COLOR) else COLOR.defaultValue
+            if (rs.next()) rs.valueOf(COLOR) else COLOR.defaultVal()
         })
     }
 

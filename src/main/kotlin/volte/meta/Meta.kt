@@ -1,6 +1,6 @@
 package volte.meta
 
-import com.jagrosh.easysql.SQLColumn
+import volte.database.api.SQLColumn
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandClientBuilder
@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.requests.RestAction
 import volte.Volte
 import volte.commands.cmds.operator.*
-import volte.commands.cmds.owner.EvalCommand
+import volte.commands.cmds.owner.*
 import volte.commands.cmds.utilities.*
 import volte.database.entities.GuildData
 import volte.util.obj.RestPromise
@@ -24,12 +24,7 @@ import java.time.Instant
 object Constants {
     fun ownerCategory(): Category = Category("Owner", DiscordUtil::isBotOwner)
     fun operatorCategory(): Category = Category("Operator", DiscordUtil::isOperator)
-}
-
-fun stopwatch(func: () -> Unit): Long {
-    val start = System.currentTimeMillis()
-    func()
-    return System.currentTimeMillis() - start
+    fun utilityCategory(): Category = Category("Utility")
 }
 
 fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
@@ -38,17 +33,13 @@ fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
     reply(e.build())
 }
 
-fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) {
-    val e = createEmbedBuilder()
-    func(e)
-    reply(e.build())
-}
+fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) = reply(createEmbedBuilder().apply(func).build())
 
-fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit) {
-    val e = createEmbedBuilder()
-    func(e)
-    message.reply(e.build()).mentionRepliedUser(false).queue()
-}
+
+fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit)
+    = message.reply(
+        createEmbedBuilder().apply(func).build()
+    ).mentionRepliedUser(false).queue()
 
 fun <V> RestAction<V>.asPromise(): RestPromise<V> = RestPromise(this)
 
@@ -74,8 +65,8 @@ fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
         MassPingsCommand::class, AutoroleCommand::class,
         AutoQuoteCommand::class, SayCommand::class,
         SilentSayCommand::class, WelcomeCommand::class,
-
-        SnowflakeCommand::class //this command doesn't work properly so it's not going to be added to the CommandClient until it's fixed
+        SnowflakeCommand::class, BigEmojiCommand::class,
+        NowCommand::class, PermissionsCommand::class
     )) {
         addCommand(command.java.constructors[0].newInstance() as Command)
     }
@@ -101,16 +92,4 @@ fun <T> ResultSet.updateValueOf(col: SQLColumn<T>, value: T) {
 
 fun <T> ResultSet.valueOf(col: SQLColumn<T>): T {
     return col.getValue(this)
-}
-
-fun SQLColumn<*>.equalsValue(str: String): String {
-    return this.`is`(str)
-}
-
-fun SQLColumn<*>.equalsValue(int: Int): String {
-    return this.`is`(int)
-}
-
-fun SQLColumn<*>.equalsValue(long: Long): String {
-    return this.`is`(long)
 }

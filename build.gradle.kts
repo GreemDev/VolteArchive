@@ -1,3 +1,4 @@
+import kotlinx.coroutines.MainScope
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,15 +24,14 @@ repositories {
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("net.dv8tion:JDA:4.2.0_222") {
+    implementation("net.dv8tion:JDA:4.2.0_223") {
         exclude("opus-java")
     }
-    implementation("com.jagrosh:jda-utilities:3.0.1")
+    implementation("com.jagrosh:jda-utilities:3.0.5")
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("commons-io:commons-io:2.6")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.h2database:h2:1.4.200")
-    implementation("com.jagrosh:EasySQL:0.3")
 }
 
 tasks.withType<KotlinCompile>() {
@@ -39,5 +39,5 @@ tasks.withType<KotlinCompile>() {
 }
 
 application {
-    mainClassName = "MainKt"
+    mainClassName = "volte.Main"
 }

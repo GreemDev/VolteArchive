@@ -3,8 +3,7 @@ package volte.commands.parsers
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
 import org.apache.commons.lang3.StringUtils
-import volte.commands.parsers.abstractions.VolteArgumentParser
-import volte.meta.asPromise
+import volte.commands.parsers.abs.VolteArgumentParser
 import volte.util.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {
@@ -14,13 +13,11 @@ class MemberParser : VolteArgumentParser<Member?>() {
         else null
 
         if (member == null) {
-            val members = event.guild.findMembers {
-                it.effectiveName.equals(value, true) //username/nickname check
-            }.get()
-                if (members.size == 1) {
-                    member = members.first()
-                }
+            member = event.guild.members.firstOrNull {
+                it.effectiveName.equals(value, true) or //username/nickname check
+                        (it.id == value) //id check, we do it again because getMemberById() only checks cache, and this doesn't
             }
+        }
 
         if (member == null) {
             val parsed = DiscordUtil.parseUser(value) //<@id> user mention check
@@ -28,6 +25,8 @@ class MemberParser : VolteArgumentParser<Member?>() {
                 member = event.guild.getMemberById(value)
             }
         }
+
+        println(value)
 
         return member
     }

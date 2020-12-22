@@ -1,7 +1,7 @@
 package volte.commands.parsers
 
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.commands.parsers.abstractions.VolteArgumentParser
+import volte.commands.parsers.abs.VolteArgumentParser
 
 class BooleanParser : VolteArgumentParser<Boolean?>() {
 
@@ -12,8 +12,11 @@ class BooleanParser : VolteArgumentParser<Boolean?>() {
         "0")
 
     override fun parse(event: CommandEvent, value: String): Boolean? {
-        if (trueValues.contains(value)) return true
-        if (falseValues.contains(value)) return false
-        return null
+
+        return when {
+            trueValues.contains(value) -> true
+            falseValues.contains(value) -> false
+            else -> null
+        }
     }
 }
