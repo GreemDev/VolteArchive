@@ -15,7 +15,7 @@ class MemberParser : VolteArgumentParser<Member?>() {
         if (member == null) {
             member = event.guild.members.firstOrNull {
                 it.effectiveName.equals(value, true) or //username/nickname check
-                        (it.id == value) //id check, we do it again because getMemberById() only checks cache, and this doesn't
+                        (it.id == value)
             }
         }
 
@@ -25,8 +25,6 @@ class MemberParser : VolteArgumentParser<Member?>() {
                 member = event.guild.getMemberById(value)
             }
         }
-
-        println(value)
 
         return member
     }

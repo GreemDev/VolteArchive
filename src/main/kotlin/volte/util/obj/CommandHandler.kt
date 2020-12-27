@@ -8,7 +8,10 @@ import java.time.Instant
 
 class CommandHandler : CommandListener {
 
-    override fun onCommand(event: CommandEvent, command: Command) {
+    override fun onCommand(event: CommandEvent, command: Command?) {
+
+        if (command == null) return
+
         val sb = StringBuilder()
             .appendLine("|  -Command from user: ${event.member.user.asTag}")
             .appendLine("${spaces}|    -Message Content: ${event.message.contentRaw}")

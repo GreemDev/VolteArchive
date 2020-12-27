@@ -58,6 +58,10 @@ object DiscordUtil {
         return isOperator(event.member)
     }
 
+    /**
+     * Parses the given [id] as a Discord Snowflake and returns it as an [java.time.Instant].
+     * If the parse fails, it throws an [IllegalArgumentException].
+     */
     @static fun parseSnowflake(id: String): Instant {
         return if (StringUtils.isNumeric(id)) {
             Date((id.toLong().shr(22) + 1420070400000L)).toInstant()
@@ -66,17 +70,36 @@ object DiscordUtil {
         }
     }
 
+    /**
+     * Tries to parse the given [id] as a Discord Snowflake and returns it as an [Instant].
+     * If the parse fails, it returns [Instant.MIN].
+     */
+    @static fun tryParseSnowflake(id: String): Instant {
+        return try {
+            parseSnowflake(id)
+        } catch (e: IllegalArgumentException) {
+            return Instant.MIN
+        }
+    }
+
+    /**
+     * Parses the [color] argument into a [Color].
+     * The string must be in the format `r;g;b`.
+     */
     @static fun parseColor(color: String): Color {
 
-        val split = color.split(";").map { it.trim() }
+        val split = color.split(";").map(String::trim)
         val r = split[0].toInt()
         val g = split[1].toInt()
         val b = split[2].toInt()
         return Color(r, g, b)
     }
 
+    /**
+     * Returns a [PermissionsResult] containing the allowed and denied permissions of the given [member].
+     */
     @static fun prettyPermissions(member: Member): PermissionsResult {
-        val allowed = member.permissions.toList()
+        val allowed = member.permissions.clone().toList()
         val denied = Permission.values().mapNotNull {
             if (allowed.contains(it))
                 return@mapNotNull null
@@ -87,7 +110,5 @@ object DiscordUtil {
         return PermissionsResult(allowed, denied)
     }
 
-    class PermissionsResult(val allowed: List<Permission>, val denied: List<Permission>) {
-    }
-
+    class PermissionsResult(val allowed: List<Permission>, val denied: List<Permission>)
 }

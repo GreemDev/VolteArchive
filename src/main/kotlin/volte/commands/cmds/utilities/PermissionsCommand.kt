@@ -49,19 +49,20 @@ class PermissionsCommand : Command() {
 
         val res = DiscordUtil.prettyPermissions(member)
 
-        val allowedStr = res.allowed.map {
-            val name = it.name.toLowerCase().capitalize()
-            return@map "- $name"
-        }.joinToString("\n")
-
-        val deniedStr = res.denied.map {
-            val name = it.name.toLowerCase().capitalize()
-            return@map "- $name"
-        }.joinToString("\n")
+        val allowedStr = res.allowed.joinToString("\n", transform = this::formatPermissionName)
+        val deniedStr = res.denied.joinToString("\n", transform = this::formatPermissionName)
 
         event.messageReply {
             addField("Allowed", if (allowedStr.isEmpty()) "- None" else allowedStr, true)
             addField("Denied", if (deniedStr.isEmpty()) "- None" else deniedStr, true)
         }
+    }
+
+    private fun formatPermissionName(perm: Permission): String {
+        val name = perm.name.toLowerCase()
+        val parts = name.split("_")
+        if (parts.isEmpty()) return name.capitalize()
+        return "- " + parts.joinToString(" ", transform = String::capitalize)
+
     }
 }

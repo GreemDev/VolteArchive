@@ -1,4 +1,3 @@
-import kotlinx.coroutines.MainScope
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -18,13 +17,12 @@ repositories {
 /*tasks {
     shadowJar {
         relocate("net.dv8tion.jda", "volte.lib.jda")
-        relocate("com.jagrosh.easysql", "volte.lib.sql")
     }
 }*/
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("net.dv8tion:JDA:4.2.0_223") {
+    implementation("net.dv8tion:JDA:4.2.0_224") {
         exclude("opus-java")
     }
     implementation("com.jagrosh:jda-utilities:3.0.5")

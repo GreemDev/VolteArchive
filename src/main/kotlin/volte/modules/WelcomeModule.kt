@@ -6,13 +6,15 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
 import volte.database.entities.WelcomeSettings
+import volte.meta.getData
+import volte.meta.getWelcomeSettings
 import volte.meta.then
 import java.time.Instant
 
 class WelcomeModule : ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-        val settings = Volte.db().getWelcomeSettingsFor(event.guild.id)
+        val settings = event.guild.getWelcomeSettings()
         if (settings.getDmGreeting().isNotEmpty()) {
             joinGuildDm(event, settings)
         }
@@ -32,7 +34,7 @@ class WelcomeModule : ListenerAdapter() {
     }
 
     override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
-        val settings = Volte.db().getWelcomeSettingsFor(event.guild.id)
+        val settings = event.guild.getWelcomeSettings()
         val channelId = settings.getChannel()
         if (channelId.isEmpty()) return
         val channel = event.guild.getTextChannelById(channelId) ?: return

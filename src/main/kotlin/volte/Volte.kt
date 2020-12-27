@@ -14,13 +14,9 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import volte.database.VolteDatabase
-import volte.meta.Emoji
-import volte.meta.Version
-import volte.meta.withVolteCommands
+import volte.meta.*
 import volte.modules.*
-import volte.util.obj.CommandHandler
-import volte.util.obj.DatabaseSynchronizer
-import volte.util.obj.VolteGuildSettingsManager
+import volte.util.obj.*
 import java.util.*
 import javax.security.auth.login.LoginException
 import kotlin.system.measureTimeMillis
@@ -34,7 +30,9 @@ class Volte private constructor() {
 
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(Volte::class.java)
+        private val logger: Logger by lazy {
+            LoggerFactory.getLogger(Volte::class.java)
+        }
         fun logger() = this.logger
 
         private lateinit var jda: JDA
@@ -106,8 +104,14 @@ class Volte private constructor() {
                 MassPingModule::class,
                 WelcomeModule::class,
                 QuoteModule::class,
-                DatabaseSynchronizer::class
+                DatabaseSynchronizer::class,
+                DebugLogger::class
             )) {
+
+                if (Version.releaseType != ReleaseType.DEVELOPMENT && klass.java.simpleName == "DebugLogger") {
+                    continue
+                }
+
                 logger.info("Adding module ${klass.java.simpleName.replace("Module", "")}...")
                 val module: EventListener = klass.java.constructors[0].newInstance() as EventListener
 
@@ -125,11 +129,11 @@ class Volte private constructor() {
                     logger.warn(
                         "Your game wasn't set properly. " +
                                 "You entered the activity as ${conts.first()}" +
-                                "instead of a valid activity: Playing, Listeningto, or Watching."
+                                "instead of a valid activity: Playing, Listening[to], Competing[in], or Watching."
                     )
                     logger.warn("Your bot's game has been set to \"Playing ${activity.name}\"")
                 } else {
-                    val activityType = activity.type.toString().toLowerCase().capitalize()
+                    val activityType = activity.type.name.toLowerCase().capitalize()
                     logger.info("Set the activity to \"${if (activityType == "Default") "Playing" else activityType} ${activity.name}\"")
                 }
             }

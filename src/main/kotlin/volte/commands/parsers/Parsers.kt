@@ -8,7 +8,7 @@ import volte.static
 import java.awt.Color
 
 /**
- * Singleton instances of [VolteArgumentParser<T>]
+ * Singleton instances of [VolteArgumentParser]
  */
 object Parsers {
     // Instances

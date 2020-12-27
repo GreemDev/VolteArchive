@@ -12,6 +12,7 @@ class PingCommand : Command() {
         this.name = "ping"
         this.help = "Simple command to check API latency and gateway ping."
         this.guildOnly = true
+        this.category = Constants.utilityCategory()
     }
 
     override fun execute(event: CommandEvent) {

@@ -3,10 +3,7 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.JDAInfo
-import volte.meta.Version
-import volte.meta.createEmbedBuilder
-import volte.meta.messageReply
-import volte.meta.reply
+import volte.meta.*
 
 class InfoCommand : Command() {
 
@@ -15,6 +12,7 @@ class InfoCommand : Command() {
         this.aliases = arrayOf("botinfo")
         this.help = "Shows various information about Volte."
         this.guildOnly = true
+        this.category = Constants.utilityCategory()
     }
 
     override fun execute(event: CommandEvent) {
