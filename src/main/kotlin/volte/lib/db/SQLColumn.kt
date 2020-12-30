@@ -1,4 +1,4 @@
-package volte.database.api
+package volte.lib.db
 
 import java.sql.ResultSet
 import java.sql.SQLException

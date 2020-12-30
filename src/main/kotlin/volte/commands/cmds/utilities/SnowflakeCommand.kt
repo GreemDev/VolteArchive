@@ -19,14 +19,16 @@ class SnowflakeCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        if (StringUtils.isNumeric(event.args).not()) {
-            event.message.reply(event.createEmbed("Input must be a snowflake; aka a Discord ID!")).queue()
+        if (!StringUtils.isNumeric(event.args)) {
+            event.messageReply {
+                setTitle("Input must be a snowflake; aka a Discord ID!")
+            }
             return
         }
-        val inst = DiscordUtil.parseSnowflake(event.args).prettyPrint()
+        val prettyPrintArr = DiscordUtil.parseSnowflake(event.args).prettyPrint().split(',')
         event.messageReply {
-            addField("Date", inst.split(",").first(), true)
-            addField("Time", inst.split(",")[1], true)
+            addField("Date", prettyPrintArr.first(), true)
+            addField("Time", prettyPrintArr[1], true)
         }
     }
 }

@@ -1,11 +1,11 @@
 package volte.database.entities
 
-import volte.database.api.*
-import volte.database.api.columns.*
 import com.jagrosh.jdautilities.command.GuildSettingsProvider
-import org.h2.jdbc.JdbcResultSet
 import volte.Volte
-import volte.database.VolteDatabase
+import volte.lib.db.DataManager
+import volte.lib.db.SQLColumn
+import volte.lib.db.columns.BooleanColumn
+import volte.lib.db.columns.StringColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 

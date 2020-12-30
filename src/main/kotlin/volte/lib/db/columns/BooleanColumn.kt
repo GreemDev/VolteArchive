@@ -1,8 +1,6 @@
-package volte.database.api.columns
+package volte.lib.db.columns
 
-import volte.database.api.SQLColumn
-import volte.meta.updateValueOf
-import volte.meta.valueOf
+import volte.lib.db.SQLColumn
 import java.sql.ResultSet
 
 class BooleanColumn(

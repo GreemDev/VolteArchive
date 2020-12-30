@@ -12,26 +12,14 @@ class PermissionsCommand : Command() {
 
     init {
         this.name = "permissions"
-        this.aliases = arrayOf("permissionsfor", "perms", "permission")
-        this.help = "Shows permissions for a given user, or yourself if you don't provide a user."
+        this.aliases = arrayOf("perms", "permission")
+        this.help = "Shows permissions for yourself."
         this.guildOnly = true
         this.category = Constants.utilityCategory()
     }
 
     override fun execute(event: CommandEvent) {
-        val member = if (event.args.isEmpty())
-            event.member
-        else
-            Parsers.member().parse(event, event.args)
-
-        if (member == null) {
-            event.messageReply {
-                setTitle("Invalid user passed as an argument. Try an ID?")
-            }
-            return
-        }
-
-        if (member.id == event.guild.ownerId) {
+        if (event.member.isOwner) {
             event.messageReply {
                 setTitle("User is the guild owner, so they have all permissions.")
             }
@@ -39,7 +27,7 @@ class PermissionsCommand : Command() {
             return
         }
 
-        if (member.permissions.contains(Permission.ADMINISTRATOR)) {
+        if (event.member.hasPermission(Permission.ADMINISTRATOR)) {
             event.messageReply {
                 setTitle("User has the Administrator permission, so they have all permissions.")
             }
@@ -47,7 +35,7 @@ class PermissionsCommand : Command() {
             return
         }
 
-        val res = DiscordUtil.prettyPermissions(member)
+        val res = DiscordUtil.prettyPermissions(event.member)
 
         val allowedStr = res.allowed.joinToString("\n", transform = this::formatPermissionName)
         val deniedStr = res.denied.joinToString("\n", transform = this::formatPermissionName)

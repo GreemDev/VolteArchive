@@ -1,6 +1,6 @@
-package volte.database.api.columns
+package volte.lib.db.columns
 
-import volte.database.api.SQLColumn
+import volte.lib.db.SQLColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import java.sql.ResultSet

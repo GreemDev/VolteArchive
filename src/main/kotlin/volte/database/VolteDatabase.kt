@@ -1,8 +1,8 @@
 package volte.database
 
-import volte.database.api.*
 import volte.Volte
 import volte.database.entities.*
+import volte.lib.db.DatabaseConnector
 import volte.meta.Version
 import volte.meta.valueOf
 

@@ -12,13 +12,14 @@ version = "4.0.0"
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://kotlin.bintray.com/ktor")
 }
 
-/*tasks {
+tasks {
     shadowJar {
-        relocate("net.dv8tion.jda", "volte.lib.jda")
+        relocate("net.dv8tion.jda", "volte.lib.discord")
     }
-}*/
+}
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")

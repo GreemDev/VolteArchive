@@ -1,4 +1,4 @@
-package volte.database.api
+package volte.lib.db
 
 import java.sql.ResultSet
 
@@ -17,6 +17,14 @@ open class DataManager(private val connector: DatabaseConnector, private val tab
         val rs = statement.executeQuery(query)
 
         return func(rs)
+    }
+
+    protected fun readWrite(query: String): ResultSet {
+        return readWrite<ResultSet>(query) { rs -> rs }
+    }
+
+    protected fun read(query: String): ResultSet {
+        return read<ResultSet>(query) { rs -> rs }
     }
 
     protected fun readWrite(query: String, func: (ResultSet) -> Unit) {
@@ -49,7 +57,7 @@ open class DataManager(private val connector: DatabaseConnector, private val tab
 
 
     private fun select(where: String?, columns: String): String {
-        return "SELECT $columns FROM $tableName ${if (where == null) "" else " WHERE $where"}"
+        return "SELECT $columns FROM ${tableName.toUpperCase()} ${if (where == null) "" else " WHERE $where"}"
     }
 
     fun connection() = connector.connection()

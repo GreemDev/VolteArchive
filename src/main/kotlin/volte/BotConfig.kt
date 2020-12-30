@@ -4,6 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.entities.Activity
 import org.apache.commons.io.FileUtils
+import volte.meta.optional
+import volte.util.obj.Optional
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -50,13 +52,13 @@ class BotConfig {
             FileUtils.write(file(), gson.toJson(BotConfig()), Charset.forName("UTF-8"))
         }
 
-        fun get(): BotConfig? {
+        fun get(): Optional<BotConfig> {
             return try {
                 gson.fromJson(FileUtils.readFileToString(file(), Charset.forName("UTF-8")), BotConfig::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
-            }
+            }.optional()
         }
 
     }

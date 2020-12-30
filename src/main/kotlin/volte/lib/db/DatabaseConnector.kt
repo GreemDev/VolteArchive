@@ -1,4 +1,4 @@
-package volte.database.api
+package volte.lib.db
 
 import volte.Volte
 import java.sql.Connection

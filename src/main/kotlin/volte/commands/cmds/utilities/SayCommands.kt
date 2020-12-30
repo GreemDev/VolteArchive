@@ -31,7 +31,7 @@ class SilentSayCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        event.reply(EmbedBuilder().setColor(event.member.getHighestRoleWithColor()?.color ?: Color.CYAN).setDescription(event.args).build()) {
+        event.reply(EmbedBuilder().setColor(event.member.getHighestRoleWithColor().valueOrNull()?.color ?: Color.CYAN).setDescription(event.args).build()) {
             event.message.delete().queue()
         }
     }

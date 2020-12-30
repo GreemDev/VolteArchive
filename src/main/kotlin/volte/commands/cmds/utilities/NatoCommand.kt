@@ -22,9 +22,7 @@ class NatoCommand : Command() {
             return
         }
 
-        val arr = event.args.toLowerCase().toCharArray().filter {
-            it != ' '
-        }
+        val arr = event.args.toLowerCase().toCharArray().filter { it != ' ' }
 
         val list = arrayListOf<String>().apply {
             for (ch in arr) {

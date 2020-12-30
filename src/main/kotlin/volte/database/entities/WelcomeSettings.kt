@@ -1,11 +1,11 @@
 package volte.database.entities
 
-import volte.database.api.*
-import volte.database.api.columns.*
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.User
 import volte.Volte
-import volte.database.VolteDatabase
+import volte.lib.db.DataManager
+import volte.lib.db.SQLColumn
+import volte.lib.db.columns.StringColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import volte.util.DiscordUtil

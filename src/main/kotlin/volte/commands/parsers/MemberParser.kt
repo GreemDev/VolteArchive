@@ -8,14 +8,12 @@ import volte.util.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {
     override fun parse(event: CommandEvent, value: String): Member? {
-        var member: Member? = if (StringUtils.isNumeric(value))
-            event.guild.getMemberById(value) //id check
+        var member: Member? = if (StringUtils.isNumeric(value.trim()))
+            event.guild.retrieveMemberById(value.trim()).complete() //id check
         else null
 
         if (member == null) {
-            member = event.guild.members.firstOrNull {
-                it.effectiveName.equals(value, true) or //username/nickname check
-                        (it.id == value)
+            member = event.guild.members.firstOrNull { it.effectiveName.equals(value, true)
             }
         }
 

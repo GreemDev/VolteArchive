@@ -1,6 +1,5 @@
 package volte.meta
 
-import volte.database.api.SQLColumn
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandClientBuilder
@@ -14,11 +13,14 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.requests.RestAction
 import volte.Volte
 import volte.commands.cmds.operator.*
-import volte.commands.cmds.owner.*
+import volte.commands.cmds.owner.EvalCommand
+import volte.commands.cmds.owner.SetNameCommand
 import volte.commands.cmds.utilities.*
 import volte.database.entities.*
-import volte.util.obj.RestPromise
+import volte.lib.db.SQLColumn
 import volte.util.DiscordUtil
+import volte.util.obj.Optional
+import volte.util.obj.RestPromise
 import java.sql.ResultSet
 import java.time.Instant
 import kotlin.reflect.KClass
@@ -39,13 +41,18 @@ inline fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
     reply(e.build())
 }
 
+infix fun <T> T?.ifPresent(func: (T) -> Unit) {
+    Optional.of(this).ifPresent(func)
+}
+
+fun <T> T?.optional(): Optional<T> = Optional.of(this)
+
 inline fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) = reply(createEmbedBuilder().apply(func).build())
 
 
-fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit)
-    = message.reply(
-        createEmbedBuilder().apply(func).build()
-    ).mentionRepliedUser(false).queue()
+infix fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit) = message.reply(
+    createEmbedBuilder().apply(func).build()
+).mentionRepliedUser(false).queue()
 
 /**
  * Modifies the current [RestAction] into a [RestPromise], allowing you to use [RestPromise.then] and [RestPromise.catch].
@@ -91,21 +98,30 @@ fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
         NowCommand::class, PermissionsCommand::class,
         NatoCommand::class,
 
-    ).forEach {
-
-        addCommand(it.java.constructors[0].newInstance() as Command)
-
-    }
+        ).map { it.java.constructors[0].newInstance() as Command }
+        .forEach(this::addCommand)
     return this
 }
 
-fun GuildMessageReceivedEvent.createEmbedBuilder(content: String?) = DiscordUtil.createDefaultEmbed(content, member!!)
-fun GuildMessageReceivedEvent.createEmbed(content: String) = DiscordUtil.createDefaultEmbed(content, member!!).build()
-fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder = DiscordUtil.createDefaultEmbed(content, member)
-fun CommandEvent.createEmbed(content: String): MessageEmbed = this.createEmbedBuilder(content).build()
+fun GuildMessageReceivedEvent.createEmbedBuilder(content: String? = null) =
+    DiscordUtil.createDefaultEmbed(content, member!!)
+
+infix fun GuildMessageReceivedEvent.createEmbed(content: String) =
+    DiscordUtil.createDefaultEmbed(content, member!!).build()
+
+fun CommandEvent.createEmbedBuilder(content: String? = null): EmbedBuilder =
+    DiscordUtil.createDefaultEmbed(content, member)
+
+infix fun CommandEvent.createEmbed(content: String): MessageEmbed = this.createEmbedBuilder(content).build()
 
 
-fun Member.getHighestRoleWithColor(): Role? = this.roles.firstOrNull { it.color != null }
+fun Member.getHighestRoleWithColor(): Optional<Role> = Optional.of(this.roles.firstOrNull { it.color != null })
+
+fun Member.isOperator(): Boolean = DiscordUtil.isOperator(this)
+
+fun Member.hasRole(id: String): Boolean {
+    return this.roles.map(Role::getId).any(id::equals)
+}
 
 fun Guild.getData(): GuildData {
     return Volte.db().getSettingsFor(id)

@@ -24,31 +24,31 @@ data class RestPromise<V>(private val action: RestAction<V>) {
     }
 
 
-    private var success: ((V) -> Unit)? = null
-    private var failure: ((Throwable) -> Unit)? = null
+    private var success: Optional<(V) -> Unit> = Optional.empty()
+    private var failure: Optional<(Throwable) -> Unit> = Optional.empty()
 
 
     init {
         action.queue({
-            if (success != null) {
-                success!!.invoke(it)
+            success ifPresent { success ->
+                success.invoke(it)
             }
 
         }, {
-            if (failure != null) {
-                failure!!.invoke(it)
+            failure ifPresent { failure ->
+                failure.invoke(it)
             }
         })
     }
 
 
     infix fun then(callback: (V) -> Unit): RestPromise<V> {
-        success = callback
+        success.setValue(callback)
         return this
     }
 
     infix fun catch(callback: (Throwable) -> Unit): RestPromise<V> {
-        failure = callback
+        failure.setValue(callback)
         return this
     }
 

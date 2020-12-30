@@ -1,8 +1,10 @@
 package volte.database.entities
 
 import volte.Volte
-import volte.database.api.*
-import volte.database.api.columns.*
+import volte.lib.db.DataManager
+import volte.lib.db.SQLColumn
+import volte.lib.db.columns.IntegerColumn
+import volte.lib.db.columns.StringColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 import java.sql.ResultSet
@@ -26,6 +28,16 @@ data class TagsRepository(val guildId: String): DataManager(Volte.db().connector
                     rs.deleteRow()
                 }
             }
+        }
+    }
+
+    fun hasTag(name: String): Boolean {
+        return read<Boolean>(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
+            arrayListOf<String>().apply {
+                while (rs.next()) {
+                    add(rs.valueOf(VolteTag.NAME))
+                }
+            }.contains(name)
         }
     }
 

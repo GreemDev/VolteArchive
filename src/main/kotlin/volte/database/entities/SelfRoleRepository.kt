@@ -1,21 +1,18 @@
 package volte.database.entities
 
-import volte.database.api.*
-import volte.database.api.columns.*
 import volte.Volte
-import volte.database.VolteDatabase
+import volte.lib.db.DataManager
+import volte.lib.db.SQLColumn
+import volte.lib.db.columns.StringColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
-import java.sql.ResultSet
 
 data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().connector(), "SELFROLES") {
 
-    val roleIds: ArrayList<String> = arrayListOf()
-
-    init {
-        read(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+    val roleIds: ArrayList<String> = read<ArrayList<String>>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+        arrayListOf<String>().apply {
             while (rs.next()) {
-                roleIds.add(ROLEID.getValue(rs))
+                add(rs.valueOf(ROLEID))
             }
         }
     }
@@ -34,6 +31,16 @@ data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().conne
                 rs.updateValueOf(ROLEID, roleId)
                 rs.insertRow()
             }
+        }
+    }
+
+    fun hasSelfRole(roleId: String): Boolean {
+        return read<Boolean>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+            arrayListOf<String>().apply {
+                while (rs.next()) {
+                    add(rs.valueOf(ROLEID))
+                }
+            }.contains(roleId)
         }
     }
 

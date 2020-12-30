@@ -13,7 +13,9 @@ class DatabaseSynchronizer : ListenerAdapter() {
         if (!rs.next()) {
             statement.executeUpdate("INSERT INTO GUILDS VALUES('${event.guild.id}', '', '', '${Volte.config().prefix()}', FALSE, FALSE, FALSE)")
         }
-        event.guild.loadMembers()
+        event.guild.loadMembers().onSuccess {
+            Volte.logger(this::class).info("Loaded guild ${event.guild.name}'s ${it.size} member list into the cache.")
+        }
     }
 
     override fun onRoleDelete(event: RoleDeleteEvent) {
