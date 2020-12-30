@@ -47,7 +47,7 @@ Don't want to do any of these? Using the bot and liking it is enough for me :)
             <p><strong>For providing me with an open-source license for developement of Volte.</strong></p>            
         </td>
         <td align="center" width="50%">
-            <a href="https://github.com/abyssal/abyss"><img src="https://img.greemdev.net/cpaXCdXden/74743c3b2052a828788a5bd4aeb0fa1e.png" alt="JProfiler" width="150px"/></a>
+            <a href="https://github.com/abyssal/abyss"><img src="https://avatars1.githubusercontent.com/u/44521335" alt="JProfiler" width="150px"/></a>
             <p><strong>For letting me <strike>steal your code</strike> use <a href="https://github.com/abyssal/abyss">abyss</a> as a reference.</strong></p>
         </td>
     </tr>
