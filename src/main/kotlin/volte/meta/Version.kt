@@ -1,13 +1,15 @@
+@file:Suppress("unused")
+
 package volte.meta
 
 object Version {
 
-    const val major: Int = 4
-    const val minor: Int = 0
-    const val patch: Int = 0
-    val releaseType: ReleaseType = ReleaseType.DEVELOPMENT
-    fun asKotlinVersion(): KotlinVersion = KotlinVersion(major, minor, patch)
-    fun formatted(): String = "$major.$minor.$patch-$releaseType"
+    const val major = 4
+    const val minor = 0
+    const val patch = 0
+    val releaseType = ReleaseType.DEVELOPMENT
+    fun asKotlinVersion() = KotlinVersion(major, minor, patch)
+    fun formatted() = "$major.$minor.$patch-$releaseType"
 
 
 }

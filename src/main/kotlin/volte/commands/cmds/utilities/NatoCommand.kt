@@ -2,7 +2,7 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.Constants
+import volte.meta.categories.utility
 import volte.meta.replyInline
 
 class NatoCommand : Command() {
@@ -11,7 +11,7 @@ class NatoCommand : Command() {
         this.name = "nato"
         this.help = "Translates the given text into the NATO Phonetic Alphabet."
         this.guildOnly = true
-        this.category = Constants.utilityCategory()
+        this.category = utility()
     }
 
     override fun execute(event: CommandEvent) {

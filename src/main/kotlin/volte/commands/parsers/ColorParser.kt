@@ -11,7 +11,8 @@ class ColorParser : VolteArgumentParser<Color?>() {
         if (value.startsWith("#")) {
             try {
                 color = Color(value.substring(1).toLong(16).toInt())
-            } catch (ignored: Exception) {}
+            } catch (ignored: Exception) {
+            }
         }
 
         try {
@@ -23,7 +24,8 @@ class ColorParser : VolteArgumentParser<Color?>() {
             if ((r == null || g == null || b == null) || (r > 255 || g > 255 || b > 255)) return color
 
             color = Color(r, g, b)
-        } catch (ignored: Exception) {}
+        } catch (ignored: Exception) {
+        }
 
         return color
 

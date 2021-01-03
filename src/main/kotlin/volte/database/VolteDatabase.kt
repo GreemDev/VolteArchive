@@ -3,10 +3,8 @@ package volte.database
 import volte.Volte
 import volte.database.entities.*
 import volte.lib.db.DatabaseConnector
-import volte.lib.db.SQLColumn
 import volte.meta.Version
-import volte.meta.next
-import volte.meta.substringFromEnd
+import volte.meta.fromEnd
 import volte.meta.valueOf
 
 class VolteDatabase {
@@ -30,16 +28,18 @@ class VolteDatabase {
     fun initializeDb() {
         val statement = connector.connection().createStatement()
         for (manager in arrayListOf(GuildData(""), WelcomeSettings(""))) {
-            //val columns = manager.allColumns()
-            val result = StringBuilder("CREATE TABLE IF NOT EXISTS ")
-            result.append("${manager.tableName} (")
+
+            val result = StringBuilder("CREATE TABLE IF NOT EXISTS ${manager.tableName} (")
+
             for ((index, column) in manager.allColumns().withIndex()) {
                 var res = "${column.name()} ${column.dataDescription()}, "
                 if (index == manager.allColumns().size.dec()) {
-                    res = res.substringFromEnd(2)
+                    res = res.fromEnd { substring(2) }
                 }
+
                 result.append(res)
             }
+
             result.append(")")
             statement.executeUpdate(result.toString())
         }
@@ -69,7 +69,11 @@ class VolteDatabase {
 
         Volte.jda().guilds.forEach {
             if (!allGuilds.contains(it.id)) {
-                statement.executeUpdate("INSERT INTO GUILDS VALUES('${it.id}', '', '', '${Volte.config().prefix()}', FALSE, FALSE, FALSE)")
+                statement.executeUpdate(
+                    "INSERT INTO GUILDS VALUES('${it.id}', '', '', '${
+                        Volte.config().prefix()
+                    }', FALSE, FALSE, FALSE)"
+                )
                 Volte.logger().info("Added ${it.name} to the guilds table.")
             }
 

@@ -3,9 +3,9 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import org.apache.commons.lang3.StringUtils
-import volte.meta.Constants
-import volte.meta.replyInline
+import volte.meta.categories.utility
 import volte.meta.prettyPrint
+import volte.meta.replyInline
 import volte.util.DiscordUtil
 
 class SnowflakeCommand : Command() {
@@ -14,7 +14,7 @@ class SnowflakeCommand : Command() {
         this.name = "snowflake"
         this.help = "Shows the date that a snowflake (Discord ID) represents."
         this.guildOnly = true
-        this.category = Constants.utilityCategory()
+        this.category = utility()
     }
 
     override fun execute(event: CommandEvent) {

@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Message
 import volte.commands.parsers.Parsers
-import volte.meta.Constants
+import volte.meta.categories.operator
 import volte.meta.replyInline
 import volte.meta.then
 import java.util.*
@@ -16,7 +16,7 @@ class MentionRoleCommand : Command() {
         this.aliases = arrayOf("menro")
         this.help = "Mentions a role."
         this.guildOnly = true
-        this.category = Constants.operatorCategory()
+        this.category = operator()
     }
 
     override fun execute(event: CommandEvent) {
@@ -30,7 +30,8 @@ class MentionRoleCommand : Command() {
                 event.reply(parsed.asMention)
             } else {
                 parsed.manager.setMentionable(true) then {
-                    event.channel.sendMessage(parsed.asMention).allowedMentions(EnumSet.of(Message.MentionType.ROLE)) then {
+                    event.channel.sendMessage(parsed.asMention)
+                        .allowedMentions(EnumSet.of(Message.MentionType.ROLE)) then {
                         parsed.manager.setMentionable(false)
                     }
                 }

@@ -56,10 +56,10 @@ open class DataManager(private val connector: DatabaseConnector, var tableName: 
         columns.isEmpty() -> selectAll(where)
         columns.size == 1 -> select(where, columns[0].name())
         else -> select(where, StringBuilder().apply {
-                columns.forEach { col ->
-                    append("${col.name()}, ")
-                }
-            }.toString().trim { it == ' ' || it == ',' })
+            columns.forEach { col ->
+                append("${col.name()}, ")
+            }
+        }.toString().trim { it == ' ' || it == ',' })
     }
 
     internal fun selectAll(): String = select(null, "*")

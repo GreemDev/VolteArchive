@@ -9,7 +9,7 @@ import volte.meta.updateValueOf
 import volte.meta.valueOf
 import java.sql.ResultSet
 
-data class TagsRepository(val guildId: String): DataManager(Volte.db().connector(), "TAGS") {
+data class TagsRepository(val guildId: String) : DataManager(Volte.db().connector(), "TAGS") {
 
     fun getTags(): Set<VolteTag> {
         val tags: HashSet<VolteTag> = hashSetOf()

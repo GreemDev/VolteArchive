@@ -5,7 +5,6 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Message.MentionType
-import net.dv8tion.jda.api.hooks.EventListener
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.requests.restaction.MessageAction
@@ -20,10 +19,7 @@ import volte.meta.ReleaseType
 import volte.meta.Version
 import volte.meta.withVolteCommands
 import volte.modules.*
-import volte.util.obj.CommandHandler
-import volte.util.obj.DatabaseSynchronizer
-import volte.util.obj.DebugLogger
-import volte.util.obj.VolteGuildSettingsManager
+import volte.util.obj.*
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
@@ -41,6 +37,7 @@ class Volte private constructor() {
         infix fun logger(klass: KClass<*>): Logger = logger(klass.java)
         fun logger() = logger(Volte::class)
         infix fun logger(func: Logger.() -> Unit) = logger().apply(func)
+        fun logger(klass: KClass<*>, func: Logger.() -> Unit) = with(logger(klass), func)
 
 
         private lateinit var shardedJda: ShardManager
@@ -79,6 +76,7 @@ class Volte private constructor() {
 
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
                 logger().error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"")
+                GuildLoggingManager.instance.onError(throwable)
                 throwable.printStackTrace()
             }
 
@@ -110,6 +108,7 @@ class Volte private constructor() {
                 if (Version.releaseType == ReleaseType.DEVELOPMENT) {
                     shardedJda.addEventListener(DebugLogger())
                 }
+                shardedJda.addEventListener(GuildLoggingManager.instance)
                 shardedJda.shards.forEach(JDA::awaitReady)
             }
 
@@ -122,7 +121,7 @@ class Volte private constructor() {
                 MassPingModule::class,
                 WelcomeModule::class,
                 QuoteModule::class,
-                DatabaseSynchronizer::class
+                DatabaseSynchronizer::class,
             )) {
                 logger().info("Adding module ${klass.java.simpleName.replace("Module", "")}...")
                 val module = klass.java.constructors[0].newInstance()

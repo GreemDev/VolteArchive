@@ -10,10 +10,14 @@ class MassPingModule : ListenerAdapter() {
         if (!event.guild.getData().getMassPings()) return
 
         if (event.message.mentionsEveryone()) {
-            event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained @everyone or @here.").queue()
+            event.message.delete()
+                .reason("Autodelete from Volte's mass ping checks because the message contained @everyone or @here.")
+                .queue()
         }
         if (event.message.getMentions().size > 10) {
-            event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained more than 10 individual mentions.").queue()
+            event.message.delete()
+                .reason("Autodelete from Volte's mass ping checks because the message contained more than 10 individual mentions.")
+                .queue()
         }
     }
 

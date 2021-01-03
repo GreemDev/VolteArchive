@@ -3,7 +3,7 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.internal.utils.EncodingUtil
-import volte.meta.Constants
+import volte.meta.categories.utility
 import volte.meta.replyInline
 
 class BigEmojiCommand : Command() {
@@ -12,7 +12,7 @@ class BigEmojiCommand : Command() {
         this.name = "bigemoji"
         this.help = "Shows a massive version of whatever emoji you give it. Limit 1"
         this.guildOnly = true
-        this.category = Constants.utilityCategory()
+        this.category = utility()
     }
 
     override fun execute(event: CommandEvent) {

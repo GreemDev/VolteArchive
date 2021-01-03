@@ -8,13 +8,14 @@ import volte.lib.db.columns.BooleanColumn
 import volte.lib.db.columns.StringColumn
 import volte.meta.*
 
-data class GuildData(private val guildId: String) : DataManager(Volte.db().connector(), "GUILDS"), GuildSettingsProvider {
+data class GuildData(private val guildId: String) : DataManager(Volte.db().connector(), "GUILDS"),
+    GuildSettingsProvider {
 
     companion object {
         val ID: SQLColumn<String> = StringColumn("ID", false, "", true, 20)
         val OPERATOR: SQLColumn<String> = StringColumn("OPERATOR", false, maxLength = 20)
         val PREFIX: SQLColumn<String> = StringColumn("PREFIX", false, Volte.config().prefix())
-        val AUTOROLE: SQLColumn<String> = StringColumn("AUTOROLE", false)
+        val AUTOROLE: SQLColumn<String> = StringColumn("AUTOROLE", false, maxLength = 20)
         val MASSPINGS: SQLColumn<Boolean> = BooleanColumn("MASSPINGS", false)
         val ANTILINK: SQLColumn<Boolean> = BooleanColumn("ANTILINK", false)
         val AUTOQUOTE: SQLColumn<Boolean> = BooleanColumn("AUTOQUOTE", false)
@@ -95,16 +96,6 @@ data class GuildData(private val guildId: String) : DataManager(Volte.db().conne
 
     fun setMassPings(enabled: Boolean) {
         queryMutable(select(ID.equalsValue(guildId), ID, MASSPINGS)) { rs ->
-            rs.next({
-                updateValueOf(MASSPINGS, enabled)
-                updateRow()
-            }, {
-                moveToInsertRow()
-                updateValueOf(ID, guildId)
-                updateValueOf(MASSPINGS, enabled)
-                insertRow()
-            })
-
             if (rs.next()) {
                 rs.updateValueOf(MASSPINGS, enabled)
                 rs.updateRow()

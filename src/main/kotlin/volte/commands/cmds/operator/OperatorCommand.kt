@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
 import volte.commands.parsers.Parsers
-import volte.meta.Constants
+import volte.meta.categories.operator
 import volte.meta.createEmbed
 
 class OperatorCommand : Command() {
@@ -14,7 +14,7 @@ class OperatorCommand : Command() {
         this.aliases = arrayOf("op", "setop", "oprole")
         this.help = "Sets the role to be authorized to use Volte's Moderation and Admin commands."
         this.guildOnly = true
-        this.category = Constants.operatorCategory()
+        this.category = operator()
     }
 
     override fun execute(event: CommandEvent) {
@@ -22,7 +22,8 @@ class OperatorCommand : Command() {
 
         if (event.args.isEmpty()) {
             if (data.getOperator().isEmpty()) {
-                event.message.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it.")).queue()
+                event.message.reply(event.createEmbed("The operator role currently isn't set. Please run this command again with a role ID to set it."))
+                    .queue()
             } else {
                 event.message.reply(event.createEmbed("The current Operator role is <@&${data.getOperator()}>")).queue()
             }
@@ -31,7 +32,8 @@ class OperatorCommand : Command() {
 
         val role = Parsers.role().parse(event, event.args)
         if (role == null) {
-            event.message.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names.")).queue()
+            event.message.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names."))
+                .queue()
         } else {
             data.setOperator(role.id)
 

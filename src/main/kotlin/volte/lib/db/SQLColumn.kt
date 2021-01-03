@@ -2,7 +2,6 @@ package volte.lib.db
 
 import java.sql.ResultSet
 import java.sql.SQLException
-import kotlin.jvm.Throws
 
 /**
  * Base class for Volte SQL Column implementations.

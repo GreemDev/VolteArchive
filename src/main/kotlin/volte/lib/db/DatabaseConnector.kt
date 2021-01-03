@@ -20,7 +20,13 @@ class DatabaseConnector(location: String) {
         try {
             connection = DriverManager.getConnection("jdbc:h2:$location")
             logger {
-                info("Using ${connection.metaData.driverName}, connected to the database at ${connection.metaData.url.split("./")[1]}.mv.db")
+                info(
+                    "Using ${connection.metaData.driverName}, connected to the database at ${
+                        connection.metaData.url.split(
+                            "./"
+                        )[1]
+                    }.mv.db"
+                )
             }
         } catch (e: SQLException) {
             throw e

@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import volte.Volte
-import volte.meta.Constants
+import volte.meta.categories.owner
 import volte.meta.then
 import java.awt.Color
 import java.util.regex.Pattern
@@ -16,7 +16,7 @@ class EvalCommand : Command() {
     init {
         this.name = "eval"
         this.help = "Evaluates Nashorn code with predefined variables for you to use."
-        this.category = Constants.ownerCategory()
+        this.category = owner()
     }
 
     private val pattern = Pattern.compile("[\\s\\t\\n\\r]*`{3}(?:js)?[\\n\\r]+((?:.|\\n|\\t\\r)+)`{3}")

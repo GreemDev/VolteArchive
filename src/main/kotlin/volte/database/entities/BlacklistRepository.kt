@@ -6,17 +6,18 @@ import volte.lib.db.SQLColumn
 import volte.lib.db.columns.StringColumn
 import volte.meta.*
 
-class BlacklistRepository(private val guildId: String): DataManager(Volte.db().connector(), "BLACKLIST") {
+class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().connector(), "BLACKLIST") {
 
-    val blacklistedPhrases get() =
-        query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
-            arrayListOf<String>().apply {
-                whileNext(rs) {
-                    add(valueOf(PHRASE))
+    val blacklistedPhrases
+        get() =
+            query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
+                arrayListOf<String>().apply {
+                    whileNext(rs) {
+                        add(valueOf(PHRASE))
+                    }
                 }
-            }
 
-        }
+            }
 
     fun createEntry(phrase: String) {
         queryMutable(select(GUILDID.equalsValue(guildId))) { rs ->

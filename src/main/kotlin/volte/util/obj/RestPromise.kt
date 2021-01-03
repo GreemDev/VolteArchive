@@ -6,7 +6,7 @@ import volte.meta.asPromise
 data class RestPromise<V>(private val action: RestAction<V>) {
 
     companion object {
-        fun allOf(actions: List<RestAction<*>>): RestPromise<*> {
+        infix fun allOf(actions: List<RestAction<*>>): RestPromise<*> {
             if (actions.isEmpty()) {
                 throw IllegalArgumentException("List of RestActions must have elements.")
             }
@@ -21,34 +21,36 @@ data class RestPromise<V>(private val action: RestAction<V>) {
         fun allOf(vararg actions: RestAction<*>): RestPromise<*> {
             return allOf(actions.toMutableList())
         }
+
+        infix fun <V> of(action: RestAction<V>) = RestPromise(action)
     }
 
 
-    private var success: Optional<(V) -> Unit> = Optional.empty()
-    private var failure: Optional<(Throwable) -> Unit> = Optional.empty()
+    private var success = Optional.empty<(V) -> Unit>()
+    private var failure = Optional.empty<(Throwable) -> Unit>()
 
 
     init {
-        action.queue({
-            success ifPresent { success ->
-                success(it)
+        action.queue({ entity ->
+            success hasValue { success ->
+                success(entity)
             }
 
-        }) {
-            failure ifPresent { failure ->
-                failure(it)
+        }) { throwable ->
+            failure hasValue { failure ->
+                failure(throwable)
             }
         }
     }
 
 
     infix fun then(callback: (V) -> Unit): RestPromise<V> {
-        success = Optional of callback
+        success.setValue(callback)
         return this
     }
 
     infix fun catch(callback: (Throwable) -> Unit): RestPromise<V> {
-        failure = Optional of callback
+        failure.setValue(callback)
         return this
     }
 

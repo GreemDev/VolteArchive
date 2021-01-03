@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
+import volte.database.entities.SelfRoleRepository
 
 class DatabaseSynchronizer : ListenerAdapter() {
 
@@ -11,10 +12,16 @@ class DatabaseSynchronizer : ListenerAdapter() {
         val statement = Volte.db().connector().connection().createStatement()
         val rs = statement.executeQuery("SELECT * FROM GUILDS WHERE ID = ${event.guild.id}")
         if (!rs.next()) {
-            statement.executeUpdate("INSERT INTO GUILDS VALUES('${event.guild.id}', '', '', '${Volte.config().prefix()}', FALSE, FALSE, FALSE)")
+            statement.executeUpdate(
+                "INSERT INTO GUILDS VALUES('${event.guild.id}', '', '', '${
+                    Volte.config().prefix()
+                }', FALSE, FALSE, FALSE)"
+            )
         }
         event.guild.loadMembers().onSuccess {
-            Volte.logger(this::class).info("Loaded guild ${event.guild.name}'s ${it.size} member list into the cache.")
+            Volte.logger(this::class) {
+                info("Loaded guild ${event.guild.name}'s ${it.size} member list into the cache.")
+            }
         }
     }
 
@@ -34,7 +41,12 @@ class DatabaseSynchronizer : ListenerAdapter() {
         }
 
         if (selfRoles.roleIds.contains(event.role.id)) {
-            statement.executeUpdate("DELETE FROM SELFROLES WHERE ROLEID = '${event.role.id}' AND GUILDID = '${event.guild.id}'")
+            statement.executeUpdate(
+                "DELETE FROM SELFROLES WHERE " +
+                        "${SelfRoleRepository.ROLEID.equalsValue(event.role.id)} " +
+                        "AND " +
+                        SelfRoleRepository.GUILDID.equalsValue(event.guild.id)
+            )
         }
     }
 

@@ -62,16 +62,16 @@ class BotConfig {
     }
 
     fun parseActivity(): Activity {
-        val activity = this.game.replace(this.game.split(" ").first(), "").trim() to
-                this.game.toLowerCase().split(" ").first()
-        return when (activity.second) {
-            "playing" -> Activity.playing(activity.first)
-            "listening" -> Activity.listening(activity.first)
-            "listeningto" -> Activity.listening(activity.first)
-            "watching" -> Activity.watching(activity.first)
-            "competing" -> Activity.competing(activity.first)
-            "competingin" -> Activity.competing(activity.first)
-            else -> Activity.playing(activity.first)
+        val activity = this.game.replace(this.game.split(" ").first(), "").trim()
+        val type = this.game.toLowerCase().split(" ").first()
+        return when (type) {
+            "playing" -> Activity.playing(activity)
+            "listening" -> Activity.listening(activity)
+            "listeningto" -> Activity.listening(activity)
+            "watching" -> Activity.watching(activity)
+            "competing" -> Activity.competing(activity)
+            "competingin" -> Activity.competing(activity)
+            else -> Activity.playing(activity)
         }
     }
 }

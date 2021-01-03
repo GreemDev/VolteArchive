@@ -7,7 +7,7 @@ class BooleanColumn(
     private val name: String,
     nullable: Boolean,
     private val default: Boolean = false
-    ) : SQLColumn<Boolean>(name, nullable, default) {
+) : SQLColumn<Boolean>(name, nullable, default) {
 
     override fun dataDescription(): String = "BOOLEAN DEFAULT ${default.toString().toUpperCase()} ${nullableStr()}"
 

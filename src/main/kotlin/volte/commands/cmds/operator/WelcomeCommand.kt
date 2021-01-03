@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
 import volte.commands.parsers.Parsers
-import volte.meta.Constants
+import volte.meta.categories.operator
 import volte.meta.replyInline
 
 class WelcomeCommand : Command() {
@@ -13,9 +13,10 @@ class WelcomeCommand : Command() {
 
     init {
         this.name = "welcome"
-        this.help = "Allows you to get or modify various welcome settings. Valid settings are: [${opts.joinToString(", ")}]"
+        this.help =
+            "Allows you to get or modify various welcome settings. Valid settings are: [${opts.joinToString(", ")}]"
         this.guildOnly = true
-        this.category = Constants.operatorCategory()
+        this.category = operator()
     }
 
     override fun execute(event: CommandEvent) {

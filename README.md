@@ -15,10 +15,13 @@ A free, robust, open-source Discord bot written in Kotlin with [JDA](https://git
 </tr>
 </table>
 
-|**Prefix**: $|**Lead:** [@GreemDev](https://github.com/GreemDev)|**Lang:** Kotlin|**Library:** [JDA](https://github.com/DV8FromTheWorld/JDA)|[Discord Guild](https://discord.gg/H8bcFr2)|[Bot Invite Url](https://greemdev.net/invite)|**Runtime**: Java 11
+|**Prefix**: $|**Lead:** [@GreemDev](https://github.com/GreemDev)|**Lang:** Kotlin|**
+Library:** [JDA](https://github.com/DV8FromTheWorld/JDA)|[Discord Guild](https://discord.gg/H8bcFr2)|[Bot Invite Url](https://greemdev.net/invite)|**
+Runtime**: Java 11
 |---|---|---|---|---|---|---|
 
 ## Quick Links
+
 - [Feature List](https://github.com/Ultz/Volte/wiki/Features)
 - [Invite the bot](https://greemdev.net/Invite)
 - [Issue Tracker](https://github.com/Ultz/Volte/issues)
@@ -38,8 +41,8 @@ A free, robust, open-source Discord bot written in Kotlin with [JDA](https://git
 
 Don't want to do any of these? Using the bot and liking it is enough for me :)
 
-
 ## Thanks To
+
 <table>
     <tr>
         <td align="center" width="50%">

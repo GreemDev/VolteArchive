@@ -3,7 +3,7 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.Permission
-import volte.meta.Constants
+import volte.meta.categories.utility
 import volte.meta.replyInline
 import volte.util.DiscordUtil
 
@@ -14,7 +14,7 @@ class PermissionsCommand : Command() {
         this.aliases = arrayOf("perms", "permission")
         this.help = "Shows permissions for yourself."
         this.guildOnly = true
-        this.category = Constants.utilityCategory()
+        this.category = utility()
     }
 
     override fun execute(event: CommandEvent) {

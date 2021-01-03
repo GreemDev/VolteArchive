@@ -7,7 +7,7 @@ import volte.lib.db.columns.StringColumn
 import volte.meta.updateValueOf
 import volte.meta.valueOf
 
-data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().connector(), "SELFROLES") {
+data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().connector(), "SELFROLES") {
 
     val roleIds: ArrayList<String> = query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
         arrayListOf<String>().apply {

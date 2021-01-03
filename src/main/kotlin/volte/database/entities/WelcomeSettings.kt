@@ -11,7 +11,7 @@ import volte.meta.valueOf
 import volte.util.DiscordUtil
 import java.awt.Color
 
-data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connector(), "WELCOME") {
+data class WelcomeSettings(val guildId: String) : DataManager(Volte.db().connector(), "WELCOME") {
 
     companion object {
         val ID: SQLColumn<String> = StringColumn("ID", false, maxLength = 20)

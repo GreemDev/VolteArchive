@@ -2,7 +2,7 @@ package volte.commands.cmds.owner
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.Constants
+import volte.meta.categories.owner
 import volte.meta.replyInline
 import volte.meta.then
 
@@ -12,7 +12,7 @@ class SetNameCommand : Command() {
         this.name = "setname"
         this.help = "Sets the name of the currently logged in bot."
         this.ownerCommand = true
-        this.category = Constants.ownerCategory()
+        this.category = owner()
     }
 
     override fun execute(event: CommandEvent) {

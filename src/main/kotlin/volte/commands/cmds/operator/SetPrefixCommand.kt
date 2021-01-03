@@ -3,8 +3,7 @@ package volte.commands.cmds.operator
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
-import volte.meta.Constants
-import volte.meta.createEmbed
+import volte.meta.categories.operator
 import volte.meta.replyInline
 
 class SetPrefixCommand : Command() {
@@ -13,7 +12,7 @@ class SetPrefixCommand : Command() {
         this.name = "prefix"
         this.help = "Shows or sets the prefix to be used for commands in the guild."
         this.guildOnly = true
-        this.category = Constants.operatorCategory()
+        this.category = operator()
     }
 
     override fun execute(event: CommandEvent) {

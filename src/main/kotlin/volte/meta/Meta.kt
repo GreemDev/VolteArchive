@@ -1,7 +1,6 @@
 package volte.meta
 
 import com.jagrosh.jdautilities.command.Command
-import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandClientBuilder
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
@@ -21,47 +20,35 @@ import volte.util.obj.Optional
 import volte.util.obj.RestPromise
 import java.sql.ResultSet
 import java.time.Instant
-import kotlin.reflect.KClass
 
 typealias static = JvmStatic
 
 internal object Main {
-    @static fun main(args: Array<out String>) {
+    @static
+    fun main(args: Array<out String>) {
         Volte.start()
     }
-}
-
-object Constants {
-    fun ownerCategory(): Category = owner
-    fun operatorCategory(): Category = operator
-    fun utilityCategory(): Category = utility
-
-    private val owner = Category("Owner", DiscordUtil::isBotOwner)
-    private val operator = Category("Operator", DiscordUtil::isOperator)
-    private val utility = Category("Utility")
 }
 
 inline fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
     createEmbedBuilder(content).apply(func).build().forwardTo(this.channel).queue()
 }
 
-fun String.substringFromEnd(count: Int): String {
-    return this.reversed().substring(count).reversed()
+fun String.fromEnd(func: String.() -> Unit): String {
+    val value = this.reversed()
+    value.apply(func)
+    return value.reversed()
 }
 
-infix fun <T> T?.ifPresent(func: (T) -> Unit) {
-    Optional.of(this).ifPresent(func)
+infix fun <T> T?.hasValue(func: (T) -> Unit): Optional<T> {
+    return Optional(this).hasValue { func(it) }
 }
 
-fun ResultSet.next(hasNext: ResultSet.() -> Unit, hasNoNext: ResultSet.() -> Unit = {}) {
-    if (this.next()) {
-        hasNext(this)
-    } else {
-        hasNoNext(this)
-    }
+infix fun <T> T?.hasNoValue(func: () -> Unit): Optional<T> {
+    return Optional(this).hasNoValue { func() }
 }
 
-fun <T> T?.optional(): Optional<T> = Optional.of(this)
+fun <T> T?.optional(): Optional<T> = Optional of this
 
 inline fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) = reply(createEmbedBuilder().apply(func).build())
 
@@ -72,7 +59,7 @@ infix fun CommandEvent.replyInline(func: EmbedBuilder.() -> Unit) =
 /**
  * Modifies the current [RestAction] into a [RestPromise], allowing you to use [RestPromise.then] and [RestPromise.catch].
  */
-fun <V> RestAction<V>.asPromise(): RestPromise<V> = RestPromise(this)
+fun <V> RestAction<V>.asPromise(): RestPromise<V> = RestPromise of this
 
 /**
  * Shortcut for [RestPromise.then]
@@ -87,12 +74,9 @@ infix fun <V> RestAction<V>.catch(failure: (Throwable) -> Unit): RestPromise<V> 
 fun Instant.prettyPrint(): String {
     val instStrArr = this.toString().split("T")
     val date = instStrArr.first().split("-")
-    val year = date[0]
-    val month = date[1]
-    val day = date[2]
     val time = instStrArr[1].split(".").first()
 
-    return "$day/$month/$year, $time"
+    return "${date[2]}/${date[1]}/${date[0]}, $time"
 }
 
 infix fun MessageEmbed.forwardTo(channel: MessageChannel): MessageAction {
@@ -104,7 +88,7 @@ infix fun EmbedBuilder.forwardTo(channel: MessageChannel): MessageAction {
 }
 
 fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
-    arrayListOf<KClass<*>>(
+    arrayListOf(
         //owner
         EvalCommand::class, SetNameCommand::class,
 
@@ -121,7 +105,7 @@ fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
         NowCommand::class, PermissionsCommand::class,
         NatoCommand::class, AvatarCommand::class
 
-        ).map { it.java.constructors[0].newInstance() as Command }
+    ).map { it.java.constructors[0].newInstance() as Command }
         .forEach(this::addCommand)
     return this
 }

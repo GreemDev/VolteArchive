@@ -2,9 +2,9 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.Constants
-import volte.meta.replyInline
+import volte.meta.categories.utility
 import volte.meta.prettyPrint
+import volte.meta.replyInline
 import java.time.Instant
 
 class NowCommand : Command() {
@@ -13,7 +13,7 @@ class NowCommand : Command() {
         this.name = "now"
         this.help = "Shows the current time."
         this.guildOnly = true
-        this.category = Constants.utilityCategory()
+        this.category = utility()
     }
 
     override fun execute(event: CommandEvent) {
@@ -23,9 +23,11 @@ class NowCommand : Command() {
                 .split(",")
                 .map(CharSequence::trim)
 
-            setDescription(StringBuilder()
-                .appendLine("**Date**: ${now.first()}")
-                .appendLine("**Time**: ${now[1]}"))
+            setDescription(
+                StringBuilder()
+                    .appendLine("**Date**: ${now.first()}")
+                    .appendLine("**Time**: ${now[1]}")
+            )
         }
     }
 }
