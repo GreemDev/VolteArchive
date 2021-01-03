@@ -15,9 +15,15 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import volte.database.VolteDatabase
-import volte.meta.*
+import volte.meta.Emoji
+import volte.meta.ReleaseType
+import volte.meta.Version
+import volte.meta.withVolteCommands
 import volte.modules.*
-import volte.util.obj.*
+import volte.util.obj.CommandHandler
+import volte.util.obj.DatabaseSynchronizer
+import volte.util.obj.DebugLogger
+import volte.util.obj.VolteGuildSettingsManager
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
@@ -31,13 +37,16 @@ class Volte private constructor() {
 
 
     companion object {
-        fun logger(jclass: Class<*>): Logger = LoggerFactory.getLogger(jclass)
-        fun logger(klass: KClass<*>): Logger = logger(klass.java)
+        infix fun logger(jclass: Class<*>): Logger = LoggerFactory.getLogger(jclass)
+        infix fun logger(klass: KClass<*>): Logger = logger(klass.java)
         fun logger() = logger(Volte::class)
+        infix fun logger(func: Logger.() -> Unit) = logger().apply(func)
+
 
         private lateinit var shardedJda: ShardManager
         private lateinit var commandClient: CommandClient
         private lateinit var database: VolteDatabase
+        private var isStarted: Boolean = false
 
         fun jda() = shardedJda
         fun commands() = commandClient
@@ -45,7 +54,12 @@ class Volte private constructor() {
         fun config() = BotConfig.get().value()
 
         fun start() {
-            Volte()
+            if (!isStarted) {
+                isStarted = true
+                Volte()
+            } else {
+                throw IllegalStateException("Volte is already started; cannot start it again.")
+            }
         }
 
     }
@@ -64,7 +78,8 @@ class Volte private constructor() {
             MessageAction.setDefaultMentions(EnumSet.complementOf(EnumSet.of(MentionType.EVERYONE, MentionType.HERE)))
 
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-                logger().error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"", throwable.cause)
+                logger().error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"")
+                throwable.printStackTrace()
             }
 
             RestAction.setPassContext(true)
@@ -91,12 +106,15 @@ class Volte private constructor() {
 
             } catch (e: Exception) {
                 logger().error("Failed to login to Discord: ${e.message}")
-            }
-            finally {
+            } finally {
+                if (Version.releaseType == ReleaseType.DEVELOPMENT) {
+                    shardedJda.addEventListener(DebugLogger())
+                }
                 shardedJda.shards.forEach(JDA::awaitReady)
             }
 
-            database = VolteDatabase().apply(VolteDatabase::initializeDb)
+            database = VolteDatabase()
+            database.initializeDb()
 
             for (klass in arrayListOf(
                 AutoroleModule::class,
@@ -104,16 +122,10 @@ class Volte private constructor() {
                 MassPingModule::class,
                 WelcomeModule::class,
                 QuoteModule::class,
-                DatabaseSynchronizer::class,
-                DebugLogger::class
+                DatabaseSynchronizer::class
             )) {
-
-                if (Version.releaseType != ReleaseType.DEVELOPMENT && klass.java.simpleName == "DebugLogger") {
-                    continue
-                }
-
                 logger().info("Adding module ${klass.java.simpleName.replace("Module", "")}...")
-                val module: EventListener = klass.java.constructors[0].newInstance() as EventListener
+                val module = klass.java.constructors[0].newInstance()
 
                 shardedJda.addEventListener(module)
             }
@@ -127,12 +139,14 @@ class Volte private constructor() {
                         conts[0]::equals
                     )
                 ) {
-                    logger().warn(
-                        "Your game wasn't set properly. " +
-                                "You entered the activity as ${conts.first()}" +
-                                "instead of a valid activity: Playing, Listening[to], Competing[in], or Watching."
-                    )
-                    logger().warn("Your bot's game has been set to \"Playing ${activity.name}\"")
+                    logger {
+                        warn(
+                            "Your game wasn't set properly. " +
+                                    "You entered the activity as ${conts.first()}" +
+                                    "instead of a valid activity: Playing, Listening[to], Competing[in], or Watching."
+                        )
+                        warn("Your bot's game has been set to \"Playing ${activity.name}\"")
+                    }
                 } else {
                     val activityType = activity.type.name.toLowerCase().capitalize()
                     logger().info("Set the activity to \"${if (activityType == "Default") "Playing" else activityType} ${activity.name}\"")
@@ -141,8 +155,10 @@ class Volte private constructor() {
         }
 
         val cont = "${shardedJda.shardsTotal} shard" + if (shardedJda.shardsTotal != 1) "s" else ""
-        logger().info("Initialization of $cont finished in ${elapsed}ms. Volte v${Version.formatted()} is ready.")
-        logger().info("Available commands: ${commands().commands.size.inc()}") //incremented for the help command
+        logger {
+            info("Initialization of $cont finished in ${elapsed}ms. Volte v${Version.formatted()} is ready.")
+            info("Available commands: ${commands().commands.size.inc()}") //incremented for the help command
+        }
     }
 
 }

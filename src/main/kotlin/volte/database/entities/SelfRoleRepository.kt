@@ -9,19 +9,19 @@ import volte.meta.valueOf
 
 data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().connector(), "SELFROLES") {
 
-    val roleIds: ArrayList<String> = read<ArrayList<String>>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+    val roleIds: ArrayList<String> = query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
         arrayListOf<String>().apply {
-            while (rs.next()) {
-                add(rs.valueOf(ROLEID))
+            whileNext(rs) {
+                add(valueOf(ROLEID))
             }
         }
     }
 
     fun createSelfRole(roleId: String) {
-        readWrite(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
             val ids = arrayListOf<String>().apply {
-                while (rs.next()) {
-                    add(rs.valueOf(ROLEID))
+                whileNext(rs) {
+                    add(valueOf(ROLEID))
                 }
             }
 
@@ -35,21 +35,21 @@ data class SelfRoleRepository(val guildId: String): DataManager(Volte.db().conne
     }
 
     fun hasSelfRole(roleId: String): Boolean {
-        return read<Boolean>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+        return query<Boolean>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
             arrayListOf<String>().apply {
-                while (rs.next()) {
-                    add(rs.valueOf(ROLEID))
+                whileNext(rs) {
+                    add(valueOf(ROLEID))
                 }
             }.contains(roleId)
         }
     }
 
     fun deleteSelfRole(roleId: String) {
-        readWrite(selectAll(GUILDID.equalsValue(guildId))) { rs ->
-            while (rs.next()) {
-                if (rs.valueOf(ROLEID) == roleId) {
-                    rs.deleteRow()
-                    return@readWrite
+        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+            whileNext(rs) {
+                if (valueOf(ROLEID) == roleId) {
+                    deleteRow()
+                    return@whileNext
                 }
             }
         }

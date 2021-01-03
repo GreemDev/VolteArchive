@@ -3,16 +3,19 @@ package volte.database
 import volte.Volte
 import volte.database.entities.*
 import volte.lib.db.DatabaseConnector
+import volte.lib.db.SQLColumn
 import volte.meta.Version
+import volte.meta.next
+import volte.meta.substringFromEnd
 import volte.meta.valueOf
 
 class VolteDatabase {
     companion object {
-        private val connector: DatabaseConnector = generateConnector()
+        private lateinit var connector: DatabaseConnector
+    }
 
-        private fun generateConnector(): DatabaseConnector {
-            return DatabaseConnector("./data/volte")
-        }
+    init {
+        connector = DatabaseConnector("./data/volte")
     }
 
     fun connector(): DatabaseConnector = connector
@@ -26,10 +29,21 @@ class VolteDatabase {
 
     fun initializeDb() {
         val statement = connector.connection().createStatement()
-
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS GUILDS (ID VARCHAR(20) PRIMARY KEY, AUTOROLE VARCHAR(20) NOT NULL, OPERATOR VARCHAR(20) NOT NULL, PREFIX VARCHAR NOT NULL, MASSPINGS BOOLEAN NOT NULL, ANTILINK BOOLEAN NOT NULL, AUTOQUOTE BOOLEAN NOT NULL)")
+        for (manager in arrayListOf(GuildData(""), WelcomeSettings(""))) {
+            //val columns = manager.allColumns()
+            val result = StringBuilder("CREATE TABLE IF NOT EXISTS ")
+            result.append("${manager.tableName} (")
+            for ((index, column) in manager.allColumns().withIndex()) {
+                var res = "${column.name()} ${column.dataDescription()}, "
+                if (index == manager.allColumns().size.dec()) {
+                    res = res.substringFromEnd(2)
+                }
+                result.append(res)
+            }
+            result.append(")")
+            statement.executeUpdate(result.toString())
+        }
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS TAGS (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, NAME VARCHAR NOT NULL, CONTENT VARCHAR NOT NULL, CREATOR VARCHAR(20) NOT NULL, USES INT NOT NULL)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS WELCOME (ID VARCHAR(20) PRIMARY KEY, CHANNEL VARCHAR(20) NOT NULL, JOINMESSAGE VARCHAR NOT NULL, LEAVEMESSAGE VARCHAR NOT NULL, COLOR VARCHAR NOT NULL, DM VARCHAR NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS SELFROLES (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, ROLEID VARCHAR(20) NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS BLACKLIST (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, PHRASE VARCHAR(200) NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS VOLTE_META (ID INT PRIMARY KEY, VERSION VARCHAR(20))")
@@ -60,7 +74,7 @@ class VolteDatabase {
             }
 
             if (!allWelcomeSettings.contains(it.id)) {
-                statement.executeUpdate("INSERT INTO WELCOME VALUES ('${it.id}', '', '', '', '251;0;112', '')")
+                statement.executeUpdate("INSERT INTO WELCOME VALUES ('${it.id}', '', '', '', '${WelcomeSettings.COLOR.default()}', '')")
                 Volte.logger().info("Added ${it.name} to the guilds welcome table.")
             }
 

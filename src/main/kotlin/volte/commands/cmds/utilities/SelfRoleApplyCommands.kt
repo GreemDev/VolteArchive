@@ -17,7 +17,7 @@ class IamCommand : Command() {
         val selfRoles = event.guild.getSelfRoles()
         val roleOpt = Parsers.role().parse(event, event.args).optional()
         roleOpt.ifNotPresent {
-            event.messageReply {
+            event.replyInline {
                 setTitle("You didn't provide a valid role.")
                 setDescription("Try using an ID or an @ next time.")
             }
@@ -25,20 +25,20 @@ class IamCommand : Command() {
 
         roleOpt.ifPresent { role ->
             if (selfRoles.roleIds.isEmpty()) {
-                event.messageReply {
+                event.replyInline {
                     setTitle("This guild does not have any roles available to self-assign!")
                 }
                 return@ifPresent
             }
             val selfRole = selfRoles.roleIds.firstOrNull { it == role.id }.optional()
             selfRole.ifNotPresent {
-                event.messageReply {
+                event.replyInline {
                     setTitle("This guild does not have ${role.asMention} as a role to self-assign.")
                 }
             }
             selfRole.ifPresent {
                 event.guild.removeRoleFromMember(event.member, role).then {
-                    event.messageReply {
+                    event.replyInline {
                         setTitle("Success!")
                         setDescription("Took away your ${role.asMention} role.")
                     }
@@ -62,7 +62,7 @@ class IamNotCommand : Command() {
         val selfRoles = event.guild.getSelfRoles()
         val roleOpt = Parsers.role().parse(event, event.args).optional()
         roleOpt.ifNotPresent {
-            event.messageReply {
+            event.replyInline {
                 setTitle("You didn't provide a valid role.")
                 setDescription("Try using an ID or an @ next time.")
             }
@@ -70,20 +70,20 @@ class IamNotCommand : Command() {
 
         roleOpt.ifPresent { role ->
             if (selfRoles.roleIds.isEmpty()) {
-                event.messageReply {
+                event.replyInline {
                     setTitle("This guild does not have any roles available to self-assign!")
                 }
                 return@ifPresent
             }
             val selfRole = selfRoles.roleIds.firstOrNull { entry -> role.id == entry}.optional()
             selfRole.ifNotPresent {
-                event.messageReply {
+                event.replyInline {
                     setTitle("This guild does not have ${role.asMention} as a role to self-assign.")
                 }
             }
             selfRole.ifPresent {
                 event.guild.addRoleToMember(event.member, role).then {
-                    event.messageReply {
+                    event.replyInline {
                         setTitle("Success!")
                         setDescription("Gave you the ${role.asMention} role.")
                     }

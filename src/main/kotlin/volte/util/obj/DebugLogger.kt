@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.events.ReconnectedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import volte.Volte
 import volte.meta.Version
 
 class DebugLogger : ListenerAdapter() {

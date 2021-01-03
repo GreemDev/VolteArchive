@@ -4,6 +4,13 @@ import java.sql.ResultSet
 import java.sql.SQLException
 import kotlin.jvm.Throws
 
+/**
+ * Base class for Volte SQL Column implementations.
+ * [T] directly correlates to the type of data being stored in the column,
+ * so non-SQL supported types such as [java.time.Instant] would require parsing.
+ *
+ * See [volte.lib.db.columns.InstantColumn] for an example
+ */
 abstract class SQLColumn<T> {
 
     private val name: String
@@ -30,19 +37,17 @@ abstract class SQLColumn<T> {
         return if (nullable) "" else " NOT NULL"
     }
 
-    fun defaultVal() = default
+    fun default() = default
     fun name() = name
 
-    fun equalsValue(value: String): String {
-        return "$name = '$value'"
+    fun equalsValue(value: T): String {
+        return if (value is String) {
+            "$name = '$value'"
+        } else "$name = $value"
     }
 
-    fun equalsValue(value: Long): String {
-        return equalsValue(value.toString())
-    }
-
-    fun equalsValue(value: Int): String {
-        return equalsValue(value.toString())
+    infix fun eq(value: T): String {
+        return equalsValue(value)
     }
 
     fun lessThan(value: Long): String {
@@ -53,11 +58,10 @@ abstract class SQLColumn<T> {
         return "$name > $value"
     }
 
-    override fun toString(): String {
-        return name
-    }
+    override fun toString(): String = dataDescription()
 
     abstract fun dataDescription(): String
+
     @Throws(SQLException::class)
     abstract fun getValue(rs: ResultSet): T
 

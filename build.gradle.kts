@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -15,15 +16,9 @@ repositories {
     maven("https://kotlin.bintray.com/ktor")
 }
 
-tasks {
-    shadowJar {
-        relocate("net.dv8tion.jda", "volte.lib.discord")
-    }
-}
-
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("net.dv8tion:JDA:4.2.0_224") {
+    implementation("net.dv8tion:JDA:4.2.0_225") {
         exclude("opus-java")
     }
     implementation("com.jagrosh:jda-utilities:3.0.5")
@@ -37,6 +32,25 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
 }
 
+tasks.withType<ShadowJar> {
+    archiveFileName.set("Volte.jar")
+    relocate("net.dv8tion.jda", "volte.lib.discord")
+    relocate("club.minnced.opus", "volte.lib.discord.opus")
+    relocate("com.iwebpp.crypto", "volte.lib.discord.crypto")
+    relocate("com.fasterxml.jackson", "volte.lib.jackson")
+    relocate("ch.qos.logback", "volte.lib.logging.impl")
+    relocate("com.jagrosh.jdautilities", "volte.lib.jdautils")
+    relocate("org.slf4j", "volte.lib.logging")
+    relocate("org.h2", "volte.lib.h2")
+    relocate("org.apache.commons", "volte.lib.commons")
+    relocate("okhttp3", "volte.lib.http")
+    relocate("kotlin", "volte.lib.kotlin")
+    relocate("com.google.gson", "volte.lib.gson")
+    relocate("gnu", "volte.lib.gnu")
+    relocate("com.sun", "volte.lib.sun")
+    relocate("natives", "volte.lib.natives")
+}
+
 application {
-    mainClassName = "volte.Main"
+    mainClassName = "volte.meta.Main"
 }

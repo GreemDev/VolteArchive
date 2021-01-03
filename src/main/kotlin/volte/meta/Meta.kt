@@ -5,12 +5,10 @@ import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandClientBuilder
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.requests.RestAction
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 import volte.Volte
 import volte.commands.cmds.operator.*
 import volte.commands.cmds.owner.EvalCommand
@@ -25,6 +23,14 @@ import java.sql.ResultSet
 import java.time.Instant
 import kotlin.reflect.KClass
 
+typealias static = JvmStatic
+
+internal object Main {
+    @static fun main(args: Array<out String>) {
+        Volte.start()
+    }
+}
+
 object Constants {
     fun ownerCategory(): Category = owner
     fun operatorCategory(): Category = operator
@@ -36,13 +42,23 @@ object Constants {
 }
 
 inline fun CommandEvent.reply(content: String, func: EmbedBuilder.() -> Unit) {
-    val e = createEmbedBuilder(content)
-    func(e)
-    reply(e.build())
+    createEmbedBuilder(content).apply(func).build().forwardTo(this.channel).queue()
+}
+
+fun String.substringFromEnd(count: Int): String {
+    return this.reversed().substring(count).reversed()
 }
 
 infix fun <T> T?.ifPresent(func: (T) -> Unit) {
     Optional.of(this).ifPresent(func)
+}
+
+fun ResultSet.next(hasNext: ResultSet.() -> Unit, hasNoNext: ResultSet.() -> Unit = {}) {
+    if (this.next()) {
+        hasNext(this)
+    } else {
+        hasNoNext(this)
+    }
 }
 
 fun <T> T?.optional(): Optional<T> = Optional.of(this)
@@ -50,9 +66,8 @@ fun <T> T?.optional(): Optional<T> = Optional.of(this)
 inline fun CommandEvent.reply(func: EmbedBuilder.() -> Unit) = reply(createEmbedBuilder().apply(func).build())
 
 
-infix fun CommandEvent.messageReply(func: EmbedBuilder.() -> Unit) = message.reply(
-    createEmbedBuilder().apply(func).build()
-).mentionRepliedUser(false).queue()
+infix fun CommandEvent.replyInline(func: EmbedBuilder.() -> Unit) =
+    createEmbedBuilder().apply(func).forwardTo(message.channel).reference(message).queue()
 
 /**
  * Modifies the current [RestAction] into a [RestPromise], allowing you to use [RestPromise.then] and [RestPromise.catch].
@@ -80,6 +95,14 @@ fun Instant.prettyPrint(): String {
     return "$day/$month/$year, $time"
 }
 
+infix fun MessageEmbed.forwardTo(channel: MessageChannel): MessageAction {
+    return channel.sendMessage(this)
+}
+
+infix fun EmbedBuilder.forwardTo(channel: MessageChannel): MessageAction {
+    return this.build().forwardTo(channel)
+}
+
 fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
     arrayListOf<KClass<*>>(
         //owner
@@ -96,7 +119,7 @@ fun CommandClientBuilder.withVolteCommands(): CommandClientBuilder {
         PingCommand::class, SilentSayCommand::class,
         SnowflakeCommand::class, BigEmojiCommand::class,
         NowCommand::class, PermissionsCommand::class,
-        NatoCommand::class,
+        NatoCommand::class, AvatarCommand::class
 
         ).map { it.java.constructors[0].newInstance() as Command }
         .forEach(this::addCommand)

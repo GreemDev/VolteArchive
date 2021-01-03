@@ -3,9 +3,8 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.Permission
-import volte.commands.parsers.Parsers
 import volte.meta.Constants
-import volte.meta.messageReply
+import volte.meta.replyInline
 import volte.util.DiscordUtil
 
 class PermissionsCommand : Command() {
@@ -20,7 +19,7 @@ class PermissionsCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         if (event.member.isOwner) {
-            event.messageReply {
+            event.replyInline {
                 setTitle("User is the guild owner, so they have all permissions.")
             }
 
@@ -28,7 +27,7 @@ class PermissionsCommand : Command() {
         }
 
         if (event.member.hasPermission(Permission.ADMINISTRATOR)) {
-            event.messageReply {
+            event.replyInline {
                 setTitle("User has the Administrator permission, so they have all permissions.")
             }
 
@@ -40,7 +39,7 @@ class PermissionsCommand : Command() {
         val allowedStr = res.allowed.joinToString("\n", transform = this::formatPermissionName)
         val deniedStr = res.denied.joinToString("\n", transform = this::formatPermissionName)
 
-        event.messageReply {
+        event.replyInline {
             addField("Allowed", if (allowedStr.isEmpty()) "- None" else allowedStr, true)
             addField("Denied", if (deniedStr.isEmpty()) "- None" else deniedStr, true)
         }

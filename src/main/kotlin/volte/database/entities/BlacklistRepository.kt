@@ -9,17 +9,17 @@ import volte.meta.*
 class BlacklistRepository(private val guildId: String): DataManager(Volte.db().connector(), "BLACKLIST") {
 
     val blacklistedPhrases get() =
-        read<ArrayList<String>>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
+        query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
             arrayListOf<String>().apply {
-                while (rs.next()) {
-                    add(rs.valueOf(PHRASE))
+                whileNext(rs) {
+                    add(valueOf(PHRASE))
                 }
             }
 
         }
 
     fun createEntry(phrase: String) {
-        readWrite(select(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(select(GUILDID.equalsValue(guildId))) { rs ->
             rs.moveToInsertRow()
             rs.updateValueOf(GUILDID, guildId)
             rs.updateValueOf(PHRASE, phrase)
@@ -28,21 +28,21 @@ class BlacklistRepository(private val guildId: String): DataManager(Volte.db().c
     }
 
     fun hasEntry(phrase: String): Boolean {
-        return read<Boolean>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
+        return query<Boolean>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
             arrayListOf<String>().apply {
-                while (rs.next()) {
-                    add(rs.valueOf(PHRASE))
+                whileNext(rs) {
+                    add(valueOf(PHRASE))
                 }
             }.contains(phrase)
         }
     }
 
     fun removeEntry(phrase: String) {
-        readWrite(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
             while (rs.next()) {
                 if (rs.valueOf(PHRASE).equals(phrase, true)) {
                     rs.deleteRow()
-                    return@readWrite
+                    return@queryMutable
                 }
             }
         }

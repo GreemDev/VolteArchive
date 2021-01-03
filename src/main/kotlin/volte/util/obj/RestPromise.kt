@@ -31,24 +31,24 @@ data class RestPromise<V>(private val action: RestAction<V>) {
     init {
         action.queue({
             success ifPresent { success ->
-                success.invoke(it)
+                success(it)
             }
 
-        }, {
+        }) {
             failure ifPresent { failure ->
-                failure.invoke(it)
+                failure(it)
             }
-        })
+        }
     }
 
 
     infix fun then(callback: (V) -> Unit): RestPromise<V> {
-        success.setValue(callback)
+        success = Optional of callback
         return this
     }
 
     infix fun catch(callback: (Throwable) -> Unit): RestPromise<V> {
-        failure.setValue(callback)
+        failure = Optional of callback
         return this
     }
 

@@ -7,7 +7,7 @@ class Optional<T>(private var value: T? = null) {
 
     companion object {
         fun <T> empty(): Optional<T> = Optional()
-        fun <T> of(value: T?) = Optional(value)
+        infix fun <T> of(value: T?) = Optional(value)
     }
 
 

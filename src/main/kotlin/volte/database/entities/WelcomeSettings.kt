@@ -22,6 +22,10 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
         val DMGREETING: SQLColumn<String> = StringColumn("DM", false, maxLength = 1950)
     }
 
+    override fun allColumns(): List<SQLColumn<*>> {
+        return listOf(ID, CHANNEL, GREETING, FAREWELL, COLOR, DMGREETING)
+    }
+
     fun replacePlaceholders(text: String, user: User, guild: Guild): String {
         return text.replace("{GuildName}", guild.name, true)
             .replace("{MemberName}", user.name, true)
@@ -41,37 +45,37 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
     }
 
     fun getChannel(): String {
-        return read<String>(select(ID.equalsValue(guildId), ID, CHANNEL)) { rs ->
-            if (rs.next()) rs.valueOf(CHANNEL) else ""
+        return query<String>(select(ID.equalsValue(guildId), ID, CHANNEL)) { rs ->
+            if (rs.next()) rs.valueOf(CHANNEL) else CHANNEL.default()
         }
     }
 
     fun getGreeting(): String {
-        return read<String>(select(ID.equalsValue(guildId), ID, GREETING)) { rs ->
-            if (rs.next()) rs.valueOf(GREETING) else ""
+        return query<String>(select(ID.equalsValue(guildId), ID, GREETING)) { rs ->
+            if (rs.next()) rs.valueOf(GREETING) else GREETING.default()
         }
     }
 
     fun getFarewell(): String {
-        return read<String>(select(ID.equalsValue(guildId), ID, FAREWELL)) { rs ->
-            if (rs.next()) rs.valueOf(FAREWELL) else ""
+        return query<String>(select(ID.equalsValue(guildId), ID, FAREWELL)) { rs ->
+            if (rs.next()) rs.valueOf(FAREWELL) else FAREWELL.default()
         }
     }
 
     fun getColor(): Color {
-        return DiscordUtil.parseColor(read<String>(select(ID.equalsValue(guildId), ID, COLOR)) { rs ->
-            if (rs.next()) rs.valueOf(COLOR) else COLOR.defaultVal()
+        return DiscordUtil.parseColor(query<String>(select(ID.equalsValue(guildId), ID, COLOR)) { rs ->
+            if (rs.next()) rs.valueOf(COLOR) else COLOR.default()
         })
     }
 
     fun getDmGreeting(): String {
-        return read<String>(select(ID.equalsValue(guildId), ID, DMGREETING)) { rs ->
-            if (rs.next()) rs.valueOf(DMGREETING) else ""
+        return query<String>(select(ID.equalsValue(guildId), ID, DMGREETING)) { rs ->
+            if (rs.next()) rs.valueOf(DMGREETING) else DMGREETING.default()
         }
     }
 
     fun setChannel(channelId: String) {
-        readWrite(select(ID.equalsValue(guildId), ID, CHANNEL)) { rs ->
+        queryMutable(select(ID.equalsValue(guildId), ID, CHANNEL)) { rs ->
             if (rs.next()) {
                 rs.updateValueOf(CHANNEL, channelId)
                 rs.updateRow()
@@ -85,7 +89,7 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
     }
 
     fun setGreeting(greeting: String) {
-        readWrite(select(ID.equalsValue(guildId), ID, GREETING)) { rs ->
+        queryMutable(select(ID.equalsValue(guildId), ID, GREETING)) { rs ->
             if (rs.next()) {
                 rs.updateValueOf(GREETING, greeting)
                 rs.updateRow()
@@ -99,7 +103,7 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
     }
 
     fun setFarewell(farewell: String) {
-        readWrite(select(ID.equalsValue(guildId), ID, FAREWELL)) { rs ->
+        queryMutable(select(ID.equalsValue(guildId), ID, FAREWELL)) { rs ->
             if (rs.next()) {
                 rs.updateValueOf(FAREWELL, farewell)
                 rs.updateRow()
@@ -113,7 +117,7 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
     }
 
     fun setColor(color: String) {
-        readWrite(select(ID.equalsValue(guildId), ID, COLOR)) { rs ->
+        queryMutable(select(ID.equalsValue(guildId), ID, COLOR)) { rs ->
             if (rs.next()) {
                 rs.updateValueOf(COLOR, color)
                 rs.updateRow()
@@ -127,7 +131,7 @@ data class WelcomeSettings(val guildId: String): DataManager(Volte.db().connecto
     }
 
     fun setDmGreeting(dmGreeting: String) {
-        readWrite(select(ID.equalsValue(guildId), ID, DMGREETING)) { rs ->
+        queryMutable(select(ID.equalsValue(guildId), ID, DMGREETING)) { rs ->
             if (rs.next()) {
                 rs.updateValueOf(DMGREETING, dmGreeting)
                 rs.updateRow()

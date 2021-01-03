@@ -3,7 +3,7 @@ package volte.commands.cmds.owner
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.meta.Constants
-import volte.meta.messageReply
+import volte.meta.replyInline
 import volte.meta.then
 
 class SetNameCommand : Command() {
@@ -17,7 +17,7 @@ class SetNameCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         event.jda.selfUser.manager.setName(event.args) then {
-            event.messageReply {
+            event.replyInline {
                 setDescription("Set my username to **${event.args}**.")
             }
         }

@@ -5,6 +5,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
 import volte.meta.Constants
 import volte.meta.createEmbed
+import volte.meta.replyInline
 
 class SetPrefixCommand : Command() {
 
@@ -18,11 +19,15 @@ class SetPrefixCommand : Command() {
     override fun execute(event: CommandEvent) {
         val settings = Volte.db().getSettingsFor(event.guild.id)
         if (event.args.isEmpty()) {
-            event.message.reply(event.createEmbed("The current prefix for this guild is **${settings.getPrefix()}**!"))
+            event replyInline {
+                setDescription("The current prefix for this guild is **${settings.getPrefix()}**!")
+            }
             return
         }
 
         settings.setPrefix(event.args)
-        event.message.reply(event.createEmbed("Set the prefix to **${event.args}**!")).queue()
+        event replyInline {
+            setDescription("Set the prefix to **${event.args}**!")
+        }
     }
 }

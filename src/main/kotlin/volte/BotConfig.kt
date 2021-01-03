@@ -8,8 +8,6 @@ import volte.meta.optional
 import volte.util.obj.Optional
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Path
 import kotlin.system.exitProcess
 
 class BotConfig {
@@ -64,15 +62,16 @@ class BotConfig {
     }
 
     fun parseActivity(): Activity {
-        val activity = this.game.replace(this.game.split(" ").first(), "").trim()
-        return when (this.game.toLowerCase().split(" ").first()) {
-            "playing" -> Activity.playing(activity)
-            "listening" -> Activity.listening(activity)
-            "listeningto" -> Activity.listening(activity)
-            "watching" -> Activity.watching(activity)
-            "competing" -> Activity.competing(activity)
-            "competingin" -> Activity.competing(activity)
-            else -> Activity.playing(activity)
+        val activity = this.game.replace(this.game.split(" ").first(), "").trim() to
+                this.game.toLowerCase().split(" ").first()
+        return when (activity.second) {
+            "playing" -> Activity.playing(activity.first)
+            "listening" -> Activity.listening(activity.first)
+            "listeningto" -> Activity.listening(activity.first)
+            "watching" -> Activity.watching(activity.first)
+            "competing" -> Activity.competing(activity.first)
+            "competingin" -> Activity.competing(activity.first)
+            else -> Activity.playing(activity.first)
         }
     }
 }

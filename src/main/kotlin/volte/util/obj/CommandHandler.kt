@@ -19,7 +19,9 @@ class CommandHandler : CommandListener {
             .appendLine("${spaces}|         -In Channel: ${event.textChannel}")
             .appendLine("${spaces}|        -Time Issued: ${Instant.now()}")
 
-        Volte.logger().info(sb.toString())
+        Volte logger {
+            info(sb.toString())
+        }
     }
 
     private val spaces = "                               "

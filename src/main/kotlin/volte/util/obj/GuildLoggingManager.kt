@@ -5,11 +5,12 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
+import volte.meta.optional
 import java.time.Instant
 
 class GuildLoggingManager : ListenerAdapter() {
 
-    fun channel() = Volte.jda().getTextChannelById(Volte.config().guildLogging().channel())!!
+    fun channel() = Volte.jda().getTextChannelById(Volte.config().guildLogging().channel()).optional()
 
     override fun onGuildJoin(event: GuildJoinEvent) {
         if (!Volte.config().guildLogging().enabled()) return

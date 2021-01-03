@@ -7,7 +7,7 @@ import volte.meta.getData
 class MassPingModule : ListenerAdapter() {
 
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        if (event.guild.getData().getMassPings().not()) return
+        if (!event.guild.getData().getMassPings()) return
 
         if (event.message.mentionsEveryone()) {
             event.message.delete().reason("Autodelete from Volte's mass ping checks because the message contained @everyone or @here.").queue()

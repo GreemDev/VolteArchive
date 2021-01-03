@@ -6,15 +6,15 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import org.apache.commons.lang3.StringUtils
 import volte.Volte
-import volte.meta.getData
-import volte.meta.getHighestRoleWithColor
-import volte.meta.hasRole
-import volte.static
+import volte.meta.*
 import java.awt.Color
 import java.time.Instant
 import java.util.*
 
 object DiscordUtil {
+
+    const val DISCORD_EPOCH = 1420070400000L
+
     @static
     fun parseRole(text: String): String? {
         return if (text.length >= 4 && text[0] == '<' && text[1] == '@' && text[2] == '&' && text.endsWith('>')) {
@@ -36,7 +36,7 @@ object DiscordUtil {
     fun createDefaultEmbed(content: String? = null, member: Member): EmbedBuilder = EmbedBuilder()
         .setColor(member.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
         .setFooter("Requested by ${member.user.asTag}", member.user.effectiveAvatarUrl)
-        .setDescription(content ?: "")
+        .setDescription(content)
 
     @static
     fun parseChannel(text: String): String? {
@@ -75,7 +75,7 @@ object DiscordUtil {
     @static
     fun parseSnowflake(id: String): Instant {
         return if (StringUtils.isNumeric(id)) {
-            Date((id.toLong().shr(22) + 1420070400000L)).toInstant()
+            Date((id.toLong().shr(22) + DISCORD_EPOCH)).toInstant()
         } else {
             throw IllegalArgumentException("id must be a number.")
         }

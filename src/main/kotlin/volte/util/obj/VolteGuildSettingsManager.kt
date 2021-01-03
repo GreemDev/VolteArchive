@@ -6,7 +6,5 @@ import volte.database.entities.GuildData
 import volte.meta.*
 
 class VolteGuildSettingsManager : GuildSettingsManager<GuildData> {
-    override fun getSettings(guild: Guild): GuildData {
-        return guild.getData()
-    }
+    override fun getSettings(guild: Guild): GuildData = guild.getData()
 }

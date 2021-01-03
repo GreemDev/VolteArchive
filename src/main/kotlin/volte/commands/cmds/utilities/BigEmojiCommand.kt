@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.internal.utils.EncodingUtil
 import volte.meta.Constants
-import volte.meta.messageReply
+import volte.meta.replyInline
 
 class BigEmojiCommand : Command() {
 
@@ -17,14 +17,14 @@ class BigEmojiCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         if (event.args.isEmpty()) {
-            event.messageReply {
+            event.replyInline {
                 setTitle("You need to provide an emote.")
             }
             return
         }
 
         if (event.message.emotes.isNotEmpty()) {
-            event.messageReply {
+            event.replyInline {
                 setImage(event.message.emotes.first().imageUrl)
             }
             return
@@ -32,13 +32,13 @@ class BigEmojiCommand : Command() {
 
         val codepoints = EncodingUtil.encodeCodepoints(event.args)
         if (!codepoints.startsWith("U+", true)) {
-            event.messageReply {
+            event.replyInline {
                 setTitle("Please provide a valid emoji!")
             }
             return
         }
 
-        event.messageReply {
+        event.replyInline {
             setImage("https://i.kuro.mu/emoji/1024x1024/${codepoints.substring(2)}.png")
         }
     }

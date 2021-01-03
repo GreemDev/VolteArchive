@@ -3,7 +3,7 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.meta.Constants
-import volte.meta.messageReply
+import volte.meta.replyInline
 
 class NatoCommand : Command() {
 
@@ -16,7 +16,7 @@ class NatoCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         if (event.args.isEmpty()) {
-            event.messageReply {
+            event.replyInline {
                 setTitle("Please provide something for me to translate!")
             }
             return
@@ -28,7 +28,7 @@ class NatoCommand : Command() {
             for (ch in arr) {
                 val word = getNato(ch)
                 if (word == "ERR") {
-                    event.messageReply {
+                    event.replyInline {
                         setDescription("There is not a NATO word for the character `${ch}`. Only standard English letters and numbers are valid.")
                     }
                     return
@@ -37,14 +37,14 @@ class NatoCommand : Command() {
             }
         }
 
-        event.messageReply {
+        event.replyInline {
             addField("Result", "`${list.joinToString(" ")}`", false)
             addField("Original", "`${event.args}`", false)
         }
 
     }
 
-    private val natoMap = hashMapOf(
+    private val natoDefinitions: Map<Char, String> = hashMapOf(
         'a' to "Alfa", 'b' to "Bravo", 'c' to "Charlie", 'd' to "Delta",
         'e' to "Echo", 'f' to "Foxtrot", 'g' to "Golf", 'h' to "Hotel",
         'i' to "India", 'j' to "Juliett", 'k' to "Kilo", 'l' to "Lima",
@@ -56,6 +56,6 @@ class NatoCommand : Command() {
         '6' to "Six", '7' to "Seven", '8' to "Eight", '9' to "Nine"
     )
 
-    private fun getNato(ch: Char): String = natoMap.getOrDefault(ch, "ERR")
+    private fun getNato(ch: Char): String = natoDefinitions.getOrDefault(ch, "ERR")
 
 }

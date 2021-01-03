@@ -13,36 +13,37 @@ data class TagsRepository(val guildId: String): DataManager(Volte.db().connector
 
     fun getTags(): Set<VolteTag> {
         val tags: HashSet<VolteTag> = hashSetOf()
-        read(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
-            while (rs.next()) {
-                tags.add(VolteTag(rs))
+        query(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
+            whileNext(rs) {
+                tags.add(VolteTag(this))
             }
         }
         return tags
     }
 
     fun deleteTag(name: String) {
-        readWrite(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
-            while (rs.next()) {
-                if (rs.valueOf(VolteTag.NAME).equals(name, true)) {
-                    rs.deleteRow()
+        queryMutable(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
+            whileNext(rs) {
+                if (valueOf(VolteTag.NAME).equals(name, true)) {
+                    deleteRow()
+                    return@whileNext
                 }
             }
         }
     }
 
     fun hasTag(name: String): Boolean {
-        return read<Boolean>(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
+        return query<Boolean>(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
             arrayListOf<String>().apply {
-                while (rs.next()) {
-                    add(rs.valueOf(VolteTag.NAME))
+                whileNext(rs) {
+                    add(valueOf(VolteTag.NAME))
                 }
             }.contains(name)
         }
     }
 
     fun createNewTag(name: String, content: String, creator: String) {
-        readWrite(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
+        queryMutable(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
             rs.moveToInsertRow()
             rs.updateValueOf(VolteTag.GUILD, guildId)
             rs.updateValueOf(VolteTag.NAME, name)

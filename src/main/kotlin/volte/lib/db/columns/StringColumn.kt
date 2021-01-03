@@ -12,7 +12,7 @@ class StringColumn(
 ) : SQLColumn<String>(name, nullable, default, primaryKey) {
 
     override fun dataDescription(): String {
-        return "VARCHAR${if (maxLength == 0) " " else "($maxLength) "} DEFAULT $default ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
+        return "VARCHAR${if (maxLength == 0) " " else "($maxLength) "} DEFAULT '$default' ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
     }
 
     override fun getValue(rs: ResultSet): String {

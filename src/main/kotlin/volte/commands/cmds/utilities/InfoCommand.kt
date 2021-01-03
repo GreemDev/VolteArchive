@@ -16,7 +16,7 @@ class InfoCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        event.messageReply {
+        event.replyInline {
             addField("Version", Version.formatted(), true)
             addField("Author", "Greem#1337, and contributors on GitHub", true)
             addField("Language/Runtime/Library", "Kotlin ${KotlinVersion.CURRENT}\n Java ${System.getProperty("java.vm.version").split("+").first()}\n JDA ${JDAInfo.VERSION}", false)
