@@ -50,7 +50,7 @@ abstract class SQLColumn<T> {
 
     fun formattedDefault(): String {
         return if (default is String) {
-            "`$default`"
+            "'$default'"
         } else throw IllegalStateException("Cannot call formattedDefault for an SQLColumn that is not a String.")
     }
 
