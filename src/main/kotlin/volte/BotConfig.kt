@@ -3,11 +3,10 @@ package volte
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.entities.Activity
-import org.apache.commons.io.FileUtils
 import volte.meta.optional
-import volte.util.obj.Optional
+import volte.meta.entities.Optional
+import volte.meta.fromJson
 import java.io.File
-import java.nio.charset.Charset
 import kotlin.system.exitProcess
 
 class BotConfig {
@@ -36,42 +35,41 @@ class BotConfig {
     companion object {
 
         fun checks() {
-            if (file().exists().not()) {
+            if (!file().exists()) {
                 this.write()
                 Volte.logger().warn("Please fill in the config located at data/config.json, and restart me!")
-                exitProcess(0)
+                exitProcess(-1)
             }
         }
 
-        val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+        private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
         fun file() = File("data/volte.json")
 
-        fun write() {
-            FileUtils.write(file(), gson.toJson(BotConfig()), Charset.forName("UTF-8"))
+        fun write(config: BotConfig = BotConfig()) {
+            file().writeText(gson.toJson(config))
         }
 
         fun get(): Optional<BotConfig> {
-            return try {
-                gson.fromJson(FileUtils.readFileToString(file(), Charset.forName("UTF-8")), BotConfig::class.java)
+            return Optional of try {
+                gson.fromJson<BotConfig>(file().readText())
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
-            }.optional()
+            }
         }
 
     }
 
-    fun parseActivity(): Activity {
-        val activity = this.game.replace(this.game.split(" ").first(), "").trim()
-        val type = this.game.toLowerCase().split(" ").first()
-        return when (type) {
-            "playing" -> Activity.playing(activity)
-            "listening" -> Activity.listening(activity)
-            "listeningto" -> Activity.listening(activity)
-            "watching" -> Activity.watching(activity)
-            "competing" -> Activity.competing(activity)
-            "competingin" -> Activity.competing(activity)
-            else -> Activity.playing(activity)
+    fun parseActivity(): Activity =
+        with(this.game.replace(this.game.split(" ").first(), "").trim()) {
+            when (game.toLowerCase().split(" ").first()) {
+                "playing" -> Activity.playing(this)
+                "listening" -> Activity.listening(this)
+                "listeningto" -> Activity.listening(this)
+                "watching" -> Activity.watching(this)
+                "competing" -> Activity.competing(this)
+                "competingin" -> Activity.competing(this)
+                else -> Activity.playing(this)
+            }
         }
-    }
 }

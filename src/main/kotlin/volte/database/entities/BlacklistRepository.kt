@@ -10,7 +10,7 @@ class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().
 
     val blacklistedPhrases
         get() =
-            query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
+            query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), PHRASE)) { rs ->
                 arrayListOf<String>().apply {
                     whileNext(rs) {
                         add(valueOf(PHRASE))
@@ -20,7 +20,7 @@ class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().
             }
 
     fun createEntry(phrase: String) {
-        queryMutable(select(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(select(GUILDID.sqlEquals(guildId))) { rs ->
             rs.moveToInsertRow()
             rs.updateValueOf(GUILDID, guildId)
             rs.updateValueOf(PHRASE, phrase)
@@ -29,7 +29,7 @@ class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().
     }
 
     fun hasEntry(phrase: String): Boolean {
-        return query<Boolean>(select(GUILDID.equalsValue(guildId), PHRASE)) { rs ->
+        return query<Boolean>(select(GUILDID.sqlEquals(guildId), PHRASE)) { rs ->
             arrayListOf<String>().apply {
                 whileNext(rs) {
                     add(valueOf(PHRASE))
@@ -39,11 +39,11 @@ class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().
     }
 
     fun removeEntry(phrase: String) {
-        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
-            while (rs.next()) {
+        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
+            whileNext(rs) {
                 if (rs.valueOf(PHRASE).equals(phrase, true)) {
                     rs.deleteRow()
-                    return@queryMutable
+                    return@whileNext
                 }
             }
         }

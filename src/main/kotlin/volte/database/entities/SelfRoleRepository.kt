@@ -9,7 +9,7 @@ import volte.meta.valueOf
 
 data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().connector(), "SELFROLES") {
 
-    val roleIds: ArrayList<String> = query<ArrayList<String>>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+    val roleIds: ArrayList<String> = query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), ROLEID)) { rs ->
         arrayListOf<String>().apply {
             whileNext(rs) {
                 add(valueOf(ROLEID))
@@ -18,7 +18,7 @@ data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().conn
     }
 
     fun createSelfRole(roleId: String) {
-        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
             val ids = arrayListOf<String>().apply {
                 whileNext(rs) {
                     add(valueOf(ROLEID))
@@ -35,7 +35,7 @@ data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().conn
     }
 
     fun hasSelfRole(roleId: String): Boolean {
-        return query<Boolean>(select(GUILDID.equalsValue(guildId), ROLEID)) { rs ->
+        return query<Boolean>(select(GUILDID.sqlEquals(guildId), ROLEID)) { rs ->
             arrayListOf<String>().apply {
                 whileNext(rs) {
                     add(valueOf(ROLEID))
@@ -45,7 +45,7 @@ data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().conn
     }
 
     fun deleteSelfRole(roleId: String) {
-        queryMutable(selectAll(GUILDID.equalsValue(guildId))) { rs ->
+        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
             whileNext(rs) {
                 if (valueOf(ROLEID) == roleId) {
                     deleteRow()

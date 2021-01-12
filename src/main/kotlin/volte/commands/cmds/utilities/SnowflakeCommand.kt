@@ -2,11 +2,8 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import org.apache.commons.lang3.StringUtils
 import volte.meta.categories.utility
-import volte.meta.prettyPrint
-import volte.meta.replyInline
-import volte.util.DiscordUtil
+import volte.meta.*
 
 class SnowflakeCommand : Command() {
 
@@ -18,16 +15,16 @@ class SnowflakeCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        if (!StringUtils.isNumeric(event.args)) {
+        if (!event.args.isNumeric()) {
             event.replyInline {
                 setTitle("Input must be a snowflake; aka a Discord ID!")
             }
             return
         }
-        val prettyPrintArr = DiscordUtil.parseSnowflake(event.args).prettyPrint().split(',')
+        val prettyPrint = DiscordUtil.parseSnowflake(event.args).prettyPrint().split(',')
         event.replyInline {
-            addField("Date", prettyPrintArr.first(), true)
-            addField("Time", prettyPrintArr[1], true)
+            addField("Date", prettyPrint[0], true)
+            addField("Time", prettyPrint[1], true)
         }
     }
 }

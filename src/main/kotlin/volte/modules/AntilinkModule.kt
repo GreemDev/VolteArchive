@@ -16,18 +16,15 @@ class AntilinkModule : ListenerAdapter() {
     }
 
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        if (!event.guild.getData().getAntilink() || event.member!!.isOperator()) return
+        if (!event.guild.getData().getAntilink() or event.member!!.isOperator() or event.author.isBot) return
 
-        val matcher = pattern.matcher(event.message.contentRaw)
-        if (matcher.matches()) {
+        if (pattern.matcher(event.message.contentRaw).matches()) {
             event.message.delete().reason("Contained an invite link.").queue()
             event.guild.retrieveMember(event.author) then { member ->
                 event.channel.sendMessage(event createEmbed "${member.asMention}, don't send invite links here!") then { message ->
-                    message.delete().queueAfter(5, TimeUnit.SECONDS)
+                    message.delete().reason("Autodelete to keep the warning from staying in the channel after the user has read it.").queueAfter(5, TimeUnit.SECONDS)
                 }
             }
         }
     }
-
-
 }

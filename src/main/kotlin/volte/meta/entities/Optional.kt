@@ -1,6 +1,4 @@
-package volte.util.obj
-
-import com.jagrosh.jdautilities.oauth2.exceptions.InvalidStateException
+package volte.meta.entities
 
 data class Optional<T>(private var value: T? = null) {
 
@@ -8,6 +6,8 @@ data class Optional<T>(private var value: T? = null) {
         fun <T> empty(): Optional<T> = Optional()
         infix fun <T> of(value: T?) = Optional(value)
     }
+
+    fun hasValue(): Boolean = value != null
 
 
     infix fun hasValue(func: (T) -> Unit): Optional<T> {
@@ -23,8 +23,6 @@ data class Optional<T>(private var value: T? = null) {
 
         return this
     }
-
-    fun hasValue(): Boolean = value != null
 
     fun setValue(newValue: T? = null) {
         value = newValue
@@ -49,15 +47,13 @@ data class Optional<T>(private var value: T? = null) {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null) return false
-        if (other !is Optional<*>) return false
-        if (!hasValue() || !other.hasValue()) return false
+        if (other == null || other !is Optional<*> || !hasValue() || !other.hasValue()) return false
 
-        return other.value() == this.value()
+        return value() == other.value()
     }
 
     override fun toString(): String =
         if (hasValue()) value.toString()
-        else throw InvalidStateException("Cannot toString() a null value!")
+        else throw IllegalStateException("Cannot toString() a null value!")
 
 }

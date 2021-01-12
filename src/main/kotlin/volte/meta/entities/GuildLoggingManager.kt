@@ -1,11 +1,11 @@
-package volte.util.obj
+package volte.meta.entities
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
-import volte.meta.getHighestRoleWithColor
+import volte.meta.*
 import java.awt.Color
 import java.time.Instant
 
@@ -20,12 +20,13 @@ class GuildLoggingManager : ListenerAdapter() {
     override fun onGuildJoin(event: GuildJoinEvent) {
         if (!Volte.config().guildLogging().enabled()) return
         val chan = channel() ?: return
-        val e = EmbedBuilder()
-            .setTimestamp(Instant.now())
-            .setColor(event.guild.owner?.getHighestRoleWithColor()?.valueOrNull()?.color ?: Color.GREEN)
-            .setTitle("Added to a guild")
-            .addField("Name", event.guild.name, true)
-            .addField("Members", event.guild.memberCount.toString(), true)
+        val e = newEmbed {
+            setTimestamp(Instant.now())
+            setColor(event.guild.owner?.getHighestRoleWithColor()?.valueOrNull()?.color ?: Color.GREEN)
+            setTitle("Added to a guild")
+            addField("Name", event.guild.name, true)
+            addField("Members", event.guild.memberCount, true)
+        }
 
         if (event.guild.owner != null) {
             e.setAuthor(event.guild.owner!!.effectiveName, null, event.guild.owner!!.user.effectiveAvatarUrl)
@@ -49,8 +50,8 @@ class GuildLoggingManager : ListenerAdapter() {
             }
 
             chan.sendMessage(e.apply {
-                addField("Bots", bots.toString(), true)
-                addField("Users", users.toString(), true)
+                addField("Bots", bots, true)
+                addField("Users", users, true)
             }.build())
 
         }
@@ -59,12 +60,13 @@ class GuildLoggingManager : ListenerAdapter() {
     override fun onGuildLeave(event: GuildLeaveEvent) {
         if (!Volte.config().guildLogging().enabled()) return
         val chan = channel() ?: return
-        val e = EmbedBuilder()
-            .setTimestamp(Instant.now())
-            .setColor(Color.ORANGE)
-            .setTitle("Removed from/Left a Guild")
-            .addField("Name", event.guild.name, true)
-            .addField("Members", event.guild.memberCount.toString(), true)
+        val e = newEmbed {
+            setTimestamp(Instant.now())
+            setColor(Color.ORANGE)
+            setTitle("Removed from/Left a Guild")
+            addField("Name", event.guild.name, true)
+            addField("Members", event.guild.memberCount, true)
+        }
 
         if (event.guild.owner != null) {
             e.setAuthor(event.guild.owner!!.effectiveName, null, event.guild.owner!!.user.effectiveAvatarUrl)
@@ -77,15 +79,15 @@ class GuildLoggingManager : ListenerAdapter() {
     fun onError(throwable: Throwable) {
         if (!Volte.config().guildLogging().enabled()) return
         val chan = channel() ?: return
-        val e = EmbedBuilder()
-            .setTimestamp(Instant.now())
-            .setColor(Color.MAGENTA)
-            .setTitle("Error")
-            .addField("Type", throwable::class.java.simpleName, true)
-            .addField("Message", throwable.message, true)
-            .setDescription("```java\n${throwable.stackTraceToString()}```")
 
-        chan.sendMessage(e.build()).queue()
+        chan.sendMessage(buildEmbed {
+            setTimestamp(Instant.now())
+            setColor(Color.MAGENTA)
+            setTitle("Internal Volte Error")
+            addField("Type", throwable::class.java.simpleName, true)
+            addField("Message", throwable.message, true)
+            setDescription("```java\n${throwable.stackTraceToString()}```")
+        }).queue()
     }
 
 }

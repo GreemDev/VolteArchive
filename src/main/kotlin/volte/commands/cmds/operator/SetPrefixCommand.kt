@@ -11,7 +11,6 @@ class SetPrefixCommand : Command() {
     init {
         this.name = "prefix"
         this.help = "Shows or sets the prefix to be used for commands in the guild."
-        this.guildOnly = true
         this.category = operator()
     }
 

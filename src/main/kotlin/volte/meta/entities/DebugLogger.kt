@@ -1,5 +1,6 @@
-package volte.util.obj
+package volte.meta.entities
 
+import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.events.DisconnectEvent
 import net.dv8tion.jda.api.events.RawGatewayEvent
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -12,25 +13,34 @@ import volte.meta.Version
 class DebugLogger : ListenerAdapter() {
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger("Gateway")
+        private fun logger(func: Logger.() -> Unit) {
+            LoggerFactory.getLogger("Gateway").func()
+        }
     }
 
 
     override fun onReconnected(event: ReconnectedEvent) {
-        logger.info("Volte v${Version.formatted()} reconnected to Discord gateway.")
+        logger {
+            info("Volte v${Version.formatted()} reconnected to Discord gateway.")
+        }
     }
 
     override fun onReady(event: ReadyEvent) {
-        logger.info("Volte v${Version.formatted()} READY on Discord gateway.")
+        logger {
+            info("Volte v${Version.formatted()} READY on Discord gateway.")
+        }
     }
 
     override fun onDisconnect(event: DisconnectEvent) {
-        logger.info("Volte v${Version.formatted()} disconnected from Discord gateway.")
+        logger {
+            info("Volte v${Version.formatted()} disconnected from Discord gateway.")
+        }
     }
 
     override fun onRawGateway(event: RawGatewayEvent) {
-        val raw = event.payload
-        logger.info("${event.type}: ${raw.toJson().joinToString()}")
+        logger {
+            info("${event.type}: ${GsonBuilder().create().toJson(event.payload.toMap())}")
+        }
     }
 
 }

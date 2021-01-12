@@ -3,6 +3,7 @@ package volte.commands.cmds.operator
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.Role
 import volte.commands.parsers.Parsers
 import volte.meta.categories.operator
 import volte.meta.replyInline
@@ -20,7 +21,7 @@ class MentionRoleCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        val parsed = Parsers.role().parse(event, event.args)
+        val parsed = Parsers.parse<Role>(event, event.args)
         if (parsed == null) {
             event replyInline {
                 setTitle("Please provide a valid role to mention!")

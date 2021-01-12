@@ -1,10 +1,12 @@
-package volte.util
+@file:Suppress("MemberVisibilityCanBePrivate")
+
+package volte.meta
 
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
-import org.apache.commons.lang3.StringUtils
 import volte.Volte
 import volte.meta.*
 import java.awt.Color
@@ -33,10 +35,11 @@ object DiscordUtil {
     }
 
     @static
-    fun createDefaultEmbed(content: String? = null, member: Member): EmbedBuilder = EmbedBuilder()
-        .setColor(member.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
-        .setFooter("Requested by ${member.user.asTag}", member.user.effectiveAvatarUrl)
-        .setDescription(content)
+    fun createDefaultEmbed(content: String? = null, member: Member): EmbedBuilder = newEmbed {
+        setColor(member.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
+        setFooter("Requested by ${member.user.asTag}", member.user.effectiveAvatarUrl)
+        setDescription(content)
+    }
 
     @static
     fun parseChannel(text: String): String? {
@@ -57,10 +60,13 @@ object DiscordUtil {
 
     @static
     fun isOperator(member: Member): Boolean {
-        return (isBotOwner(member) or member.isOwner or
+        return isBotOwner(member) or member.isOwner or
                 member.hasPermission(Permission.ADMINISTRATOR) or
                 member.hasRole(member.guild.getData().getOperator())
-                )
+    }
+
+    @static fun isOperator(guild: Guild, memberId: String): Boolean {
+        return isOperator(guild.getMemberById(memberId) ?: return false)
     }
 
     @static
@@ -74,8 +80,8 @@ object DiscordUtil {
      */
     @static
     fun parseSnowflake(id: String): Instant {
-        return if (StringUtils.isNumeric(id)) {
-            Date((id.toLong().shr(22) + DISCORD_EPOCH)).toInstant()
+        return if (id.isNumeric()) {
+            Instant.ofEpochMilli(id.toLong().shr(22) + DISCORD_EPOCH)
         } else {
             throw IllegalArgumentException("id must be a number.")
         }
@@ -89,6 +95,8 @@ object DiscordUtil {
     fun tryParseSnowflake(id: String): Instant {
         return try {
             parseSnowflake(id)
+        } catch (e: NumberFormatException) {
+            return Instant.MIN
         } catch (e: IllegalArgumentException) {
             return Instant.MIN
         }
@@ -100,7 +108,6 @@ object DiscordUtil {
      */
     @static
     fun parseColor(color: String): Color {
-
         val split = color.split(";").map(String::trim)
         val r = split[0].toInt()
         val g = split[1].toInt()
@@ -112,7 +119,7 @@ object DiscordUtil {
      * Returns a [PermissionsResult] containing the allowed and denied permissions of the given [member].
      */
     @static
-    fun prettyPermissions(member: Member): PermissionsResult {
+    fun prettyPermissions(member: Member): Pair<List<Permission>, List<Permission>> {
         val allowed = member.permissions.clone().toList()
         val denied = Permission.values().mapNotNull {
             if (allowed.contains(it))
@@ -121,8 +128,6 @@ object DiscordUtil {
                 return@mapNotNull it
         }
 
-        return PermissionsResult(allowed, denied)
+        return Pair(allowed, denied)
     }
-
-    class PermissionsResult(val allowed: List<Permission>, val denied: List<Permission>)
 }

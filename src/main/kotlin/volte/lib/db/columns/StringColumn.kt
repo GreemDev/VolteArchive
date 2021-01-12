@@ -11,7 +11,7 @@ class StringColumn(
     private val maxLength: Int = 0
 ) : SQLColumn<String>(name, nullable, default, primaryKey) {
 
-    override fun dataDescription(): String {
+    override fun sqlSpec(): String {
         return "VARCHAR${if (maxLength == 0) " " else "($maxLength) "} DEFAULT '$default' ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
     }
 

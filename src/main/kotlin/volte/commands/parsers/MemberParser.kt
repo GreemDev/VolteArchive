@@ -2,13 +2,13 @@ package volte.commands.parsers
 
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
-import org.apache.commons.lang3.StringUtils
 import volte.commands.parsers.abs.VolteArgumentParser
-import volte.util.DiscordUtil
+import volte.meta.isNumeric
+import volte.meta.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {
     override fun parse(event: CommandEvent, value: String): Member? {
-        var memberId: String? = if (StringUtils.isNumeric(value.trim()))
+        var memberId: String? = if (value.trim().isNumeric())
             value.trim() //id check
         else null
 

@@ -21,28 +21,28 @@ class VolteDatabase {
     fun getWelcomeSettingsFor(guildId: String): WelcomeSettings = WelcomeSettings(guildId)
     fun getBlacklistFor(guildId: String): BlacklistRepository = BlacklistRepository(guildId)
     fun getSettingsFor(guildId: String): GuildData = GuildData(guildId)
+
     fun getTagsFor(guildId: String): TagsRepository = TagsRepository(guildId)
     fun getSelfRolesFor(guildId: String): SelfRoleRepository = SelfRoleRepository(guildId)
-
 
     fun initializeDb() {
         val statement = connector.connection().createStatement()
         for (manager in arrayListOf(GuildData(""), WelcomeSettings(""))) {
+            statement.executeUpdate(buildString("CREATE TABLE IF NOT EXISTS ${manager.tableName} (") {
 
-            val result = StringBuilder("CREATE TABLE IF NOT EXISTS ${manager.tableName} (")
+                manager.allColumns().forEachIndexed { index, column ->
+                    var res = "${column.name()} ${column.sqlSpec()}, "
+                    if (index == manager.allColumns().size.dec()) {
+                        res = res.fromEnd { substring(2) }
+                    }
 
-            for ((index, column) in manager.allColumns().withIndex()) {
-                var res = "${column.name()} ${column.dataDescription()}, "
-                if (index == manager.allColumns().size.dec()) {
-                    res = res.fromEnd { substring(2) }
+                    append(res)
                 }
 
-                result.append(res)
-            }
-
-            result.append(")")
-            statement.executeUpdate(result.toString())
+                append(")")
+            })
         }
+
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS TAGS (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, NAME VARCHAR NOT NULL, CONTENT VARCHAR NOT NULL, CREATOR VARCHAR(20) NOT NULL, USES INT NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS SELFROLES (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, ROLEID VARCHAR(20) NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS BLACKLIST (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, PHRASE VARCHAR(200) NOT NULL)")
@@ -67,19 +67,31 @@ class VolteDatabase {
             }
         }
 
-        Volte.jda().guilds.forEach {
-            if (!allGuilds.contains(it.id)) {
+        Volte.jda().guilds.forEach { guild ->
+            if (!allGuilds.contains(guild.id)) {
                 statement.executeUpdate(
-                    "INSERT INTO GUILDS VALUES('${it.id}', '', '', '${
-                        Volte.config().prefix()
-                    }', FALSE, FALSE, FALSE)"
-                )
-                Volte.logger().info("Added ${it.name} to the guilds table.")
+                    buildString("INSERT INTO GUILDS VALUES (") {
+                        append("'${guild.id}', ")
+                        append("${GuildData.OPERATOR.formattedDefault()}, ")
+                        append("'${Volte.config().prefix()}', ")
+                        append("${GuildData.MASSPINGS.default()}, ")
+                        append("${GuildData.ANTILINK.default()}, ")
+                        append("${GuildData.AUTOQUOTE.default()})")
+                    })
+                Volte.logger().info("Added ${guild.name} to the guilds table.")
             }
 
-            if (!allWelcomeSettings.contains(it.id)) {
-                statement.executeUpdate("INSERT INTO WELCOME VALUES ('${it.id}', '', '', '', '${WelcomeSettings.COLOR.default()}', '')")
-                Volte.logger().info("Added ${it.name} to the guilds welcome table.")
+            if (!allWelcomeSettings.contains(guild.id)) {
+                statement.executeUpdate(
+                    buildString("INSERT INTO WELCOME VALUES (") {
+                        append("'${guild.id}', ")
+                        append("${WelcomeSettings.CHANNEL.formattedDefault()}, ")
+                        append("${WelcomeSettings.GREETING.formattedDefault()}, ")
+                        append("${WelcomeSettings.FAREWELL.formattedDefault()}, ")
+                        append("${WelcomeSettings.COLOR.formattedDefault()}, ")
+                        append("${WelcomeSettings.DMGREETING.formattedDefault()})")
+                    })
+                Volte.logger().info("Added ${guild.name} to the guilds welcome table.")
             }
 
         }

@@ -2,6 +2,7 @@ package volte.commands.cmds.operator
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import net.dv8tion.jda.api.entities.Role
 import volte.Volte
 import volte.commands.parsers.Parsers
 import volte.meta.categories.operator
@@ -30,8 +31,9 @@ class OperatorCommand : Command() {
             return
         }
 
-        val role = Parsers.role().parse(event, event.args)
+        val role = Parsers.parse<Role>(event, event.args)
         if (role == null) {
+
             event.message.reply(event.createEmbed("You didn't provide a valid role to be set. I can accept @mentions, IDs, or just names."))
                 .queue()
         } else {

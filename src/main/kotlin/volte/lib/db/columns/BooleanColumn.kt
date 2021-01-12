@@ -9,7 +9,7 @@ class BooleanColumn(
     private val default: Boolean = false
 ) : SQLColumn<Boolean>(name, nullable, default) {
 
-    override fun dataDescription(): String = "BOOLEAN DEFAULT ${default.toString().toUpperCase()} ${nullableStr()}"
+    override fun sqlSpec(): String = "BOOLEAN DEFAULT ${default.toString().toUpperCase()} ${nullableStr()}"
 
 
     override fun getValue(rs: ResultSet): Boolean = rs.getBoolean(name)

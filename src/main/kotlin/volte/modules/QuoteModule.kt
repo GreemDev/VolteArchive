@@ -6,35 +6,37 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
 import volte.meta.then
-import volte.util.DiscordUtil
+import volte.meta.DiscordUtil
+import volte.meta.addField
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class QuoteModule : ListenerAdapter() {
 
     companion object {
-        val linkPattern =
-            Pattern.compile("(?<Prelink>\\S+\\s+\\S*)?https?://(?:(?:ptb|canary)\\.)?discord(app)?\\.com/channels/(?<GuildId>\\d+)/(?<ChannelId>\\d+)/(?<MessageId>\\d+)/?(?<Postlink>\\S*\\s+\\S+)?")
-        val linkRemover =
+        private val linkPattern: Pattern =
+            Pattern.compile("(?<preComment>\\S+\\s+\\S*)?https?://(?:(?:ptb|canary)\\.)?discord(app)?\\.com/channels/(?<guild>\\d+)/(?<channel>\\d+)/(?<message>\\d+)/?(?<postComment>\\S*\\s+\\S+)?")
+        private val linkRemover: Pattern =
             Pattern.compile("https?://(?:(?:ptb|canary)\\.)?discord(app)?\\.com/channels/(\\d+)/(\\d+)/(\\d+)?")
     }
 
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        if (!Volte.db().getSettingsFor(event.guild.id).getAutoQuote()) return
+        if (!Volte.db().getSettingsFor(event.guild.id).getAutoQuote() or event.author.isBot) return
 
-        val matcher = linkPattern.matcher(event.message.contentRaw)
-        if (!matcher.matches()) return
+        with(linkPattern.matcher(event.message.contentRaw)) {
+            if (!matches()) return
 
-        val guildId = matcher.group("GuildId")
-        val channelId = matcher.group("ChannelId")
-        val messageId = matcher.group("MessageId")
+            val guildId = group("guild")
+            val channelId = group("channel")
+            val messageId = group("message")
 
-        val g = event.jda.getGuildById(guildId)
-        val c = g?.getTextChannelById(channelId) ?: return
+            val g = event.jda.getGuildById(guildId)
+            val c = g?.getTextChannelById(channelId) ?: return
 
-        c.retrieveMessageById(messageId) then { message ->
-            event.channel.sendMessage(generateQuoteEmbed(message, event, matcher)) then {
-                event.message.delete().queue()
+            c.retrieveMessageById(messageId) then { message ->
+                event.channel.sendMessage(generateQuoteEmbed(message, event, this)) then {
+                    event.message.delete().queue()
+                }
             }
         }
     }
@@ -61,25 +63,26 @@ class QuoteModule : ListenerAdapter() {
             }
         }
 
-        if (!matcher.group("Prelink").isNullOrEmpty() or !matcher.group("Postlink").isNullOrEmpty()) {
-            val match = linkRemover.matcher(event.message.contentRaw)
-            var strings = match.replaceAll("|").split(" ")
+        if (!matcher.group("preComment").isNullOrEmpty() or !matcher.group("postComment").isNullOrEmpty()) {
+            with (linkRemover.matcher(event.message.contentRaw)) {
+                var strings = replaceAll("|").split(" ")
 
-            if (strings.size == 2) {
-                strings = strings.map {
-                    if (it != "") {
-                        if (it.endsWith("|") or it.startsWith("|")) {
-                            return@map it.replace("|", "")
+                if (strings.size == 2) {
+                    strings = strings.map {
+                        if (it != "") {
+                            if (it.endsWith("|") or it.startsWith("|")) {
+                                return@map it.replace("|", "")
+                            }
+                            return@map it
                         }
-                        return@map it
-                    }
-                    return@map ""
-                }.filter { it != "" }
+                        return@map ""
+                    }.filter { it != "" }
+                }
+                e.addField("Comment", strings.joinToString(" "))
             }
-            e.addField("Comment", strings.joinToString(" "), false)
         }
 
-        e.addField("Original Message", "[Click here](${message.jumpUrl})", false)
+        e.addField("Original Message", "[Click here](${message.jumpUrl})")
 
         return e.build()
     }

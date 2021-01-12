@@ -2,6 +2,7 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import net.dv8tion.jda.api.entities.Member
 import volte.commands.parsers.Parsers
 import volte.meta.categories.utility
 import volte.meta.getHighestRoleWithColor
@@ -19,7 +20,7 @@ class AvatarCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        Parsers.member().parse(event, event.args).optional() hasValue {
+        Parsers.parse<Member>(event, event.args).optional() hasValue {
             event.replyInline {
                 setColor(it.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
                 setImage(it.user.effectiveAvatarUrl)

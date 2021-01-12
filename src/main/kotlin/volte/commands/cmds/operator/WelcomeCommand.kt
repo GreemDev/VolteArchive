@@ -2,10 +2,12 @@ package volte.commands.cmds.operator
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import net.dv8tion.jda.api.entities.TextChannel
 import volte.Volte
 import volte.commands.parsers.Parsers
 import volte.meta.categories.operator
 import volte.meta.replyInline
+import java.awt.Color
 
 class WelcomeCommand : Command() {
 
@@ -43,7 +45,7 @@ class WelcomeCommand : Command() {
 
                     }
                 } else {
-                    val parsed = Parsers.channel().parse(event, value)
+                    val parsed = Parsers.parse<TextChannel>(event, value)
                     if (parsed != null) {
                         settings.setChannel(parsed.id)
                         event.replyInline {
@@ -96,7 +98,7 @@ class WelcomeCommand : Command() {
                         setColor(color)
                     }
                 } else {
-                    val parsed = Parsers.color().parse(event, value)
+                    val parsed = Parsers.parse<Color>(event, value)
                     if (parsed == null) {
                         event.replyInline {
                             setDescription("Provided color was invalid. Please try an RGB value separated by ;, e.g. `251;0;112`")

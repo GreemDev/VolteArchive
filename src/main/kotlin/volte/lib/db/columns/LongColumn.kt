@@ -11,7 +11,7 @@ class LongColumn(
     private val default: Long = 0L,
     private val primaryKey: Boolean = false
 ) : SQLColumn<Long>(name, nullable, default, primaryKey) {
-    override fun dataDescription(): String {
+    override fun sqlSpec(): String {
         return "BIGINT DEFAULT $default ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
     }
 

@@ -2,36 +2,34 @@ package volte
 
 import com.jagrosh.jdautilities.command.CommandClient
 import com.jagrosh.jdautilities.command.CommandClientBuilder
+import com.jagrosh.jdautilities.command.GuildSettingsManager
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message.MentionType
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.requests.restaction.MessageAction
-import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import okhttp3.OkHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import volte.database.VolteDatabase
-import volte.meta.Emoji
-import volte.meta.ReleaseType
-import volte.meta.Version
-import volte.meta.withVolteCommands
+import volte.database.entities.GuildData
+import volte.lib.kjda.*
+import volte.meta.*
 import volte.modules.*
-import volte.util.obj.*
+import volte.meta.entities.*
+import java.time.Duration
 import java.util.*
+import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 
 
 class Volte private constructor() {
-
-    fun jda() = shardedJda
-    fun commands() = commandClient
-    fun config() = Companion.config()
-
-
     companion object {
         infix fun logger(jclass: Class<*>): Logger = LoggerFactory.getLogger(jclass)
         infix fun logger(klass: KClass<*>): Logger = logger(klass.java)
@@ -43,6 +41,12 @@ class Volte private constructor() {
         private lateinit var shardedJda: ShardManager
         private lateinit var commandClient: CommandClient
         private lateinit var database: VolteDatabase
+        private var http = OkHttpClient.Builder().apply {
+            callTimeout(Duration.ofSeconds(10))
+            readTimeout(Duration.ofSeconds(5))
+            writeTimeout(Duration.ofSeconds(5))
+        }.build()
+
         private var isStarted: Boolean = false
 
         fun jda() = shardedJda
@@ -67,15 +71,18 @@ class Volte private constructor() {
         val elapsed = measureTimeMillis {
             Runtime.getRuntime().addShutdownHook(Thread {
                 db().connector().shutdown()
-                jda().shards.forEach(JDA::cancelRequests)
-                jda().shards.forEach(JDA::shutdownNow)
+                jda().shardCache.forEach(JDA::cancelRequests)
+                jda().shardCache.forEach(JDA::shutdownNow)
             })
 
             MessageAction.setDefaultMentionRepliedUser(false)
             MessageAction.setDefaultMentions(EnumSet.complementOf(EnumSet.of(MentionType.EVERYONE, MentionType.HERE)))
 
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-                logger().error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"")
+                logger {
+                    error("Thread \"${thread.name}\" terminated from \"${throwable.message}\"")
+                }
+
                 GuildLoggingManager.instance.onError(throwable)
                 throwable.printStackTrace()
             }
@@ -87,7 +94,7 @@ class Volte private constructor() {
                 .setPrefix(config().prefix())
                 .setHelpWord("help")
                 .withVolteCommands()
-                .setGuildSettingsManager(VolteGuildSettingsManager())
+                .setGuildSettingsManager { guild -> guild.getData() }
                 .setListener(CommandHandler())
                 .setServerInvite("https://greemdev.net/Discord")
                 .setEmojis(Emoji.BALLOT_BOX_WITH_CHECK, Emoji.WARNING, Emoji.X)
@@ -95,21 +102,22 @@ class Volte private constructor() {
                 .build()
 
             try {
+                shardedJda = client(config().token()) {
+                    setMemberCachePolicy(MemberCachePolicy.ALL)
+                    disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE)
+                    enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
+                    setHttpClient(http)
 
-                shardedJda = DefaultShardManagerBuilder.createDefault(config().token())
-                    .addEventListeners(commandClient)
-                    .disableCache(CacheFlag.EMOTE, CacheFlag.ACTIVITY)
-                    .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
-                    .build()
+                    if (Version.releaseType == Version.ReleaseType.DEVELOPMENT) {
+                        this += DebugLogger()
+                        setRawEventsEnabled(true)
+                    }
+                    this += commandClient
+                    this += GuildLoggingManager.instance
+                }
 
             } catch (e: Exception) {
                 logger().error("Failed to login to Discord: ${e.message}")
-            } finally {
-                if (Version.releaseType == ReleaseType.DEVELOPMENT) {
-                    shardedJda.addEventListener(DebugLogger())
-                }
-                shardedJda.addEventListener(GuildLoggingManager.instance)
-                shardedJda.shards.forEach(JDA::awaitReady)
             }
 
             database = VolteDatabase()
@@ -126,16 +134,16 @@ class Volte private constructor() {
                 logger().info("Adding module ${klass.java.simpleName.replace("Module", "")}...")
                 val module = klass.java.constructors[0].newInstance()
 
-                shardedJda.addEventListener(module)
+                shardedJda += module
             }
 
             val activity = config().parseActivity()
-            shardedJda.setPresence(OnlineStatus.ONLINE, activity)
+            shardedJda.setPresence(OnlineStatus.DO_NOT_DISTURB, activity)
 
             if (config().game().contains(" ")) {
                 val conts = config().game().toLowerCase().split(" ")
                 if (arrayListOf("playing", "watching", "listening", "listeningto", "competing", "competingin").none(
-                        conts[0]::equals
+                        conts.first()::equals
                     )
                 ) {
                     logger {
@@ -153,7 +161,7 @@ class Volte private constructor() {
             }
         }
 
-        val cont = "${shardedJda.shardsTotal} shard" + if (shardedJda.shardsTotal != 1) "s" else ""
+        val cont = "${shardedJda.shardsTotal} shard" + if (shardedJda.shardsTotal == 1) "" else "s"
         logger {
             info("Initialization of $cont finished in ${elapsed}ms. Volte v${Version.formatted()} is ready.")
             info("Available commands: ${commands().commands.size.inc()}") //incremented for the help command

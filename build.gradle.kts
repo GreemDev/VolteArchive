@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
     id("com.github.johnrengelman.shadow") version "6.1.0"
     application
 }
@@ -13,17 +13,14 @@ version = "4.0.0"
 repositories {
     mavenCentral()
     jcenter()
-    maven("https://kotlin.bintray.com/ktor")
 }
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("net.dv8tion:JDA:4.2.0_225") {
+    implementation("net.dv8tion:JDA:4.2.0_226") {
         exclude("opus-java")
     }
     implementation("com.jagrosh:jda-utilities:3.0.5")
-    implementation("org.apache.commons:commons-lang3:3.9")
-    implementation("commons-io:commons-io:2.6")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.h2database:h2:1.4.200")
 }
@@ -42,7 +39,6 @@ tasks.withType<ShadowJar> {
     relocate("com.jagrosh.jdautilities", "volte.lib.jdautils")
     relocate("org.slf4j", "volte.lib.logging")
     relocate("org.h2", "volte.lib.h2")
-    relocate("org.apache.commons", "volte.lib.commons")
     relocate("okhttp3", "volte.lib.http")
     relocate("kotlin", "volte.lib.kotlin")
     relocate("com.google.gson", "volte.lib.gson")

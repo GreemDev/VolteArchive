@@ -10,19 +10,17 @@ import volte.meta.valueOf
 import java.sql.ResultSet
 
 data class TagsRepository(val guildId: String) : DataManager(Volte.db().connector(), "TAGS") {
-
-    fun getTags(): Set<VolteTag> {
-        val tags: HashSet<VolteTag> = hashSetOf()
-        query(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
+    fun getTags(): ArrayList<VolteTag> = arrayListOf<VolteTag>().apply {
+        query(selectAll(VolteTag.GUILD.sqlEquals(guildId))) { rs ->
             whileNext(rs) {
-                tags.add(VolteTag(this))
+                add(VolteTag(this))
             }
         }
-        return tags
     }
 
-    fun deleteTag(name: String) {
-        queryMutable(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
+
+    fun deleteTag(name: String) =
+        queryMutable(select(VolteTag.GUILD.sqlEquals(guildId), VolteTag.NAME)) { rs ->
             whileNext(rs) {
                 if (valueOf(VolteTag.NAME).equals(name, true)) {
                     deleteRow()
@@ -30,20 +28,20 @@ data class TagsRepository(val guildId: String) : DataManager(Volte.db().connecto
                 }
             }
         }
-    }
 
-    fun hasTag(name: String): Boolean {
-        return query<Boolean>(select(VolteTag.GUILD.equalsValue(guildId), VolteTag.NAME)) { rs ->
+
+    fun hasTag(name: String): Boolean =
+        query<Boolean>(select(VolteTag.GUILD.sqlEquals(guildId), VolteTag.NAME)) { rs ->
             arrayListOf<String>().apply {
                 whileNext(rs) {
                     add(valueOf(VolteTag.NAME))
                 }
             }.contains(name)
         }
-    }
 
-    fun createNewTag(name: String, content: String, creator: String) {
-        queryMutable(selectAll(VolteTag.GUILD.equalsValue(guildId))) { rs ->
+
+    fun createNewTag(name: String, content: String, creator: String) =
+        queryMutable(selectAll(VolteTag.GUILD.sqlEquals(guildId))) { rs ->
             rs.moveToInsertRow()
             rs.updateValueOf(VolteTag.GUILD, guildId)
             rs.updateValueOf(VolteTag.NAME, name)
@@ -52,7 +50,7 @@ data class TagsRepository(val guildId: String) : DataManager(Volte.db().connecto
             rs.updateValueOf(VolteTag.CREATOR, creator)
             rs.insertRow()
         }
-    }
+
 
     data class VolteTag(private val rs: ResultSet) {
 
@@ -63,8 +61,6 @@ data class TagsRepository(val guildId: String) : DataManager(Volte.db().connecto
             val USES: SQLColumn<Int> = IntegerColumn("USES", false)
             val CREATOR: SQLColumn<String> = StringColumn("CREATOR", false, maxLength = 20)
         }
-
-        fun rs() = rs
 
         private val name: String = rs.valueOf(NAME)
         private val content: String = rs.valueOf(CONTENT)

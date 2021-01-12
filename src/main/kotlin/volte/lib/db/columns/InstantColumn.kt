@@ -10,7 +10,7 @@ class InstantColumn(
     private val default: Instant = Instant.MIN,
     private val primaryKey: Boolean = false
 ) : SQLColumn<Instant>(name, nullable, default, primaryKey) {
-    override fun dataDescription(): String =
+    override fun sqlSpec(): String =
         "BIGINT DEFAULT ${default.toEpochMilli()} ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
 
     override fun getValue(rs: ResultSet): Instant {

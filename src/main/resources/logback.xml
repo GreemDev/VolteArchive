@@ -2,7 +2,7 @@
     <appender name="Simple" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %nopex|%d{HH:mm:ss.SSS}| [%logger{0}] [%level]: %msg%n%ex
+                %nopex%d{HH:mm:ss} -> %logger{0} -> %level | %msg%n%ex
             </pattern>
         </encoder>
     </appender>
@@ -10,3 +10,5 @@
         <appender-ref ref="Simple"/>
     </root>
 </configuration>
+
+<!-- another appender pattern: %nopex%d{HH:mm:ss.SSS} -> [%logger{0}] -> [%level]: %msg%n%ex -->

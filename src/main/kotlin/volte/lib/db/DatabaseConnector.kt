@@ -11,7 +11,7 @@ class DatabaseConnector(location: String) {
     private val connection: Connection
     fun connection() = connection
 
-    infix fun logger(func: Logger.() -> Unit) {
+    private infix fun logger(func: Logger.() -> Unit) {
         LoggerFactory.getLogger("Database").apply(func)
     }
 
@@ -21,11 +21,7 @@ class DatabaseConnector(location: String) {
             connection = DriverManager.getConnection("jdbc:h2:$location")
             logger {
                 info(
-                    "Using ${connection.metaData.driverName}, connected to the database at ${
-                        connection.metaData.url.split(
-                            "./"
-                        )[1]
-                    }.mv.db"
+                    "Using ${connection.metaData.driverName}, connected to ${connection.metaData.url}"
                 )
             }
         } catch (e: SQLException) {

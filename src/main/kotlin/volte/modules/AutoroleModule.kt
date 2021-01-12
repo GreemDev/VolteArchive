@@ -7,7 +7,7 @@ import volte.meta.getData
 class AutoroleModule : ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-        val roleId: String = event.guild.getData().getAutorole()
+        val roleId = event.guild.getData().getAutorole()
 
         if (roleId.isNotEmpty()) {
             val role = event.guild.getRoleById(roleId)

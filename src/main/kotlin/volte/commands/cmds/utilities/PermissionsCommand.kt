@@ -5,7 +5,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.Permission
 import volte.meta.categories.utility
 import volte.meta.replyInline
-import volte.util.DiscordUtil
+import volte.meta.DiscordUtil
 
 class PermissionsCommand : Command() {
 
@@ -30,26 +30,29 @@ class PermissionsCommand : Command() {
             event.replyInline {
                 setTitle("User has the Administrator permission, so they have all permissions.")
             }
+        } else {
+            val (allowed, denied) = DiscordUtil.prettyPermissions(event.member)
 
-            return
+            val allowedStr = allowed.joinToString("\n", transform = ::formatPermissionName)
+            val deniedStr = denied.joinToString("\n", transform = ::formatPermissionName)
+
+            event.replyInline {
+                addField("Allowed", if (allowed.isEmpty()) "- None" else allowedStr, true)
+                addField("Denied", if (denied.isEmpty()) "- None" else deniedStr, true)
+            }
         }
 
-        val res = DiscordUtil.prettyPermissions(event.member)
 
-        val allowedStr = res.allowed.joinToString("\n", transform = this::formatPermissionName)
-        val deniedStr = res.denied.joinToString("\n", transform = this::formatPermissionName)
-
-        event.replyInline {
-            addField("Allowed", if (allowedStr.isEmpty()) "- None" else allowedStr, true)
-            addField("Denied", if (deniedStr.isEmpty()) "- None" else deniedStr, true)
-        }
     }
 
     private fun formatPermissionName(perm: Permission): String {
         val name = perm.name.toLowerCase()
         val parts = name.split("_")
         if (parts.isEmpty()) return name.capitalize()
-        return "- " + parts.joinToString(" ", transform = String::capitalize)
+        return "- " + parts.joinToString(" ", transform = {
+            if (it.length == 3 && !it.equals("ban", true)) it.toUpperCase()
+            else it.capitalize()
+        })
 
     }
 }

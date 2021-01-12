@@ -26,7 +26,7 @@ class MassPingsCommand : Command() {
             return
         }
 
-        val result = Parsers.boolean().parse(event, event.args)
+        val result = Parsers.parse<Boolean>(event, event.args)
         if (result == null) {
             event.message.reply(event.createEmbed("You didn't provide a valid boolean value. Try `true` or `false` next time!"))
                 .queue()

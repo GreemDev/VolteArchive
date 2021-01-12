@@ -2,14 +2,14 @@ package volte.commands.parsers
 
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Role
-import org.apache.commons.lang3.StringUtils
 import volte.commands.parsers.abs.VolteArgumentParser
-import volte.util.DiscordUtil
+import volte.meta.isNumeric
+import volte.meta.DiscordUtil
 
 class RoleParser : VolteArgumentParser<Role?>() {
 
     override fun parse(event: CommandEvent, value: String): Role? {
-        var role: Role? = if (StringUtils.isNumeric(value))
+        var role: Role? = if (value.trim().isNumeric())
             event.guild.getRoleById(value) //id check
         else null
 

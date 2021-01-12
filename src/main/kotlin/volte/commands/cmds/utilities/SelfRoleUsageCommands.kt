@@ -2,6 +2,7 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import volte.commands.parsers.Parsers
 import volte.meta.*
 import volte.meta.categories.utility
@@ -83,6 +84,14 @@ class IamNotCommand : Command() {
                 }
             }
         }
+    }
+}
+
+class SelfRoleListCommand : Command() {
+    override fun execute(event: CommandEvent) {
+        val roles = event.guild.getSelfRoles().roleIds.map(event.guild::getRoleById)
+
+        
     }
 
 }

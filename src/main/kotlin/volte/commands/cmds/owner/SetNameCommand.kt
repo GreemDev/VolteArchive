@@ -18,7 +18,7 @@ class SetNameCommand : Command() {
     override fun execute(event: CommandEvent) {
         event.jda.selfUser.manager.setName(event.args) then {
             event.replyInline {
-                setDescription("Set my username to **${event.args}**.")
+                setDescription("My username is now **${event.args}#${event.jda.selfUser.discriminator}**.")
             }
         }
     }

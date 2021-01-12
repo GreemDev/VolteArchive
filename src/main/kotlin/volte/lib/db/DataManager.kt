@@ -8,9 +8,8 @@ open class DataManager(private val connector: DatabaseConnector, var tableName: 
         tableName = tableName.toUpperCase()
     }
 
-    open fun allColumns(): List<SQLColumn<*>> {
-        return emptyList()
-    }
+    open fun allColumns(): List<SQLColumn<*>> = emptyList()
+
 
     internal fun query(query: String, func: (ResultSet) -> Unit) {
         val statement = connection().createStatement()
@@ -26,13 +25,10 @@ open class DataManager(private val connector: DatabaseConnector, var tableName: 
         return func(rs)
     }
 
-    internal fun queryMutable(query: String): ResultSet {
-        return queryMutable<ResultSet>(query) { rs -> rs }
-    }
+    internal fun queryMutable(query: String): ResultSet = queryMutable<ResultSet>(query) { rs -> rs }
 
-    internal fun query(query: String): ResultSet {
-        return query<ResultSet>(query) { rs -> rs }
-    }
+    internal fun query(query: String): ResultSet = query<ResultSet>(query) { rs -> rs }
+
 
     internal fun queryMutable(query: String, func: (ResultSet) -> Unit) {
         val statement = connection().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)

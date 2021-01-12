@@ -24,9 +24,10 @@ class NowCommand : Command() {
                 .map(CharSequence::trim)
 
             setDescription(
-                StringBuilder()
-                    .appendLine("**Date**: ${now.first()}")
-                    .appendLine("**Time**: ${now[1]}")
+                buildString {
+                    appendLine("**Date**: ${now.first()}")
+                    appendLine("**Time**: ${now[1]}")
+                }
             )
         }
     }

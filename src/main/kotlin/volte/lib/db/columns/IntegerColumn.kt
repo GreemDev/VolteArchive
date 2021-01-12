@@ -11,7 +11,7 @@ class IntegerColumn(
     private val default: Int = 0
 ) : SQLColumn<Int>(name, nullable, default) {
 
-    override fun dataDescription(): String = "INTEGER DEFAULT $default ${nullableStr()}"
+    override fun sqlSpec(): String = "INTEGER DEFAULT $default ${nullableStr()}"
 
     override fun getValue(rs: ResultSet): Int = rs.valueOf(this)
 

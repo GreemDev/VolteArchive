@@ -5,7 +5,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
 import volte.commands.parsers.Parsers
 import volte.meta.categories.operator
-import volte.meta.createEmbed
+import volte.meta.replyEmbedInline
 
 class AntilinkCommand : Command() {
 
@@ -18,23 +18,19 @@ class AntilinkCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         val data = Volte.db().getSettingsFor(event.guild.id)
-        val antilink = data.getAntilink()
 
         if (event.args.isEmpty()) {
-            event.message.reply(event.createEmbed("The Antilink system is currently ${if (antilink) "enabled" else "disabled"}} for this guild."))
-                .queue()
+            event.replyEmbedInline("The Antilink system is currently ${if (data.getAntilink()) "enabled" else "disabled"}} for this guild.")
             return
         }
 
-        val result = Parsers.boolean().parse(event, event.args)
+        val result = Parsers.parse<Boolean>(event, event.args)
         if (result == null) {
-            event.message.reply(event.createEmbed("You didn't provide a valid boolean value. Try `true` or `false` next time!"))
-                .queue()
+            event.replyEmbedInline("You didn't provide a valid boolean value. Try `true` or `false` next time!")
         } else {
             data.setAntilink(result)
 
-            event.message.reply(event.createEmbed("Successfully ${if (result) "enabled" else "disabled"} the Antilink system for this guild."))
-                .queue()
+            event.replyEmbedInline("Successfully ${if (result) "enabled" else "disabled"} the Antilink system for this guild.")
         }
     }
 }

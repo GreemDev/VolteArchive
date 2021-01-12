@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Message
 import volte.meta.Emoji
 import volte.meta.categories.utility
 import volte.meta.createEmbedBuilder
+import volte.meta.then
 import kotlin.system.measureTimeMillis
 
 class PingCommand : Command() {
@@ -20,6 +21,7 @@ class PingCommand : Command() {
     override fun execute(event: CommandEvent) {
         lateinit var message: Message
         val embed = event.createEmbedBuilder("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
+
 
         val apiLatency = measureTimeMillis {
             message = event.message.reply(embed.build()).complete()

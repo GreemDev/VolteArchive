@@ -15,21 +15,21 @@ abstract class SQLColumn<T> {
     private val name: String
     private val nullable: Boolean
     private val default: T
-    private val primaryKey: Boolean
+    private val isPrimaryKey: Boolean
 
 
     constructor(name: String, nullable: Boolean, default: T) {
         this.name = name
         this.nullable = nullable
         this.default = default
-        this.primaryKey = false
+        this.isPrimaryKey = false
     }
 
     constructor(name: String, nullable: Boolean, default: T, primaryKey: Boolean) {
         this.name = name
         this.nullable = nullable
         this.default = default
-        this.primaryKey = primaryKey
+        this.isPrimaryKey = primaryKey
     }
 
     protected fun nullableStr(): String {
@@ -39,31 +39,53 @@ abstract class SQLColumn<T> {
     fun default() = default
     fun name() = name
 
-    fun equalsValue(value: T): String {
+    /**
+     * Generates the SQL = statement, for use in WHERE statements.
+     */
+    fun sqlEquals(value: T): String {
         return if (value is String) {
             "$name = '$value'"
         } else "$name = $value"
     }
 
-    infix fun eq(value: T): String {
-        return equalsValue(value)
+    fun formattedDefault(): String {
+        return if (default is String) {
+            "`$default`"
+        } else throw IllegalStateException("Cannot call formattedDefault for an SQLColumn that is not a String.")
     }
 
-    fun lessThan(value: Long): String {
+    /**
+     * Infix overload for [sqlEquals]
+     */
+    infix fun eq(value: T): String {
+        return sqlEquals(value)
+    }
+
+    fun sqlLessThan(value: Long): String {
         return "$name < $value"
     }
 
-    fun greaterThan(value: Long): String {
+    fun sqlGreaterThan(value: Long): String {
         return "$name > $value"
     }
 
-    override fun toString(): String = dataDescription()
+    override fun toString(): String = sqlSpec()
 
-    abstract fun dataDescription(): String
+    /**
+     * Returns the raw SQL representing this [SQLColumn]. Used for table generation and related things.
+     */
+    abstract fun sqlSpec(): String
 
+    /**
+     * Gets the value of this column on the provided [ResultSet] on the [ResultSet]'s currently selected row.
+     */
     @Throws(SQLException::class)
     abstract fun getValue(rs: ResultSet): T
 
+    /**
+     * Updates the value of this column on the provided [ResultSet] with the value of [new].
+     * This updates the [ResultSet]'s currently selected row.
+     */
     @Throws(SQLException::class)
     abstract fun updateValue(rs: ResultSet, new: T)
 
