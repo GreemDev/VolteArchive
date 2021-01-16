@@ -1,15 +1,21 @@
 package volte.database.entities
 
 import volte.Volte
-import volte.lib.db.DataManager
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbManager
+import volte.lib.db.DbColumn
+import volte.lib.db.columns.IntegerColumn
 import volte.lib.db.columns.StringColumn
-import volte.meta.updateValueOf
-import volte.meta.valueOf
+import volte.lib.meta.valueOf
 
-data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().connector(), "SELFROLES") {
+data class SelfRoleRepository(val guildId: String) : DbManager(Volte.db().connection(), "SELFROLES") {
 
-    val roleIds: ArrayList<String> = query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), ROLEID)) { rs ->
+    constructor() : this("")
+
+    override fun allColumns(): List<DbColumn<*>> {
+        return arrayListOf(ID, GUILDID, ROLEID)
+    }
+
+    fun getRoles(): ArrayList<String> = query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), ROLEID)) { rs ->
         arrayListOf<String>().apply {
             whileNext(rs) {
                 add(valueOf(ROLEID))
@@ -18,20 +24,10 @@ data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().conn
     }
 
     fun createSelfRole(roleId: String) {
-        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
-            val ids = arrayListOf<String>().apply {
-                whileNext(rs) {
-                    add(valueOf(ROLEID))
-                }
-            }
-
-            if (!ids.contains(roleId)) {
-                rs.moveToInsertRow()
-                rs.updateValueOf(GUILDID, guildId)
-                rs.updateValueOf(ROLEID, roleId)
-                rs.insertRow()
-            }
-        }
+        modify(insert(hashMapOf(
+            GUILDID to guildId,
+            ROLEID to roleId
+        )))
     }
 
     fun hasSelfRole(roleId: String): Boolean {
@@ -45,19 +41,13 @@ data class SelfRoleRepository(val guildId: String) : DataManager(Volte.db().conn
     }
 
     fun deleteSelfRole(roleId: String) {
-        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
-            whileNext(rs) {
-                if (valueOf(ROLEID) == roleId) {
-                    deleteRow()
-                    return@whileNext
-                }
-            }
-        }
+        modify(delete(ROLEID.sqlEquals(roleId)))
     }
 
     companion object {
-        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
-        val ROLEID: SQLColumn<String> = StringColumn("ROLEID", false, maxLength = 20)
+        val ID: DbColumn<Int> = IntegerColumn("ID", false, 0, autoIncrement = true, primaryKey = true)
+        val GUILDID: DbColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
+        val ROLEID: DbColumn<String> = StringColumn("ROLEID", false, maxLength = 20)
     }
 
 }

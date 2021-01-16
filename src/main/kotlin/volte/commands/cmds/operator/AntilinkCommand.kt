@@ -4,8 +4,8 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
 import volte.commands.parsers.Parsers
-import volte.meta.categories.operator
-import volte.meta.replyEmbedInline
+import volte.lib.meta.categories.operator
+import volte.lib.meta.replyEmbedInline
 
 class AntilinkCommand : Command() {
 

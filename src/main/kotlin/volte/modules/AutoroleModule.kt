@@ -2,7 +2,7 @@ package volte.modules
 
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import volte.meta.getData
+import volte.lib.meta.getData
 
 class AutoroleModule : ListenerAdapter() {
 

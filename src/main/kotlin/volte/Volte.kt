@@ -2,10 +2,8 @@ package volte
 
 import com.jagrosh.jdautilities.command.CommandClient
 import com.jagrosh.jdautilities.command.CommandClientBuilder
-import com.jagrosh.jdautilities.command.GuildSettingsManager
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.OnlineStatus
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message.MentionType
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.requests.RestAction
@@ -17,14 +15,12 @@ import okhttp3.OkHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import volte.database.VolteDatabase
-import volte.database.entities.GuildData
 import volte.lib.kjda.*
-import volte.meta.*
+import volte.lib.meta.*
 import volte.modules.*
-import volte.meta.entities.*
+import volte.lib.meta.entities.*
 import java.time.Duration
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 
@@ -70,7 +66,7 @@ class Volte private constructor() {
 
         val elapsed = measureTimeMillis {
             Runtime.getRuntime().addShutdownHook(Thread {
-                db().connector().shutdown()
+                db().connection().close()
                 jda().shardCache.forEach(JDA::cancelRequests)
                 jda().shardCache.forEach(JDA::shutdownNow)
             })

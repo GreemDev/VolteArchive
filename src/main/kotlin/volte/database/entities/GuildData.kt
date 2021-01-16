@@ -2,81 +2,91 @@ package volte.database.entities
 
 import com.jagrosh.jdautilities.command.GuildSettingsProvider
 import volte.Volte
-import volte.lib.db.DataManager
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbManager
+import volte.lib.db.DbColumn
 import volte.lib.db.columns.BooleanColumn
 import volte.lib.db.columns.StringColumn
-import volte.meta.*
+import volte.lib.meta.*
 
-data class GuildData(private val guildId: String) : DataManager(Volte.db().connector(), "GUILDS"),
+data class GuildData(private val guildId: String) : DbManager(Volte.db().connection(), "GUILDS"),
     GuildSettingsProvider {
 
+    constructor() : this("")
+
     companion object {
-        val ID: SQLColumn<String> = StringColumn("ID", false, "", true, 20)
-        val OPERATOR: SQLColumn<String> = StringColumn("OPERATOR", false, maxLength = 20)
-        val PREFIX: SQLColumn<String> = StringColumn("PREFIX", false, Volte.config().prefix())
-        val AUTOROLE: SQLColumn<String> = StringColumn("AUTOROLE", false, maxLength = 20)
-        val MASSPINGS: SQLColumn<Boolean> = BooleanColumn("MASSPINGS", false)
-        val ANTILINK: SQLColumn<Boolean> = BooleanColumn("ANTILINK", false)
-        val AUTOQUOTE: SQLColumn<Boolean> = BooleanColumn("AUTOQUOTE", false)
+        val ID: DbColumn<String> = StringColumn("ID", false, "", true, 20)
+        val OPERATOR: DbColumn<String> = StringColumn("OPERATOR", false, maxLength = 20)
+        val PREFIX: DbColumn<String> = StringColumn("PREFIX", false, Volte.config().prefix())
+        val AUTOROLE: DbColumn<String> = StringColumn("AUTOROLE", false, maxLength = 20)
+        val MASSPINGS: DbColumn<Boolean> = BooleanColumn("MASSPINGS", false)
+        val ANTILINK: DbColumn<Boolean> = BooleanColumn("ANTILINK", false)
+        val AUTOQUOTE: DbColumn<Boolean> = BooleanColumn("AUTOQUOTE", false)
     }
 
-    override fun allColumns(): List<SQLColumn<*>> {
+    override fun allColumns(): List<DbColumn<*>> {
         return listOf(ID, OPERATOR, PREFIX, AUTOROLE, MASSPINGS, ANTILINK, AUTOQUOTE)
     }
 
-    fun setAutoQuote(enabled: Boolean) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, AUTOQUOTE)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(AUTOQUOTE, enabled)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(AUTOQUOTE, enabled)
-                rs.insertRow()
-            }
-        }
+    fun setAutorole(autorole: String) {
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    AUTOROLE to autorole
+                )
+            )
+        )
     }
 
-    fun getAutoQuote(): Boolean {
-        return query<Boolean>(select(ID.sqlEquals(guildId), ID, AUTOQUOTE)) { rs ->
-            if (rs.next()) rs.valueOf(AUTOQUOTE) else AUTOQUOTE.default()
-        }
+    fun setMassPings(enabled: Boolean) {
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    MASSPINGS to enabled
+                )
+            )
+        )
+    }
+
+    fun setPrefix(prefix: String) {
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    PREFIX to prefix
+                )
+            )
+        )
+    }
+
+    fun setAutoQuote(enabled: Boolean) {
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    AUTOQUOTE to enabled
+                )
+            )
+        )
     }
 
 
     fun setOperator(id: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, OPERATOR)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(OPERATOR, id)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(OPERATOR, id)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    OPERATOR to id
+                )
+            )
+        )
     }
 
-    fun getOperator(): String {
-        return query<String>(select(ID.sqlEquals(guildId), ID, OPERATOR)) { rs ->
-            if (rs.next()) rs.valueOf(OPERATOR) else OPERATOR.default()
-        }
-    }
 
     fun setAntilink(enabled: Boolean) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, ANTILINK)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(ANTILINK, enabled)
-                rs.updateRow()
-            } else {
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(ANTILINK, enabled)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(
+                ID.sqlEquals(guildId), hashMapOf(
+                    ANTILINK to enabled
+                )
+            )
+        )
     }
 
 
@@ -93,34 +103,12 @@ data class GuildData(private val guildId: String) : DataManager(Volte.db().conne
         }
     }
 
-
-    fun setMassPings(enabled: Boolean) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, MASSPINGS)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(MASSPINGS, enabled)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(MASSPINGS, enabled)
-                rs.insertRow()
-            }
+    fun getOperator(): String {
+        return query<String>(select(ID.sqlEquals(guildId), ID, OPERATOR)) { rs ->
+            if (rs.next()) rs.valueOf(OPERATOR) else OPERATOR.default()
         }
     }
 
-    fun setPrefix(prefix: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, PREFIX)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(PREFIX, prefix)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(PREFIX, prefix)
-                rs.insertRow()
-            }
-        }
-    }
 
     fun getPrefix(): String {
         return query<String>(select(ID.sqlEquals(guildId), ID, PREFIX)) { rs ->
@@ -128,8 +116,10 @@ data class GuildData(private val guildId: String) : DataManager(Volte.db().conne
         }
     }
 
-    override fun getPrefixes(): MutableCollection<String> {
-        return mutableListOf(getPrefix())
+    fun getAutoQuote(): Boolean {
+        return query<Boolean>(select(ID.sqlEquals(guildId), ID, AUTOQUOTE)) { rs ->
+            if (rs.next()) rs.valueOf(AUTOQUOTE) else AUTOQUOTE.default()
+        }
     }
 
     fun getAutorole(): String {
@@ -138,18 +128,9 @@ data class GuildData(private val guildId: String) : DataManager(Volte.db().conne
         }
     }
 
-    fun setAutorole(autorole: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, AUTOROLE)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(AUTOROLE, autorole)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(AUTOROLE, autorole)
-                rs.insertRow()
-            }
-        }
+
+    override fun getPrefixes(): MutableCollection<String> {
+        return mutableListOf(getPrefix())
     }
 }
 

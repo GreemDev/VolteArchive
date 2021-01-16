@@ -2,9 +2,9 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.categories.utility
-import volte.meta.prettyPrint
-import volte.meta.replyInline
+import volte.lib.meta.categories.utility
+import volte.lib.meta.prettyPrint
+import volte.lib.meta.replyInline
 import java.time.Instant
 
 class NowCommand : Command() {
@@ -23,12 +23,11 @@ class NowCommand : Command() {
                 .split(",")
                 .map(CharSequence::trim)
 
-            setDescription(
-                buildString {
-                    appendLine("**Date**: ${now.first()}")
-                    appendLine("**Time**: ${now[1]}")
-                }
-            )
+            buildDescription {
+                appendLine("**Date**: ${now.first()}")
+                appendLine("**Time**: ${now[1]}")
+            }
+
         }
     }
 }

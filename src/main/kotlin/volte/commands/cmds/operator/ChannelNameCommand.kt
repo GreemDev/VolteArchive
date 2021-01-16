@@ -2,8 +2,8 @@ package volte.commands.cmds.operator
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.replyInline
-import volte.meta.then
+import volte.lib.meta.replyInline
+import volte.lib.meta.then
 
 class ChannelNameCommand : Command() {
     override fun execute(event: CommandEvent) {
@@ -11,7 +11,7 @@ class ChannelNameCommand : Command() {
             event.args.replace("  ", "_").replace(" ", "-")
         ) then {
             event replyInline {
-                setDescription("Set this channel's name to ${event.args.replace(" ", "-")}")
+                description("Set this channel's name to ${event.args.replace(" ", "-")}")
             }
         }
     }

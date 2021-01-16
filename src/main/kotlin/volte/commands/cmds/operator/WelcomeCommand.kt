@@ -5,18 +5,18 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.TextChannel
 import volte.Volte
 import volte.commands.parsers.Parsers
-import volte.meta.categories.operator
-import volte.meta.replyInline
+import volte.lib.meta.categories.operator
+import volte.lib.meta.replyInline
 import java.awt.Color
 
 class WelcomeCommand : Command() {
 
-    private val opts = arrayListOf("channel", "greeting", "farewell", "color", "dmGreeting")
+    private val opts = arrayListOf("channel", "greeting", "farewell", "color", "dmGreeting").joinToString(", ")
 
     init {
         this.name = "welcome"
         this.help =
-            "Allows you to get or modify various welcome settings. Valid settings are: [${opts.joinToString(", ")}]"
+            "Allows you to get or modify various welcome settings. Valid settings are: [$opts]"
         this.guildOnly = true
         this.category = operator()
     }
@@ -24,7 +24,7 @@ class WelcomeCommand : Command() {
     override fun execute(event: CommandEvent) {
         if (event.args.isEmpty()) {
             event.replyInline {
-                setDescription("You must provide a setting to get/modify. Valid settings are: `${opts.joinToString(", ")}`")
+                description("You must provide a setting to get/modify. Valid settings are: `$opts}`")
             }
             return
         }
@@ -39,9 +39,9 @@ class WelcomeCommand : Command() {
                     event.replyInline {
                         val chan = settings.getChannel()
                         if (chan.isNotEmpty())
-                            setDescription("The current Welcome channel for this guild is: <#${settings.getChannel()}>")
+                            description("The current Welcome channel for this guild is: <#${settings.getChannel()}>")
                         else
-                            setDescription("This guild currently does not have a Welcome channel set.")
+                            description("This guild currently does not have a Welcome channel set.")
 
                     }
                 } else {
@@ -49,11 +49,11 @@ class WelcomeCommand : Command() {
                     if (parsed != null) {
                         settings.setChannel(parsed.id)
                         event.replyInline {
-                            setDescription("Successfully set the Welcome channel to ${parsed.asMention}")
+                            description("Successfully set the Welcome channel to ${parsed.asMention}")
                         }
                     } else {
                         event.replyInline {
-                            setDescription("The provided input did not lead to a valid channel. Did you provide the correct name, id, or #mention?")
+                            description("The provided input did not lead to a valid channel. Did you provide the correct name, id, or #mention?")
                         }
                     }
                 }
@@ -63,14 +63,14 @@ class WelcomeCommand : Command() {
                     event.replyInline {
                         val greeting = settings.getGreeting()
                         if (greeting.isNotEmpty())
-                            setDescription("The current greeting for this guild is: ```\n$greeting```")
+                            description("The current greeting for this guild is: ```\n$greeting```")
                         else
-                            setDescription("This guild currently does not have a greeting set.")
+                            description("This guild currently does not have a greeting set.")
                     }
                 } else {
                     settings.setGreeting(value)
                     event.replyInline {
-                        setDescription("Successfully set the greeting to: ```\n$value```")
+                        description("Successfully set the greeting to: ```\n$value```")
                     }
                 }
             }
@@ -79,14 +79,14 @@ class WelcomeCommand : Command() {
                     event.replyInline {
                         val farewell = settings.getFarewell()
                         if (farewell.isNotEmpty())
-                            setDescription("The current farewell for this guild is: ```\n$farewell```")
+                            description("The current farewell for this guild is: ```\n$farewell```")
                         else
-                            setDescription("This guild currently does not have a farewell set.")
+                            description("This guild currently does not have a farewell set.")
                     }
                 } else {
                     settings.setFarewell(value)
                     event.replyInline {
-                        setDescription("Successfully set the farewell to: ```\n$value```")
+                        description("Successfully set the farewell to: ```\n$value```")
                     }
                 }
             }
@@ -94,20 +94,20 @@ class WelcomeCommand : Command() {
                 if (value == null) {
                     event.replyInline {
                         val color = settings.getColor()
-                        setDescription("The current Welcome color for this guild is: (${color.red}, ${color.green}, ${color.blue})")
-                        setColor(color)
+                        description("The current Welcome color for this guild is: (${color.red}, ${color.green}, ${color.blue})")
+                        color(color)
                     }
                 } else {
                     val parsed = Parsers.parse<Color>(event, value)
                     if (parsed == null) {
                         event.replyInline {
-                            setDescription("Provided color was invalid. Please try an RGB value separated by ;, e.g. `251;0;112`")
+                            description("Provided color was invalid. Please try an RGB value separated by ;, e.g. `251;0;112`")
                         }
                     } else {
                         settings.setColor("${parsed.red};${parsed.green};${parsed.blue}")
                         event.replyInline {
-                            setDescription("Successfully set the color to: (${parsed.red}, ${parsed.green}, ${parsed.blue})")
-                            setColor(parsed)
+                            description("Successfully set the color to: (${parsed.red}, ${parsed.green}, ${parsed.blue})")
+                            color(parsed)
                         }
                     }
 
@@ -118,15 +118,21 @@ class WelcomeCommand : Command() {
                     event.replyInline {
                         val dmGreeting = settings.getDmGreeting()
                         if (dmGreeting.isNotEmpty())
-                            setDescription("The current DM greeting for this guild is: ```\n$dmGreeting```")
+                            description("The current DM greeting for this guild is: ```\n$dmGreeting```")
                         else
-                            setDescription("This guild currently does not have a DM greeting set.")
+                            description("This guild currently does not have a DM greeting set.")
                     }
                 } else {
                     settings.setDmGreeting(value)
                     event.replyInline {
-                        setDescription("Successfully set the DM greeting to: ```\n$value```")
+                        description("Successfully set the DM greeting to: ```\n$value```")
                     }
+                }
+            }
+            else -> {
+                event.replyInline {
+                    title("Invalid setting provided.")
+                    description("Valid settings to show or modify are: [$opts]")
                 }
             }
         }

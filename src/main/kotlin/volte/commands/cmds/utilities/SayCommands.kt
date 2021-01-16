@@ -2,11 +2,10 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import net.dv8tion.jda.api.EmbedBuilder
-import volte.meta.categories.utility
-import volte.meta.createEmbed
-import volte.meta.getHighestRoleWithColor
-import volte.meta.reply
+import volte.lib.meta.categories.utility
+import volte.lib.meta.createEmbed
+import volte.lib.meta.getHighestRoleWithColor
+import volte.lib.meta.reply
 import java.awt.Color
 
 class SayCommand : Command() {

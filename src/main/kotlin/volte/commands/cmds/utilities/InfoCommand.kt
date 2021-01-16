@@ -3,8 +3,8 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.JDAInfo
-import volte.meta.*
-import volte.meta.categories.utility
+import volte.lib.meta.*
+import volte.lib.meta.categories.utility
 
 class InfoCommand : Command() {
 
@@ -18,23 +18,23 @@ class InfoCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         event.replyInline {
-            addField("Version", Version.formatted(), true)
-            addField("Author", "Greem#1337, and contributors on GitHub", true)
-            addField(
-                "Language/Runtime/Library",
-                buildString {
-                    appendLine("Kotlin ${KotlinVersion.CURRENT}")
-                    appendLine("Java ${try {
-                        System.getProperty("java.vm.version").split('+').first()
-                    } catch (e: Exception) { System.getProperty("java.version") }}")
-                    append("JDA ${JDAInfo.VERSION}")
-                }
-            )
-            addField("Guilds", event.jda.guilds.size, true)
-            addField("Shards", event.jda.shardInfo.shardTotal, true)
-            addField("Invite Me", "https://greemdev.net/invite", true)
-            addField("Support Server", event.client.serverInvite, true)
-            setThumbnail(event.jda.selfUser.effectiveAvatarUrl)
+            fields {
+                inline("Version", Version.formatted())
+                inline("Author", "Greem#1337, and contributors on GitHub")
+                normal("Language/Runtime/Library",
+                    buildString {
+                        appendLine("Kotlin ${KotlinVersion.CURRENT}")
+                        appendLine("Java ${try {
+                            System.getProperty("java.vm.version").split('+').first()
+                        } catch (e: Exception) { System.getProperty("java.version") }}")
+                        append("JDA ${JDAInfo.VERSION}")
+                    })
+                inline("Guilds", event.jda.guilds.size)
+                inline("Shards", event.jda.shardInfo.shardTotal)
+                inline("Invite Me", "https://greemdev.net/invite")
+                inline("Support Server", event.client.serverInvite)
+                thumbnail(event.jda.selfUser.effectiveAvatarUrl)
+            }
         }
     }
 

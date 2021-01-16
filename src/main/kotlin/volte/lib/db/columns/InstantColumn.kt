@@ -1,6 +1,6 @@
 package volte.lib.db.columns
 
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbColumn
 import java.sql.ResultSet
 import java.time.Instant
 
@@ -9,7 +9,7 @@ class InstantColumn(
     nullable: Boolean,
     private val default: Instant = Instant.MIN,
     private val primaryKey: Boolean = false
-) : SQLColumn<Instant>(name, nullable, default, primaryKey) {
+) : DbColumn<Instant>(name, nullable, default, primaryKey) {
     override fun sqlSpec(): String =
         "BIGINT DEFAULT ${default.toEpochMilli()} ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
 

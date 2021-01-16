@@ -1,22 +1,25 @@
 package volte.database
 
+import org.slf4j.LoggerFactory
 import volte.Volte
 import volte.database.entities.*
-import volte.lib.db.DatabaseConnector
-import volte.meta.Version
-import volte.meta.fromEnd
-import volte.meta.valueOf
+import volte.lib.meta.*
+import java.sql.Connection
+import java.sql.DriverManager
 
 class VolteDatabase {
     companion object {
-        private lateinit var connector: DatabaseConnector
+        private lateinit var connection: Connection
     }
 
     init {
-        connector = DatabaseConnector("./data/volte")
+        connection = DriverManager.getConnection("jdbc:h2:./data/${Volte.config().dbName()}")
+        LoggerFactory.getLogger("Database").info(
+            "Using ${connection.metaData.driverName}, connected to ${connection.metaData.url}"
+        )
     }
 
-    fun connector(): DatabaseConnector = connector
+    fun connection(): Connection = connection
 
     fun getWelcomeSettingsFor(guildId: String): WelcomeSettings = WelcomeSettings(guildId)
     fun getBlacklistFor(guildId: String): BlacklistRepository = BlacklistRepository(guildId)
@@ -26,8 +29,14 @@ class VolteDatabase {
     fun getSelfRolesFor(guildId: String): SelfRoleRepository = SelfRoleRepository(guildId)
 
     fun initializeDb() {
-        val statement = connector.connection().createStatement()
-        for (manager in arrayListOf(GuildData(""), WelcomeSettings(""))) {
+        val statement = connection().createStatement()
+        for (manager in arrayListOf(
+            GuildData(),
+            WelcomeSettings(),
+            TagsRepository(),
+            SelfRoleRepository(),
+            BlacklistRepository()
+        )) {
             statement.executeUpdate(buildString("CREATE TABLE IF NOT EXISTS ${manager.tableName} (") {
 
                 manager.allColumns().forEachIndexed { index, column ->
@@ -43,9 +52,6 @@ class VolteDatabase {
             })
         }
 
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS TAGS (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, NAME VARCHAR NOT NULL, CONTENT VARCHAR NOT NULL, CREATOR VARCHAR(20) NOT NULL, USES INT NOT NULL)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS SELFROLES (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, ROLEID VARCHAR(20) NOT NULL)")
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS BLACKLIST (ID INT AUTO_INCREMENT PRIMARY KEY, GUILDID VARCHAR(20) NOT NULL, PHRASE VARCHAR(200) NOT NULL)")
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS VOLTE_META (ID INT PRIMARY KEY, VERSION VARCHAR(20))")
 
         val rs = statement.executeQuery("SELECT * FROM VOLTE_META")
@@ -74,6 +80,7 @@ class VolteDatabase {
                         append("'${guild.id}', ")
                         append("${GuildData.OPERATOR.formattedDefault()}, ")
                         append("'${Volte.config().prefix()}', ")
+                        append("'${GuildData.AUTOROLE.formattedDefault()}', ")
                         append("${GuildData.MASSPINGS.default()}, ")
                         append("${GuildData.ANTILINK.default()}, ")
                         append("${GuildData.AUTOQUOTE.default()})")

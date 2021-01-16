@@ -2,10 +2,7 @@ package volte.modules
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import volte.meta.createEmbed
-import volte.meta.getData
-import volte.meta.isOperator
-import volte.meta.then
+import volte.lib.meta.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 

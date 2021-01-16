@@ -4,9 +4,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.database.entities.WelcomeSettings
-import volte.meta.buildEmbed
-import volte.meta.getWelcomeSettings
-import volte.meta.then
+import volte.lib.meta.buildEmbed
+import volte.lib.meta.getWelcomeSettings
+import volte.lib.meta.then
 import java.time.Instant
 
 class WelcomeModule : ListenerAdapter() {

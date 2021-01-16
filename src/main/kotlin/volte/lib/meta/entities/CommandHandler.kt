@@ -1,4 +1,4 @@
-package volte.meta.entities
+package volte.lib.meta.entities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent

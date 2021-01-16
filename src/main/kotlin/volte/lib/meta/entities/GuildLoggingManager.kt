@@ -1,11 +1,10 @@
-package volte.meta.entities
+package volte.lib.meta.entities
 
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
-import volte.meta.*
+import volte.lib.meta.*
 import java.awt.Color
 import java.time.Instant
 

@@ -5,8 +5,8 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Role
 import volte.Volte
 import volte.commands.parsers.Parsers
-import volte.meta.categories.operator
-import volte.meta.createEmbed
+import volte.lib.meta.categories.operator
+import volte.lib.meta.createEmbed
 
 class OperatorCommand : Command() {
 

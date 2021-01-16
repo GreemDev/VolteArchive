@@ -3,8 +3,8 @@ package volte.commands.cmds.operator
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import volte.Volte
-import volte.meta.categories.operator
-import volte.meta.replyInline
+import volte.lib.meta.categories.operator
+import volte.lib.meta.replyInline
 
 class SetPrefixCommand : Command() {
 
@@ -18,14 +18,14 @@ class SetPrefixCommand : Command() {
         val settings = Volte.db().getSettingsFor(event.guild.id)
         if (event.args.isEmpty()) {
             event replyInline {
-                setDescription("The current prefix for this guild is **${settings.getPrefix()}**!")
+                description("The current prefix for this guild is **${settings.getPrefix()}**!")
             }
             return
         }
 
         settings.setPrefix(event.args)
         event replyInline {
-            setDescription("Set the prefix to **${event.args}**!")
+            description("Set the prefix to **${event.args}**!")
         }
     }
 }

@@ -2,8 +2,9 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.*
-import volte.meta.categories.utility
+import volte.lib.kjda.embed
+import volte.lib.meta.*
+import volte.lib.meta.categories.utility
 
 class GuildInfoCommand : Command() {
 
@@ -16,15 +17,17 @@ class GuildInfoCommand : Command() {
     }
 
     override fun execute(event: CommandEvent) {
-        event replyInline {
-            setThumbnail(event.guild.iconUrl)
-            setTitle(event.guild.name)
-            addField("Owner", "<@!${event.guild.ownerId}>", true)
-            addField("Created", event.guild.timeCreated.toInstant().prettyPrint(), true)
-            addField("Region", event.guild.region.getName(), true)
-            addField("Members", event.guild.memberCount, true)
-            addField("Roles", event.guild.roles.size, true)
-            addField("Channels", event.guild.channels.size, true)
-        }
+        event.message.reply(embed {
+            thumbnail(event.guild.iconUrl)
+            title(event.guild.name)
+            fields {
+                inline("Owner", "<@!${event.guild.ownerId}>")
+                inline("Created", event.guild.timeCreated.toInstant().prettyPrint())
+                inline("Region", event.guild.region.getName())
+                inline("Members", event.guild.memberCount)
+                inline("Roles", event.guild.roles.size)
+                inline("Channels", event.guild.channels.size)
+            }
+        }).queue()
     }
 }

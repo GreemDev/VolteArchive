@@ -3,9 +3,10 @@ package volte.commands.cmds.owner
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
-import volte.meta.categories.owner
-import volte.meta.*
+import volte.lib.meta.categories.owner
+import volte.lib.meta.*
 import volte.Volte
+import volte.lib.kjda.KEmbedBuilder
 import java.awt.Color
 import java.util.regex.Pattern
 import javax.script.ScriptEngineManager
@@ -34,13 +35,15 @@ class EvalCommand : Command() {
             put("commands", Volte.commands())
             put("runtime", Runtime.getRuntime())
             put("db", Volte.db())
-            put("conn", Volte.db().connector())
+            put("conn", Volte.db().connection())
         }
 
         event replyInline {
-            addField("Input", "```\n$code```")
+            fields {
+                normal("Input", "```\n$code```")
+            }
         } then { message ->
-            val builder = EmbedBuilder(message.embeds.first())
+            val builder = KEmbedBuilder(EmbedBuilder(message.embeds.first()))
             try {
                 var output: Any?
 
@@ -52,18 +55,20 @@ class EvalCommand : Command() {
                     event.reactSuccess()
                     message.delete().queue()
                 } else {
-                    builder.setTitle("Evaluation Success")
-                        .setColor(Color.GREEN)
-                        .addField("Output", "```js\n$output```")
-                        .addField("Type", output!!::class.simpleName, true)
-                        .addField("Time", "${elapsed}ms", true)
+                    builder.title("Evaluation Success")
+                        .color(Color.GREEN)
+                        .fields {
+                            normal("Output", "```js\n$output```")
+                            inline("Type", output!!::class.java.simpleName)
+                            inline("Time", "${elapsed}ms")
+                        }
                     message.editMessage(builder.build()).reference(event.message).queue()
                 }
 
             } catch (e: Exception) {
-                builder.setTitle("Evaluation Failure")
-                    .setColor(Color.RED)
-                    .setDescription("```js\n${e.message}```")
+                builder.title("Evaluation Failure")
+                    .color(Color.RED)
+                    .description("```js\n${e.message}```")
                 message.editMessage(builder.build()).reference(event.message).queue()
             }
         }

@@ -3,10 +3,9 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Message
-import volte.meta.Emoji
-import volte.meta.categories.utility
-import volte.meta.createEmbedBuilder
-import volte.meta.then
+import volte.lib.kjda.KEmbedBuilder
+import volte.lib.meta.Emoji
+import volte.lib.meta.categories.utility
 import kotlin.system.measureTimeMillis
 
 class PingCommand : Command() {
@@ -20,14 +19,16 @@ class PingCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         lateinit var message: Message
-        val embed = event.createEmbedBuilder("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
+        val e = KEmbedBuilder.from(event) {
+            description("${Emoji.OK_HAND} **Gateway**: ${event.jda.gatewayPing}ms\n")
+        }
 
 
         val apiLatency = measureTimeMillis {
-            message = event.message.reply(embed.build()).complete()
+            message = event.message.reply(e.build()).complete()
         }
 
-        message.editMessage(embed.appendDescription("${Emoji.CLAP} **REST**: ${apiLatency}ms").build())
+        message.editMessage(e.appendDescription("${Emoji.CLAP} **REST**: ${apiLatency}ms").build())
             .reference(event.message).queue()
     }
 }

@@ -1,8 +1,8 @@
 package volte.lib.db.columns
 
-import volte.lib.db.SQLColumn
-import volte.meta.updateValueOf
-import volte.meta.valueOf
+import volte.lib.db.DbColumn
+import volte.lib.meta.updateValueOf
+import volte.lib.meta.valueOf
 import java.sql.ResultSet
 
 class LongColumn(
@@ -10,7 +10,7 @@ class LongColumn(
     nullable: Boolean,
     private val default: Long = 0L,
     private val primaryKey: Boolean = false
-) : SQLColumn<Long>(name, nullable, default, primaryKey) {
+) : DbColumn<Long>(name, nullable, default, primaryKey) {
     override fun sqlSpec(): String {
         return "BIGINT DEFAULT $default ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
     }

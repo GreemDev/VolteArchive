@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.TextChannel
 import volte.commands.parsers.abs.VolteArgumentParser
-import volte.meta.static
+import volte.lib.meta.static
 import java.awt.Color
 
 /**

@@ -1,9 +1,8 @@
-package volte.meta.entities
+package volte.lib.meta.entities
 
 import net.dv8tion.jda.api.requests.RestAction
-import volte.meta.asPromise
 
-data class RestPromise<V> internal constructor(private val action: RestAction<V>) {
+data class RestPromise<V> internal constructor(private val action: RestAction<V>, private val async: Boolean = true) {
 
     companion object {
         infix fun allOf(actions: List<RestAction<*>>): RestPromise<*> {
@@ -26,31 +25,40 @@ data class RestPromise<V> internal constructor(private val action: RestAction<V>
     }
 
 
-    private var success = Optional.empty<(V) -> Unit>()
-    private var failure = Optional.empty<(Throwable) -> Unit>()
+    private var success: (V) -> Unit = {}
+    private var failure: (Throwable) -> Unit = {}
 
 
     init {
-        action.queue({ entity ->
-            success hasValue { success ->
+        if (async) {
+            action.queue({ entity ->
                 success(entity)
-            }
 
-        }) { throwable ->
-            failure hasValue { failure ->
+            }) { throwable ->
                 failure(throwable)
             }
+        } else {
+            val result: V? = try {
+                action.complete()
+            } catch (t: Throwable) {
+                failure(t)
+                null
+            }
+            if (result != null) {
+                success(result)
+            }
         }
+
     }
 
 
     infix fun then(callback: (V) -> Unit): RestPromise<V> {
-        success.setValue(callback)
+        success = callback
         return this
     }
 
     infix fun catch(callback: (Throwable) -> Unit): RestPromise<V> {
-        failure.setValue(callback)
+        failure = callback
         return this
     }
 

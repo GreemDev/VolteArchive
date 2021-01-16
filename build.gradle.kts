@@ -48,5 +48,5 @@ tasks.withType<ShadowJar> {
 }
 
 application {
-    mainClassName = "volte.meta.Main"
+    mainClassName = "volte.lib.meta.Main"
 }

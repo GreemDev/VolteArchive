@@ -10,7 +10,7 @@ import java.sql.SQLException
  *
  * See [volte.lib.db.columns.InstantColumn] for an example
  */
-abstract class SQLColumn<T> {
+abstract class DbColumn<T> {
 
     private val name: String
     private val nullable: Boolean
@@ -72,7 +72,7 @@ abstract class SQLColumn<T> {
     override fun toString(): String = sqlSpec()
 
     /**
-     * Returns the raw SQL representing this [SQLColumn]. Used for table generation and related things.
+     * Returns the raw SQL representing this [DbColumn]. Used for table generation and related things.
      */
     abstract fun sqlSpec(): String
 

@@ -1,4 +1,4 @@
-package volte.meta
+package volte.lib.meta
 
 object Emoji {
     const val A = "\uD83C\uDD70"

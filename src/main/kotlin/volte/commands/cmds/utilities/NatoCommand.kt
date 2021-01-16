@@ -2,8 +2,8 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.categories.utility
-import volte.meta.replyInline
+import volte.lib.meta.categories.utility
+import volte.lib.meta.replyInline
 
 class NatoCommand : Command() {
 
@@ -17,7 +17,7 @@ class NatoCommand : Command() {
     override fun execute(event: CommandEvent) {
         if (event.args.isEmpty()) {
             event.replyInline {
-                setTitle("Please provide something for me to translate!")
+                title("Please provide something for me to translate!")
             }
             return
         }
@@ -29,10 +29,10 @@ class NatoCommand : Command() {
                 if (ch == '\n') {
                     add("`\n`")
                 } else {
-                    val word = natoDefinitions.getOrDefault(ch, null)
+                    val word = natoDefinitions[ch]
                     if (word == null) {
                         event.replyInline {
-                            setDescription("There is not a NATO word for the character `${ch}`. Only standard English letters and numbers are valid.")
+                            description("There is not a NATO word for the character `${ch}`. Only standard English letters and numbers are valid.")
                         }
                         return
                     }
@@ -42,8 +42,10 @@ class NatoCommand : Command() {
         }
 
         event.replyInline {
-            addField("Result", "`${list.joinToString(" ")}`", false)
-            addField("Original", "`${event.args}`", false)
+            fields {
+                normal("Result", "`${list.joinToString(" ")}`")
+                normal("Original", "`${event.args}`")
+            }
         }
 
     }

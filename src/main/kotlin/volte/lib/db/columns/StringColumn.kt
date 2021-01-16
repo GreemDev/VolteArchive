@@ -1,6 +1,6 @@
 package volte.lib.db.columns
 
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbColumn
 import java.sql.ResultSet
 
 class StringColumn(
@@ -9,10 +9,10 @@ class StringColumn(
     private val default: String = "",
     private val primaryKey: Boolean = false,
     private val maxLength: Int = 0
-) : SQLColumn<String>(name, nullable, default, primaryKey) {
+) : DbColumn<String>(name, nullable, default, primaryKey) {
 
     override fun sqlSpec(): String {
-        return "VARCHAR${if (maxLength == 0) " " else "($maxLength) "} DEFAULT '$default' ${nullableStr()} ${if (primaryKey) " PRIMARY KEY" else ""}"
+        return "VARCHAR${if (maxLength == 0) " " else "($maxLength) "} DEFAULT '$default' ${nullableStr()} ${if (primaryKey) "PRIMARY KEY" else ""}"
     }
 
     override fun getValue(rs: ResultSet): String {

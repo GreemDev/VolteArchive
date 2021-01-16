@@ -5,9 +5,9 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import volte.Volte
-import volte.meta.then
-import volte.meta.DiscordUtil
-import volte.meta.addField
+import volte.lib.meta.then
+import volte.lib.meta.DiscordUtil
+import volte.lib.meta.addField
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 

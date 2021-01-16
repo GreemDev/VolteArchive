@@ -1,6 +1,6 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package volte.meta
+package volte.lib.meta
 
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import volte.Volte
-import volte.meta.*
+import volte.lib.meta.*
 import java.awt.Color
 import java.time.Instant
 import java.util.*

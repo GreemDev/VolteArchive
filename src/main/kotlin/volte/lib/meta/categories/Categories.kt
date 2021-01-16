@@ -1,8 +1,8 @@
-package volte.meta.categories
+package volte.lib.meta.categories
 
 import com.jagrosh.jdautilities.command.Command.Category
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.DiscordUtil
+import volte.lib.meta.DiscordUtil
 
 fun owner(): Category = owner
 fun operator(): Category = operator

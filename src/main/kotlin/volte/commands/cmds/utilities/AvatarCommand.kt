@@ -4,10 +4,10 @@ import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
 import volte.commands.parsers.Parsers
-import volte.meta.categories.utility
-import volte.meta.getHighestRoleWithColor
-import volte.meta.optional
-import volte.meta.replyInline
+import volte.lib.kjda.embed
+import volte.lib.meta.categories.utility
+import volte.lib.meta.getHighestRoleWithColor
+import volte.lib.meta.optional
 import java.awt.Color
 
 class AvatarCommand : Command() {
@@ -21,14 +21,14 @@ class AvatarCommand : Command() {
 
     override fun execute(event: CommandEvent) {
         Parsers.parse<Member>(event, event.args).optional() hasValue {
-            event.replyInline {
-                setColor(it.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
-                setImage(it.user.effectiveAvatarUrl)
-            }
+            event.message.reply(embed {
+                color(it.getHighestRoleWithColor().valueOrNull()?.color ?: Color.GREEN)
+                image(it.user.effectiveAvatarUrl)
+            })
         } hasNoValue {
-            event.replyInline {
-                setImage(event.author.effectiveAvatarUrl)
-            }
+            event.message.reply(embed {
+                image(event.author.effectiveAvatarUrl)
+            })
         }
     }
 }

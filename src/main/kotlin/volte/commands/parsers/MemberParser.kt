@@ -3,8 +3,8 @@ package volte.commands.parsers
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.entities.Member
 import volte.commands.parsers.abs.VolteArgumentParser
-import volte.meta.isNumeric
-import volte.meta.DiscordUtil
+import volte.lib.meta.isNumeric
+import volte.lib.meta.DiscordUtil
 
 class MemberParser : VolteArgumentParser<Member?>() {
     override fun parse(event: CommandEvent, value: String): Member? {

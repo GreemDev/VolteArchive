@@ -2,10 +2,9 @@ package volte.commands.cmds.utilities
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import volte.commands.parsers.Parsers
-import volte.meta.*
-import volte.meta.categories.utility
+import volte.lib.meta.*
+import volte.lib.meta.categories.utility
 
 class IamCommand : Command() {
     init {
@@ -19,27 +18,28 @@ class IamCommand : Command() {
         val selfRoles = event.guild.getSelfRoles()
         Parsers.role().parse(event, event.args).optional() hasNoValue {
             event.replyInline {
-                setTitle("You didn't provide a valid role.")
-                setDescription("Try using an ID or an @ next time.")
+                title("You didn't provide a valid role.")
+                description("Try using an ID or an @ next time.")
             }
         } hasValue { role ->
-            if (selfRoles.roleIds.isEmpty()) {
+            val roles = selfRoles.getRoles()
+            if (roles.isEmpty()) {
                 event.replyInline {
-                    setTitle("This guild does not have any roles available to self-assign!")
+                    title("This guild does not have any roles available to self-assign!")
                 }
                 return@hasValue
             }
 
-            selfRoles.roleIds.firstOrNull(role.id::equals).optional() hasValue {
+            roles.firstOrNull(role.id::equals).optional() hasValue {
                 event.guild.addRoleToMember(event.member, role) then {
                     event.replyInline {
-                        setTitle("Success!")
-                        setDescription("Gave you the ${role.asMention} role.")
+                        title("Success!")
+                        description("Gave you the ${role.asMention} role.")
                     }
                 }
             } hasNoValue {
                 event.replyInline {
-                    setTitle("This guild does not have ${role.asMention} as a role to self-assign.")
+                    title("This guild does not have ${role.asMention} as a role to self-assign.")
                 }
             }
         }
@@ -60,27 +60,28 @@ class IamNotCommand : Command() {
         val selfRoles = event.guild.getSelfRoles()
         Parsers.role().parse(event, event.args).optional() hasNoValue {
             event.replyInline {
-                setTitle("You didn't provide a valid role.")
-                setDescription("Try using an ID or an @ next time.")
+                title("You didn't provide a valid role.")
+                description("Try using an ID or an @ next time.")
             }
         } hasValue { role ->
-            if (selfRoles.roleIds.isEmpty()) {
+            val roles = selfRoles.getRoles()
+            if (roles.isEmpty()) {
                 event.replyInline {
-                    setTitle("This guild does not have any roles available to self-assign!")
+                    title("This guild does not have any roles available to self-assign!")
                 }
                 return@hasValue
             }
 
-            selfRoles.roleIds.firstOrNull(role.id::equals).optional() hasValue {
+            roles.firstOrNull(role.id::equals).optional() hasValue {
                 event.guild.removeRoleFromMember(event.member, role) then {
                     event.replyInline {
-                        setTitle("Success!")
-                        setDescription("Took away your ${role.asMention} role.")
+                        title("Success!")
+                        description("Took away your ${role.asMention} role.")
                     }
                 }
             } hasNoValue {
                 event.replyInline {
-                    setTitle("This guild does not have ${role.asMention} as a role to self-assign.")
+                    title("This guild does not have ${role.asMention} as a role to self-assign.")
                 }
             }
         }
@@ -89,7 +90,7 @@ class IamNotCommand : Command() {
 
 class SelfRoleListCommand : Command() {
     override fun execute(event: CommandEvent) {
-        val roles = event.guild.getSelfRoles().roleIds.map(event.guild::getRoleById)
+        val roles = event.guild.getSelfRoles().getRoles().map(event.guild::getRoleById)
 
         
     }

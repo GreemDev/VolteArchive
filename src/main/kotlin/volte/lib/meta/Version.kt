@@ -1,6 +1,6 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package volte.meta
+package volte.lib.meta
 
 fun KotlinVersion.formatted() = "$major.$minor.$patch"
 

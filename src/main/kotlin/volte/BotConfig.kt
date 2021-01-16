@@ -1,11 +1,10 @@
 package volte
 
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.entities.Activity
-import volte.meta.optional
-import volte.meta.entities.Optional
-import volte.meta.fromJson
+import volte.lib.meta.entities.Optional
+import volte.lib.meta.fromJson
+import volte.lib.meta.gson
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -15,12 +14,14 @@ class BotConfig {
     private val game = "your-game-here"
     private val commandPrefix = "your-prefix-here"
     private val ownerId = "your-id-here"
+    private val databaseFileName = "name-of-db-file-WITHOUT-.mv.db"
     private val guildLogging: GuildLogging = GuildLogging()
 
     fun token() = token
     fun game() = game
     fun prefix() = commandPrefix
     fun owner() = ownerId
+    fun dbName() = if (databaseFileName == "name-of-db-file-WITHOUT-.mv.db" || databaseFileName.isEmpty()) "volte" else databaseFileName
     fun guildLogging() = guildLogging
 
     class GuildLogging {
@@ -37,13 +38,18 @@ class BotConfig {
         fun checks() {
             if (!file().exists()) {
                 this.write()
-                Volte.logger().warn("Please fill in the config located at data/config.json, and restart me!")
+                Volte.logger().warn("Please fill in the volte.json config file, and restart me!")
                 exitProcess(-1)
             }
         }
 
-        private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-        fun file() = File("data/volte.json")
+        private val gson: Gson = gson { setPrettyPrinting() }
+        fun file() = File("data/volte.json").apply {
+            if (exists()) {
+                setReadable(true)
+                setWritable(true)
+            }
+        }
 
         fun write(config: BotConfig = BotConfig()) {
             file().writeText(gson.toJson(config))

@@ -2,12 +2,13 @@ package volte.modules
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import volte.meta.getData
+import volte.lib.meta.getData
+import volte.lib.meta.isOperator
 
 class MassPingModule : ListenerAdapter() {
 
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-        if (!event.guild.getData().getMassPings() or event.author.isBot) return
+        if (!event.guild.getData().getMassPings() or event.author.isBot or event.member!!.isOperator()) return
 
         when {
             event.message.mentionsEveryone() -> event.message.delete()

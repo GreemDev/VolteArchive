@@ -1,6 +1,5 @@
-package volte.meta.entities
+package volte.lib.meta.entities
 
-import com.google.gson.GsonBuilder
 import net.dv8tion.jda.api.events.DisconnectEvent
 import net.dv8tion.jda.api.events.RawGatewayEvent
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -8,7 +7,7 @@ import net.dv8tion.jda.api.events.ReconnectedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import volte.meta.Version
+import volte.lib.meta.*
 
 class DebugLogger : ListenerAdapter() {
 
@@ -39,7 +38,7 @@ class DebugLogger : ListenerAdapter() {
 
     override fun onRawGateway(event: RawGatewayEvent) {
         logger {
-            info("${event.type}: ${GsonBuilder().create().toJson(event.payload.toMap())}")
+            info("${event.responseNumber} ${event.type}: ${gson().toJson(event.payload.toMap())}")
         }
     }
 

@@ -1,6 +1,7 @@
-package volte.meta
+package volte.lib.meta
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.jagrosh.jdautilities.command.*
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.*
@@ -12,10 +13,10 @@ import volte.commands.cmds.operator.*
 import volte.commands.cmds.owner.*
 import volte.commands.cmds.utilities.*
 import volte.database.entities.*
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbColumn
 import volte.lib.kjda.KEmbedBuilder
-import volte.meta.entities.Optional
-import volte.meta.entities.RestPromise
+import volte.lib.meta.entities.Optional
+import volte.lib.meta.entities.RestPromise
 import java.sql.ResultSet
 import java.time.Instant
 
@@ -26,6 +27,14 @@ internal object Main {
     fun main(args: Array<out String>) {
         Volte.start()
     }
+}
+
+fun gson(func: GsonBuilder.() -> Unit = {}): Gson {
+    return GsonBuilder().apply(func).create()
+}
+
+public inline fun buildString(initialValue: String, builderAction: StringBuilder.() -> Unit): String {
+    return StringBuilder(initialValue).apply(builderAction).toString()
 }
 
 inline fun <reified T> Gson.fromJson(raw: String): T = this.fromJson(raw, T::class.java)
@@ -56,11 +65,11 @@ fun <T> T?.optional(): Optional<T> = Optional of this
 inline fun CommandEvent.reply(func: EmbedBuilder.() -> Unit): RestPromise<Message> =
     createEmbedBuilder().apply(func).build().forwardTo(event.channel).asPromise()
 
-infix fun CommandEvent.replyInline(func: EmbedBuilder.() -> Unit): RestPromise<Message> =
-    createEmbedBuilder().apply(func).forwardTo(message.channel).reference(message).asPromise()
+infix fun CommandEvent.replyInline(func: KEmbedBuilder.() -> Unit): RestPromise<Message> =
+    KEmbedBuilder.from(this).apply(func).build().forwardTo(message.channel).reference(message).asPromise()
 
 inline infix fun CommandEvent.replyEmbedInline(content: String): RestPromise<Message> =
-    this replyInline { setDescription(content) }
+    this replyInline { description(content) }
 
 /**
  * Modifies the current [RestAction] into a [RestPromise], allowing you to use [RestPromise.then]
@@ -153,8 +162,8 @@ inline fun Guild.getSelfRoles(): SelfRoleRepository = Volte.db().getSelfRolesFor
 inline fun Guild.getBlacklist(): BlacklistRepository = Volte.db().getBlacklistFor(id)
 
 
-inline fun <T> ResultSet.updateValueOf(col: SQLColumn<T>, value: T) = col.updateValue(this, value)
+inline fun <T> ResultSet.updateValueOf(col: DbColumn<T>, value: T) = col.updateValue(this, value)
 
 
-inline infix fun <T> ResultSet.valueOf(col: SQLColumn<T>): T = col.getValue(this)
+inline infix fun <T> ResultSet.valueOf(col: DbColumn<T>): T = col.getValue(this)
 

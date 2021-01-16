@@ -1,13 +1,13 @@
 package volte.lib.db.columns
 
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbColumn
 import java.sql.ResultSet
 
 class BooleanColumn(
     private val name: String,
     nullable: Boolean,
     private val default: Boolean = false
-) : SQLColumn<Boolean>(name, nullable, default) {
+) : DbColumn<Boolean>(name, nullable, default) {
 
     override fun sqlSpec(): String = "BOOLEAN DEFAULT ${default.toString().toUpperCase()} ${nullableStr()}"
 

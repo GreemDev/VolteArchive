@@ -1,15 +1,21 @@
 package volte.database.entities
 
 import volte.Volte
-import volte.lib.db.DataManager
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbManager
+import volte.lib.db.DbColumn
 import volte.lib.db.columns.IntegerColumn
 import volte.lib.db.columns.StringColumn
-import volte.meta.updateValueOf
-import volte.meta.valueOf
+import volte.lib.meta.valueOf
 import java.sql.ResultSet
 
-data class TagsRepository(val guildId: String) : DataManager(Volte.db().connector(), "TAGS") {
+data class TagsRepository(val guildId: String) : DbManager(Volte.db().connection(), "TAGS") {
+
+    constructor() : this("")
+
+    override fun allColumns(): List<DbColumn<*>> {
+        return arrayListOf(VolteTag.ID, VolteTag.GUILD, VolteTag.NAME, VolteTag.CONTENT, VolteTag.USES, VolteTag.CREATOR)
+    }
+
     fun getTags(): ArrayList<VolteTag> = arrayListOf<VolteTag>().apply {
         query(selectAll(VolteTag.GUILD.sqlEquals(guildId))) { rs ->
             whileNext(rs) {
@@ -20,14 +26,7 @@ data class TagsRepository(val guildId: String) : DataManager(Volte.db().connecto
 
 
     fun deleteTag(name: String) =
-        queryMutable(select(VolteTag.GUILD.sqlEquals(guildId), VolteTag.NAME)) { rs ->
-            whileNext(rs) {
-                if (valueOf(VolteTag.NAME).equals(name, true)) {
-                    deleteRow()
-                    return@whileNext
-                }
-            }
-        }
+        modify(delete(VolteTag.NAME.sqlEquals(name)))
 
 
     fun hasTag(name: String): Boolean =
@@ -41,25 +40,24 @@ data class TagsRepository(val guildId: String) : DataManager(Volte.db().connecto
 
 
     fun createNewTag(name: String, content: String, creator: String) =
-        queryMutable(selectAll(VolteTag.GUILD.sqlEquals(guildId))) { rs ->
-            rs.moveToInsertRow()
-            rs.updateValueOf(VolteTag.GUILD, guildId)
-            rs.updateValueOf(VolteTag.NAME, name)
-            rs.updateValueOf(VolteTag.CONTENT, content)
-            rs.updateValueOf(VolteTag.USES, 0)
-            rs.updateValueOf(VolteTag.CREATOR, creator)
-            rs.insertRow()
-        }
+        modify(insert(hashMapOf(
+            VolteTag.GUILD to guildId,
+            VolteTag.NAME to name,
+            VolteTag.CONTENT to content,
+            VolteTag.USES to 0,
+            VolteTag.CREATOR to creator
+        )))
 
 
     data class VolteTag(private val rs: ResultSet) {
 
         companion object {
-            val GUILD: SQLColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
-            val NAME: SQLColumn<String> = StringColumn("NAME", false, maxLength = 20)
-            val CONTENT: SQLColumn<String> = StringColumn("CONTENT", false, maxLength = 1950)
-            val USES: SQLColumn<Int> = IntegerColumn("USES", false)
-            val CREATOR: SQLColumn<String> = StringColumn("CREATOR", false, maxLength = 20)
+            val ID: DbColumn<Int> = IntegerColumn("ID", false, 0, autoIncrement = true, primaryKey = true)
+            val GUILD: DbColumn<String> = StringColumn("GUILDID", false, maxLength = 20)
+            val NAME: DbColumn<String> = StringColumn("NAME", false, maxLength = 20)
+            val CONTENT: DbColumn<String> = StringColumn("CONTENT", false, maxLength = 1950)
+            val USES: DbColumn<Int> = IntegerColumn("USES", false)
+            val CREATOR: DbColumn<String> = StringColumn("CREATOR", false, maxLength = 20)
         }
 
         private val name: String = rs.valueOf(NAME)

@@ -1,31 +1,39 @@
 package volte.database.entities
 
 import volte.Volte
-import volte.lib.db.DataManager
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbManager
+import volte.lib.db.DbColumn
+import volte.lib.db.columns.IntegerColumn
 import volte.lib.db.columns.StringColumn
-import volte.meta.*
+import volte.lib.meta.*
 
-class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().connector(), "BLACKLIST") {
+class BlacklistRepository(private val guildId: String) : DbManager(Volte.db().connection(), "BLACKLIST") {
 
-    val blacklistedPhrases
-        get() =
-            query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), PHRASE)) { rs ->
-                arrayListOf<String>().apply {
-                    whileNext(rs) {
-                        add(valueOf(PHRASE))
-                    }
+    constructor() : this("")
+
+    override fun allColumns(): List<DbColumn<*>> {
+        return arrayListOf(ID, GUILDID, PHRASE)
+    }
+
+    fun getPhrases() =
+        query<ArrayList<String>>(select(GUILDID.sqlEquals(guildId), PHRASE)) { rs ->
+            arrayListOf<String>().apply {
+                whileNext(rs) {
+                    add(valueOf(PHRASE))
                 }
-
             }
 
-    fun createEntry(phrase: String) {
-        queryMutable(select(GUILDID.sqlEquals(guildId))) { rs ->
-            rs.moveToInsertRow()
-            rs.updateValueOf(GUILDID, guildId)
-            rs.updateValueOf(PHRASE, phrase)
-            rs.insertRow()
         }
+
+    fun createEntry(phrase: String) {
+        modify(
+            insert(
+                hashMapOf(
+                    GUILDID to guildId,
+                    PHRASE to phrase
+                )
+            )
+        )
     }
 
     fun hasEntry(phrase: String): Boolean {
@@ -39,19 +47,13 @@ class BlacklistRepository(private val guildId: String) : DataManager(Volte.db().
     }
 
     fun removeEntry(phrase: String) {
-        queryMutable(selectAll(GUILDID.sqlEquals(guildId))) { rs ->
-            whileNext(rs) {
-                if (rs.valueOf(PHRASE).equals(phrase, true)) {
-                    rs.deleteRow()
-                    return@whileNext
-                }
-            }
-        }
+        modify(delete(PHRASE.sqlEquals(phrase)))
     }
 
 
     companion object {
-        val GUILDID: SQLColumn<String> = StringColumn("GUILDID", false, "")
-        val PHRASE: SQLColumn<String> = StringColumn("PHRASE", false, "")
+        val ID: DbColumn<Int> = IntegerColumn("ID", false, 0, autoIncrement = true, primaryKey = true)
+        val GUILDID: DbColumn<String> = StringColumn("GUILDID", false, "")
+        val PHRASE: DbColumn<String> = StringColumn("PHRASE", false, "")
     }
 }

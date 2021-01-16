@@ -2,9 +2,9 @@ package volte.commands.cmds.owner
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
-import volte.meta.categories.owner
-import volte.meta.replyInline
-import volte.meta.then
+import volte.lib.meta.categories.owner
+import volte.lib.meta.replyInline
+import volte.lib.meta.then
 
 class SetNameCommand : Command() {
 
@@ -18,7 +18,7 @@ class SetNameCommand : Command() {
     override fun execute(event: CommandEvent) {
         event.jda.selfUser.manager.setName(event.args) then {
             event.replyInline {
-                setDescription("My username is now **${event.args}#${event.jda.selfUser.discriminator}**.")
+                description("My username is now **${event.args}#${event.jda.selfUser.discriminator}**.")
             }
         }
     }

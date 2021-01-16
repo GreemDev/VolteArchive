@@ -1,4 +1,4 @@
-package volte.meta.entities
+package volte.lib.meta.entities
 
 data class Optional<T>(private var value: T? = null) {
 

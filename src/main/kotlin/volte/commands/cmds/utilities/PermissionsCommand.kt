@@ -3,9 +3,9 @@ package volte.commands.cmds.utilities
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import net.dv8tion.jda.api.Permission
-import volte.meta.categories.utility
-import volte.meta.replyInline
-import volte.meta.DiscordUtil
+import volte.lib.meta.categories.utility
+import volte.lib.meta.replyInline
+import volte.lib.meta.DiscordUtil
 
 class PermissionsCommand : Command() {
 
@@ -20,7 +20,7 @@ class PermissionsCommand : Command() {
     override fun execute(event: CommandEvent) {
         if (event.member.isOwner) {
             event.replyInline {
-                setTitle("User is the guild owner, so they have all permissions.")
+                title("User is the guild owner, so they have all permissions.")
             }
 
             return
@@ -28,7 +28,7 @@ class PermissionsCommand : Command() {
 
         if (event.member.hasPermission(Permission.ADMINISTRATOR)) {
             event.replyInline {
-                setTitle("User has the Administrator permission, so they have all permissions.")
+                title("User has the Administrator permission, so they have all permissions.")
             }
         } else {
             val (allowed, denied) = DiscordUtil.prettyPermissions(event.member)
@@ -37,8 +37,10 @@ class PermissionsCommand : Command() {
             val deniedStr = denied.joinToString("\n", transform = ::formatPermissionName)
 
             event.replyInline {
-                addField("Allowed", if (allowed.isEmpty()) "- None" else allowedStr, true)
-                addField("Denied", if (denied.isEmpty()) "- None" else deniedStr, true)
+                fields {
+                    inline("Allowed", if (allowed.isEmpty()) "- None" else allowedStr)
+                    inline("Denied", if (denied.isEmpty()) "- None" else deniedStr)
+                }
             }
         }
 
@@ -49,10 +51,10 @@ class PermissionsCommand : Command() {
         val name = perm.name.toLowerCase()
         val parts = name.split("_")
         if (parts.isEmpty()) return name.capitalize()
-        return "- " + parts.joinToString(" ", transform = {
-            if (it.length == 3 && !it.equals("ban", true)) it.toUpperCase()
-            else it.capitalize()
-        })
+        return "- " + parts.joinToString(" ") { part ->
+            if (part.length == 3 && !part.equals("ban", true)) part.toUpperCase()
+            else part.capitalize()
+        }
 
     }
 }

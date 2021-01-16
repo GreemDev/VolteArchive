@@ -3,26 +3,27 @@ package volte.database.entities
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.User
 import volte.Volte
-import volte.lib.db.DataManager
-import volte.lib.db.SQLColumn
+import volte.lib.db.DbManager
+import volte.lib.db.DbColumn
 import volte.lib.db.columns.StringColumn
-import volte.meta.updateValueOf
-import volte.meta.valueOf
-import volte.meta.DiscordUtil
+import volte.lib.meta.valueOf
+import volte.lib.meta.DiscordUtil
 import java.awt.Color
 
-data class WelcomeSettings(val guildId: String) : DataManager(Volte.db().connector(), "WELCOME") {
+data class WelcomeSettings(val guildId: String) : DbManager(Volte.db().connection(), "WELCOME") {
 
     companion object {
-        val ID: SQLColumn<String> = StringColumn("ID", false, maxLength = 20)
-        val CHANNEL: SQLColumn<String> = StringColumn("CHANNEL", false, maxLength = 20)
-        val GREETING: SQLColumn<String> = StringColumn("JOINMESSAGE", false, maxLength = 1950)
-        val FAREWELL: SQLColumn<String> = StringColumn("LEAVEMESSAGE", false, maxLength = 1950)
-        val COLOR: SQLColumn<String> = StringColumn("COLOR", false, "251;0;112", maxLength = 11)
-        val DMGREETING: SQLColumn<String> = StringColumn("DM", false, maxLength = 1950)
+        val ID: DbColumn<String> = StringColumn("ID", false, maxLength = 20)
+        val CHANNEL: DbColumn<String> = StringColumn("CHANNEL", false, maxLength = 20)
+        val GREETING: DbColumn<String> = StringColumn("JOINMESSAGE", false, maxLength = 1950)
+        val FAREWELL: DbColumn<String> = StringColumn("LEAVEMESSAGE", false, maxLength = 1950)
+        val COLOR: DbColumn<String> = StringColumn("COLOR", false, "251;0;112", maxLength = 11)
+        val DMGREETING: DbColumn<String> = StringColumn("DM", false, maxLength = 1950)
     }
 
-    override fun allColumns(): List<SQLColumn<*>> {
+    constructor() : this("")
+
+    override fun allColumns(): List<DbColumn<*>> {
         return listOf(ID, CHANNEL, GREETING, FAREWELL, COLOR, DMGREETING)
     }
 
@@ -75,73 +76,43 @@ data class WelcomeSettings(val guildId: String) : DataManager(Volte.db().connect
     }
 
     fun setChannel(channelId: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, CHANNEL)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(CHANNEL, channelId)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(CHANNEL, channelId)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(ID.sqlEquals(guildId), hashMapOf(
+                CHANNEL to channelId
+            ))
+        )
     }
 
     fun setGreeting(greeting: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, GREETING)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(GREETING, greeting)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(GREETING, greeting)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(ID.sqlEquals(guildId), hashMapOf(
+                GREETING to greeting
+            ))
+        )
     }
 
     fun setFarewell(farewell: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, FAREWELL)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(FAREWELL, farewell)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(FAREWELL, farewell)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(ID.sqlEquals(guildId), hashMapOf(
+                FAREWELL to farewell
+            ))
+        )
     }
 
     fun setColor(color: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, COLOR)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(COLOR, color)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(COLOR, color)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(ID.sqlEquals(guildId), hashMapOf(
+                COLOR to color
+            ))
+        )
     }
 
     fun setDmGreeting(dmGreeting: String) {
-        queryMutable(select(ID.sqlEquals(guildId), ID, DMGREETING)) { rs ->
-            if (rs.next()) {
-                rs.updateValueOf(DMGREETING, dmGreeting)
-                rs.updateRow()
-            } else {
-                rs.moveToInsertRow()
-                rs.updateValueOf(ID, guildId)
-                rs.updateValueOf(DMGREETING, dmGreeting)
-                rs.insertRow()
-            }
-        }
+        modify(
+            update(ID.sqlEquals(guildId), hashMapOf(
+                DMGREETING to dmGreeting
+            ))
+        )
     }
 
 
