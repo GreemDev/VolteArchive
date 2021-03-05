@@ -15,10 +15,9 @@ A free, robust, open-source Discord bot written in Kotlin with [JDA](https://git
 </tr>
 </table>
 
-|**Prefix**: $|**Lead:** [@GreemDev](https://github.com/GreemDev)|**Lang:** Kotlin|**
-Library:** [JDA](https://github.com/DV8FromTheWorld/JDA)|[Discord Guild](https://discord.gg/H8bcFr2)|[Bot Invite Url](https://greemdev.net/invite)|**
-Runtime**: Java 11
+|**Prefix**: $|**Lead:** [@GreemDev](https://github.com/GreemDev)|**Lang:** Kotlin|**Library:** [JDA](https://github.com/DV8FromTheWorld/JDA)|[Discord Guild](https://discord.gg/H8bcFr2)|[Bot Invite Url](https://greemdev.net/invite)|**Runtime**: Java 11
 |---|---|---|---|---|---|---|
+
 
 ## Quick Links
 
